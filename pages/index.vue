@@ -1,13 +1,10 @@
 <template>
   <div class="min-h-screen">
-    <h1>Hello World</h1>
-    <Map />
+    <div>
+      <imgSlider />
+    </div>
+    <main class="container"></main>
   </div>
 </template>
 
-<script setup>
-
-
-
-
-</script>
+<script setup></script>
