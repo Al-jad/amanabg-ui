@@ -126,7 +126,7 @@
             >
               <div class="flex flex-row gap-4">
                 <i class="pi pi-home"></i>
-                <span>Ministry of Environment</span>
+                <span>Baghdad Municipality</span>
               </div>
               <div class="flex flex-row gap-4">
                 <i class="pi pi-map-marker"></i>
@@ -138,13 +138,15 @@
               </div>
               <div class="flex flex-row gap-4">
                 <i class="pi pi-envelope"></i>
-                <a href="mailto:info@moen.gov.iq">info@moen.gov.iq</a>
+                <a href="mailto:info@amanatbaghdad.gov.iq">
+                  info@amanatbaghdad.gov.iq
+                </a>
               </div>
               <div class="flex flex-row gap-4">
                 <i class="pi pi-globe"></i>
-                <a href="https://www.moen.gov.iq/" target="_blank"
-                  >moen.gov.iq/</a
-                >
+                <a href="https://amanatbaghdad.gov.iq/ar" target="_blank">
+                  https://amanatbaghdad.gov.iq
+                </a>
               </div>
               <div class="flex flex-row gap-4">
                 <i class="pi pi-send"></i>

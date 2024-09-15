@@ -17,6 +17,7 @@
     "nuxt-echarts": "^0.2.3",
     "nuxt3-leaflet": "^1.0.13",
     "pinia": "^2.2.2",
+    "primeicons": "^7.0.0",
     "primevue": "^4.0.7",
     "vue": "latest",
     "vue-router": "latest"
