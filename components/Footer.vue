@@ -187,10 +187,6 @@
   </footer>
 </template>
 
-<script setup>
-import Panel from "primevue/panel";
-</script>
-
 <style scoped>
 p,
 h1,
