@@ -10,6 +10,12 @@
         </h1>
         <CardContainer />
       </div>
+      <div>
+        <h1 class="text-left text-2xl font-extrabold sm:mx-[10%] sm:text-base">
+          Environmental Monitoring Center
+        </h1>
+        <ContentContainer />
+      </div>
     </main>
   </div>
 </template>
