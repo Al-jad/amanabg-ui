@@ -4,7 +4,10 @@
       <h1 class="mb-6 text-left text-3xl font-bold text-gray-900 sm:mx-[10%] sm:text-2xl">
         Pipes Water
       </h1>
-      <div>
+      <div class="mb-4">
+        <SelectButton v-model="selectedView" :options="viewOptions" aria-labelledby="View selection" />
+      </div>
+      <div v-if="selectedView === 'Data'">
         <Table v-if="!loading && pipesData && pipesData.length > 0"
           :headers="headers"
           :columns="columns"
@@ -19,13 +22,21 @@
           <p class="text-gray-500">No data available</p>
         </div>
       </div>
+      <div v-else-if="selectedView === 'Map'">
+        <Map :stations="mapStations" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+
 const router = useRouter();
 const { $axios } = useNuxtApp();
+
+const selectedView = ref('Data');
+const viewOptions = ['Data', 'Map'];
+
 const onRowClick = (event) => {
   if (!event?.data?.station?.id || !event.data.station?.city || !event.data.station?.name) {
     console.error("Invalid event or missing required station data");

@@ -11,7 +11,6 @@
       <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
         <p class="mb-2"><strong class="text-gray-600">Name:</strong> <span class="text-gray-800">{{ stationInfo.name }}</span></p>
         <p class="mb-2"><strong class="text-gray-600">City:</strong> <span class="text-gray-800">{{ stationInfo.city }}</span></p>
-        <p class="mb-2"><strong class="text-gray-600">Description:</strong> <span class="text-gray-800">{{ stationInfo.description }}</span></p>
       </div>
       <div class="bg-white shadow-lg rounded-lg p-6">
         <h2 class="text-2xl font-semibold mb-4 text-gray-700">Hourly Data</h2>

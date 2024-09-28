@@ -81,7 +81,11 @@ const L = ref(null);
 
 const filteredStations = computed(() => {
   if (Array.isArray(props?.stations)) {
-    return props.stations.filter((st) => st.lat != null && st.lng != null);
+    return props.stations.map(station => ({
+      ...station,
+      lat: station?.station?.lat, // Update to use pipesData.station.lat
+      lng: station?.station?.lng  // Update to use pipesData.station.lng
+    })).filter((st) => st.lat != null && st.lng != null);
   } else if (props?.stations?.data && Array.isArray(props.stations.data)) {
     return props.stations.data.filter((st) => st.lat != null && st.lng != null);
   } else {
