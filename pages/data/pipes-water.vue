@@ -24,6 +24,9 @@
       </div>
       <div v-else-if="selectedView === 'Map'">
         <Map :stations="mapStations" />
+        <div v-if="mapStations.length === 0" class="mt-4 text-center text-gray-500">
+          No stations available for map view
+        </div>
       </div>
     </div>
   </div>
@@ -87,6 +90,11 @@ const { pipesData: storePipesData, connection } = storeToRefs(stationStore);
 const pipesData = computed(() => {
   return Array.isArray(storePipesData.value) ? storePipesData.value : [storePipesData.value];
 });
+
+const mapStations = computed(() => {
+  return pipesData.value.filter(station => station.station && station.station.lat && station.station.lng);
+});
+
 const dataSource = ref('API');
 const lastUpdated = ref(null);
 const loading = ref(true);
