@@ -1,0 +1,144 @@
+<template>
+  <div class="container mx-auto">
+    <DataTable removableSort
+      :value="value"
+      class="text-nowrap !bg-DarkBlue"
+      :rows="rows"
+      :paginator="paginator"
+      :scrollable="scrollable"
+      :sortField="sortField"
+      :sortOrder="sortOrder"
+      @row-click="onRowClick"
+    >
+      <ColumnGroup type="header">
+        <Row>
+          <Column v-for="(header, index) in headers" :key="index" :header="header.text" :colspan="header.colspan" :headerClass="header.class" />
+        </Row>
+        <Row>
+          <Column v-for="(column, index) in columns" :key="index" :header="column.header" :sortable="column.sortable" :field="column.field" :headerClass="column.class" />
+        </Row>
+      </ColumnGroup>
+      <template #empty>
+        <div class="m-0 bg-DarkBlue p-4 text-center text-white">No data available</div>
+      </template>
+      <Column
+        v-for="(column, index) in columns"
+        :key="index"
+        :field="column.field"
+        :headerClass="column.class"
+        :header="column.header"
+        :sortable="column.sortable"
+      >
+        <template v-if="column.slot" #body="slotProps">
+          <component :is="column.slot" :slotProps="slotProps" />
+        </template>
+      </Column>
+      <template #paginatorstart>
+        <div class="text-sm text-white">
+          Showing max {{ rows }} of {{ value.length }} entries
+        </div>
+      </template>
+    </DataTable>
+  </div>
+</template>
+
+<script setup>
+const router = useRouter();
+const props = defineProps({
+  value: {
+    type: Object,
+    default: () => []
+  },
+  rows: {
+    type: Number,
+    default: 10
+  },
+  paginator: {
+    type: Boolean,
+    default: true
+  },
+  scrollable: {
+    type: Boolean,
+    default: true
+  },
+  sortField: {
+    type: String,
+    default: 'station.externalId'
+  },
+  sortOrder: {
+    type: Number,
+    default: 1
+  },
+  headers: {
+    type: Array,
+    default: () => []
+  },
+  columns: {
+    type: Array,
+    default: () => []
+  }
+});
+
+const emit = defineEmits(['row-click']);
+
+const onRowClick = (event) => {
+  emit('row-click', event);
+};
+
+</script>
+
+<style>
+.p-datatable-sort-icon {
+  @apply !text-white sm:scale-75;
+}
+.p-datatable tr {
+  @apply !bg-DarkBlue cursor-pointer;
+}
+.p-paginator {
+  @apply !bg-DarkBlue !text-white;
+}
+
+.wqi-cell {
+  @apply flex h-16 w-16 flex-col items-center justify-center rounded-full shadow-sm;
+}
+
+.wqi-value {
+  @apply text-sm font-bold;
+}
+
+.wqi-description {
+  @apply text-xs;
+}
+
+.excellent {
+  @apply bg-gradient-to-br from-blue-400 to-blue-600 text-white;
+}
+.good {
+  @apply bg-gradient-to-br from-green-400 to-green-600 text-white;
+}
+.fair {
+  @apply bg-gradient-to-br from-yellow-400 to-yellow-600 text-gray-900;
+}
+.poor {
+  @apply bg-gradient-to-br from-orange-400 to-orange-600 text-white;
+}
+.very-poor {
+  @apply bg-gradient-to-br from-red-400 to-red-600 text-white;
+}
+
+.p-datatable .p-datatable-tbody > tr.p-row-even {
+  @apply !bg-white !text-black;
+}
+.p-datatable .p-datatable-tbody > tr.p-row-odd {
+  @apply !bg-gray-100 !text-black;
+}
+.p-datatable .p-datatable-tbody > tr:not(.p-datatable-empty-message):hover {
+  @apply !bg-gray-300 !text-black !cursor-pointer;
+}
+.p-paginator-rpp-dropdown {
+  @apply !bg-DarkNavy !text-white border-white;
+}
+.p-select-overlay {
+  @apply !bg-DarkNavy hover:!bg-DarkBlue !text-white border-white;
+}
+</style>

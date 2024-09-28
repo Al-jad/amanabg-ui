@@ -18,6 +18,12 @@ export default defineNuxtConfig({
       },
     },
   },
+  pinia: {
+    autoImports: ['defineStore'],
+    imports: {
+      dir: ['./stores']
+    }
+  },
   css: [
     '@/assets/css/main.css',
     'primeicons/primeicons.css',

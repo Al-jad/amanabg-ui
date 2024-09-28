@@ -10,9 +10,11 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@microsoft/signalr": "^8.0.7",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@pinia/nuxt": "^0.5.4",
     "@primevue/themes": "^4.0.7",
+    "axios": "^1.7.7",
     "nuxt": "^3.13.0",
     "nuxt-echarts": "^0.2.3",
     "nuxt3-leaflet": "^1.0.13",

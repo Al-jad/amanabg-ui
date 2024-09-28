@@ -18,7 +18,7 @@ const cardItems = [
   {
     id: 1,
     title: "Pipes Water",
-    link: "/pipes-water",
+    link: "/data/pipes-water",
     external: false,
     image: "/assets/img/water-pipe.jpg",
     icon: "fluent:pipeline-32-filled"
