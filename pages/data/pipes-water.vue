@@ -19,30 +19,20 @@
           <p class="text-gray-500">No data available</p>
         </div>
       </div>
-      <div class="mt-4 text-sm text-gray-600">
-        <p>Data source: {{ dataSource }}</p>
-        <p v-if="lastUpdated">Last updated: {{ lastUpdated }}</p>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { watch, ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useStationStore } from '@/stores/stationData';
-import { storeToRefs } from 'pinia';
-
 const router = useRouter();
 const { $axios } = useNuxtApp();
-
 const onRowClick = (event) => {
-  if (!event?.data?.Id || !event.data.Station?.City || !event.data.Station?.Name) {
+  if (!event?.data?.station?.id || !event.data.station?.city || !event.data.station?.name) {
     console.error("Invalid event or missing required station data");
     return;
   }
 
-  const { Id: stationId, Station: { City: stationCity, Name: stationName } } = event.data;
+  const { id: stationId, station: { city: stationCity, name: stationName } } = event.data;
 
   nextTick(() => {
     localStorage.setItem("stationCity", stationCity);
@@ -95,7 +85,6 @@ const fetchInitialData = async () => {
   try {
     const { data } = await $axios.get('/Pipes/latest_data');
     stationStore.setPipesData(data);
-    dataSource.value = 'API';
     lastUpdated.value = new Date().toLocaleString();
   } catch (error) {
     console.error('Error fetching initial data:', error);
@@ -110,8 +99,6 @@ watch(storePipesData, (newValue) => {
     if (connection.value && connection.value.state === 1) {
       dataSource.value = 'WebSocket';
     }
-    console.log(`Data updated from ${dataSource.value}`);
-    console.log(newValue);
     loading.value = false;
   }
 }, { deep: true });

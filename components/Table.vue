@@ -43,7 +43,6 @@
 </template>
 
 <script setup>
-const router = useRouter();
 const props = defineProps({
   value: {
     type: Object,
