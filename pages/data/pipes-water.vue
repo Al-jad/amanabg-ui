@@ -221,6 +221,6 @@ const getDischargeColor = (discharge) => {
 
 const getDischargeArrow = (discharge) => {
   const minDischarge = 11;
-  return discharge < minDischarge ? '&darr;' : '&uarr;';
+  return discharge < minDischarge ? '&darr' : '&uarr;';
 };
 </script>
