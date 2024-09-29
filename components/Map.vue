@@ -8,8 +8,7 @@
       :center="centerLatLng"
       :options="{ attributionControl: false }"
       @update:zoom="zoomUpdate"
-      @update:center="centerUpdate"
-    >
+      @update:center="centerUpdate">
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         layer-type="base"

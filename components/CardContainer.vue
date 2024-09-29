@@ -17,7 +17,7 @@
 const cardItems = [
   {
     id: 1,
-    title: "Pipes Water",
+    title: "Discharge Monitoring",
     link: "/data/pipes-water",
     external: false,
     image: "/assets/img/water-pipe.jpg",
@@ -25,7 +25,7 @@ const cardItems = [
   },
   {
     id: 2,
-    title: "Water Tanks",
+    title: "Water Storage Monitoring",
     link: "/",
     external: false,
     image: "/assets/img/water-tank.jpg",
@@ -33,19 +33,19 @@ const cardItems = [
   },
   {
     id: 3,
-    title: "Water Quality",
-    link: "/",
-    external: false,
-    image: "/assets/img/water-quality.jpg",
-    icon: "material-symbols:water-full"
-  },
-  {
-    id: 4,
     title: "Map",
     link: "/",
     external: false,
     image: "/assets/img/Map.png",
     icon: "material-symbols:location-on"
+  },
+  {
+    id: 4,
+    title: "Consumers Tolling System",
+    link: "/",
+    external: false,
+    image: "/assets/img/water-quality.jpg",
+    icon: "material-symbols:water-full"
   },
 ];
 </script>

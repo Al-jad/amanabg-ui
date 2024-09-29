@@ -36,7 +36,7 @@ export const useStationStore = defineStore('station', {
             return;
           }
           this.stationData = station;
-          this.pipesData = latestPipesData;
+          this.pipesData = latestPipesData,station;
         });
 
         await this.connection.start();

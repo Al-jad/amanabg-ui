@@ -7,7 +7,15 @@
       <p class="text-lg font-semibold">{{ hourlyDataError }}</p>
     </div>
     <div v-else-if="hourlyData && hourlyData.length > 0">
-      <h1 class="text-3xl font-bold mb-6 text-gray-800">Station Details</h1>
+      <div class="flex flex-col md:flex-row justify-between">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">Station Details</h1>
+        <div class="flex gap-4 mr-4 items-center">
+          <label for="from">From</label>
+          <DatePicker v-model="fromDate" dateFormat="dd/mm/yy" class="h-10" />
+          <label for="to">To</label>
+          <DatePicker v-model="toDate" dateFormat="dd/mm/yy" class="h-10" />
+        </div>
+      </div>
       <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
         <p class="mb-2"><strong class="text-gray-600">Name:</strong> <span class="text-gray-800">{{ stationInfo.name }}</span></p>
         <p class="mb-2"><strong class="text-gray-600">City:</strong> <span class="text-gray-800">{{ stationInfo.city }}</span></p>
@@ -31,6 +39,8 @@
 <script setup>
 const stationDataHourStore = useStationDataHourStore();
 
+const fromDate = ref(null);
+const toDate = ref(null);
 const { fetchHourlyData } = stationDataHourStore;
 
 const hourlyData = computed(() => {
@@ -44,11 +54,17 @@ const stationInfo = computed(() => {
 
 const formattedHourlyData = computed(() => {
   if (hourlyData.value.length === 0) return [];
-  return hourlyData.value[0].pipesData.map(item => ({
-    ...item.pipe,
-    timeStamp: new Date(item.pipe.timeStamp).toLocaleString()
-  }));
+  return hourlyData.value[0].pipesData.map(item => {
+    const date = new Date(item.pipe.timeStamp);
+    return {
+      ...item.pipe,
+      date: date.toLocaleDateString(),
+      time: date.toLocaleTimeString(),
+      timeStamp: date.toLocaleString()
+    };
+  });
 });
+
 
 const hourlyDataLoading = computed(() => stationDataHourStore.isLoading);
 const hourlyDataError = computed(() => stationDataHourStore.getError);
@@ -62,8 +78,9 @@ const headers = ref([
 ]);
 
 const columns = ref([
-  { header: "Time", sortable: true, field: "timeStamp" },
-  { header: "Discharge", sortable: true, field: "discharge" },
+  { header: "Date", sortable: true, field: "date" },
+  { header: "Time", sortable: true, field: "time" },
+  { header: "Q ( m3 / h )", sortable: true, field: "discharge" },
   { header: "Total Volume/Hour", sortable: true, field: "totalVolumePerHour" },
   { header: "Total Volume/Day", sortable: true, field: "totalVolumePerDay" },
   { header: "Pressure", sortable: true, field: "pressure" },
