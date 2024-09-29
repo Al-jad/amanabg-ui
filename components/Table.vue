@@ -29,8 +29,17 @@
         :header="column.header"
         :sortable="column.sortable"
       >
-        <template v-if="column.slot" #body="slotProps">
-          <component :is="column.slot" :slotProps="slotProps" />
+        <template #body="slotProps">
+          <component :is="column.slot" :slotProps="slotProps" v-if="column.slot" />
+          <template v-else-if="column.field === 'discharge'">
+            <span :class="getDischargeColor(slotProps.data[column.field])">
+              {{ slotProps.data[column.field] }}
+              <span v-html="getDischargeArrow(slotProps.data[column.field])"></span>
+            </span>
+          </template>
+          <template v-else>
+            {{ slotProps.data[column.field] }}
+          </template>
         </template>
       </Column>
       <template #paginatorstart>
@@ -82,6 +91,16 @@ const emit = defineEmits(['row-click']);
 
 const onRowClick = (event) => {
   emit('row-click', event);
+};
+
+const getDischargeColor = (discharge) => {
+  const minDischarge = 11;
+  return discharge < minDischarge ? 'text-red-500' : 'text-green-500';
+};
+
+const getDischargeArrow = (discharge) => {
+  const minDischarge = 11;
+  return discharge < minDischarge ? '&darr;' : '&uarr;';
 };
 
 </script>

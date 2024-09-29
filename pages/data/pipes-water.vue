@@ -83,8 +83,6 @@
 </template>
 
 <script setup>
-
-
 const router = useRouter();
 
 const viewOptions = ref(['Table', 'Map']);
@@ -127,8 +125,8 @@ const headers = [
 
 const columns = [
   { header: "ID", sortable: true, field: "id" },
-  { header: "Name", sortable: true, field: "station.name" },
-  { header: "City", sortable: true, field: "station.city" },
+  { header: "Name", sortable: true, field: "stationName" },
+  { header: "City", sortable: true, field: "stationCity" },
   { header: "Discharge", sortable: true, field: "discharge" },
   { header: "Total Volume/Hour", sortable: true, field: "totalVolumePerHour" },
   { header: "Total Volume/Day", sortable: true, field: "totalVolumePerDay" },
@@ -163,6 +161,8 @@ const formattedFilteredPipesData = computed(() => {
     const date = new Date(item.timeStamp);
     return {
       ...item,
+      stationName: item.station.name,
+      stationCity: item.station.city,
       date: date.toLocaleDateString(),
       time: date.toLocaleTimeString(),
       timeStamp: date.toLocaleString()
@@ -194,20 +194,19 @@ const fetchInitialData = async () => {
     loading.value = false;
   }
 };
-
 watch(
-  () => stationStore.getPipesData,
+  () => stationStore.pipesData,
   (newValue) => {
     if (newValue) {
       lastUpdated.value = new Date().toLocaleString();
-      if (stationStore.getConnectionState === 1) {
+      if (stationStore.connection && stationStore.connection.state === 1) {
         dataSource.value = "WebSocket";
       }
       loading.value = false;
       extractCities();
     }
   },
-  { deep: true },
+  { deep: true }
 );
 
 onMounted(async () => {
@@ -223,10 +222,5 @@ const getDischargeColor = (discharge) => {
 const getDischargeArrow = (discharge) => {
   const minDischarge = 11;
   return discharge < minDischarge ? '&darr;' : '&uarr;';
-};
-
-const filterByCity = () => {
-  // This function can be used to perform additional actions when the city filter changes
-  console.log(`Filtered by city: ${selectedCity.value}`);
 };
 </script>
