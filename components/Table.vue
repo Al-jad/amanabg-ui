@@ -90,17 +90,22 @@ const props = defineProps({
 const emit = defineEmits(['row-click']);
 
 const onRowClick = (event) => {
+  if (event.data && event.data.station && event.data.station.id) {
+    event.data.station.id = parseInt(event.data.station.id, 10);
+  }
   emit('row-click', event);
 };
 
 const getDischargeColor = (discharge) => {
-  const minDischarge = 11;
-  return discharge < minDischarge ? 'text-red-500' : 'text-green-500';
+  const minDischarge = 10;
+  const maxDischarge = 15;
+  return discharge < minDischarge || discharge > maxDischarge ? 'text-red-500' : 'text-black';
 };
 
 const getDischargeArrow = (discharge) => {
-  const minDischarge = 11;
-  return discharge < minDischarge ? '&darr;' : '&uarr;';
+  const minDischarge = 10;
+  const maxDischarge = 15;
+  return discharge < minDischarge ? '&darr;' : discharge > maxDischarge ? '&uarr;' : '';
 };
 
 </script>

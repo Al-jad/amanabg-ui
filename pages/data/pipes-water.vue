@@ -95,7 +95,7 @@ const citiesWithAll = computed(() => ['All', ...cities.value]);
 
 const onRowClick = (event) => {
   const { data } = event;
-  if (!data?.station?.id || !data.station?.city || !data.station?.name) {
+  if (!data?.station.id || !data.station?.city || !data.station?.name) {
     console.error("Invalid event or missing required station data");
     return;
   }
@@ -105,7 +105,7 @@ const onRowClick = (event) => {
   nextTick(() => {
     localStorage.setItem("stationCity", stationCity);
     localStorage.setItem("stationName", stationName);
-    router.push({ path: `/data/details/${stationId}` });
+    router.push({ path: `/data/details/${parseInt(stationId, 10)}` });
   });
 };
 
@@ -124,7 +124,7 @@ const headers = [
 ];
 
 const columns = [
-  { header: "ID", sortable: true, field: "id" },
+  { header: "ID", sortable: true, field: "stationId" },
   { header: "Name", sortable: true, field: "stationName" },
   { header: "City", sortable: true, field: "stationCity" },
   { header: "Discharge", sortable: true, field: "discharge" },

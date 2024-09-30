@@ -30,11 +30,6 @@ export const useStationStore = defineStore('station', {
         });
 
         this.connection.on('ReceiveStationData', (station, latestPipesData) => {
-          if (!station || !latestPipesData) {
-            console.error('Received invalid data:', station, latestPipesData);
-            this.connectionLogs.push('Received invalid data');
-            return;
-          }
           this.stationData = station;
           this.pipesData = latestPipesData,station;
         });

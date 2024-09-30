@@ -13,11 +13,11 @@
       <div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
         <p class="mb-2">
           <strong class="text-gray-600">Name: </strong>
-          <span class="text-gray-800">{{ stationInfo.name }}</span>
+          <span class="text-gray-800">{{ stationName || 'N/A' }}</span>
         </p>
         <p class="mb-2">
           <strong class="text-gray-600">City: </strong>
-          <span class="text-gray-800">{{ stationInfo.city }}</span>
+          <span class="text-gray-800">{{ stationCity || 'N/A' }}</span>
         </p>
         <div class="mr-4 flex items-center gap-4">
           <label for="from">From</label>
@@ -42,7 +42,7 @@
       <div class="rounded-lg bg-white p-6 shadow-lg">
         <h2 class="mb-4 text-2xl font-semibold text-gray-700">Hourly Data</h2>
         <Table
-          :value="filteredHourlyData"
+          :value="formattedHourlyData"
           :headers="headers"
           :columns="columns"
           class="w-full"
@@ -52,58 +52,34 @@
     <div v-else class="text-center">
       <p class="text-lg text-gray-600">No data available</p>
     </div>
+    <div>
+      <!-- <Chart :hourlyData="hourlyData" /> -->
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
-import { useStationDataHourStore } from "@/stores/stationDataHour";
+import { useRoute } from 'vue-router';
+import { useStationDataHourStore } from '~/stores/stationDataHour';
+import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 const stationDataHourStore = useStationDataHourStore();
+
+const { hourlyData, loading, error } = storeToRefs(stationDataHourStore);
 
 const fromDate = ref(null);
 const toDate = ref(null);
 const { fetchHourlyData } = stationDataHourStore;
 
-const hourlyData = computed(() => {
-  const data = stationDataHourStore.getHourlyData;
-  return data ? (Array.isArray(data) ? data : [data]) : [];
-});
 
-const stationInfo = computed(() => {
-  return hourlyData.value[0]?.station || {};
-});
-
-const formattedHourlyData = computed(() => {
-  if (hourlyData.value.length === 0) return [];
-  return hourlyData.value[0].pipesData.map((item) => {
-    const date = new Date(item.pipe.timeStamp);
-    return {
-      ...item.pipe,
-      date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString(),
-      timeStamp: date.toLocaleString(),
-    };
-  });
-});
-
-const filteredHourlyData = computed(() => {
-  if (!fromDate.value || !toDate.value) return formattedHourlyData.value;
-  return formattedHourlyData.value.filter((item) => {
-    const itemDate = new Date(item.timeStamp);
-    return itemDate >= fromDate.value && itemDate <= toDate.value;
-  });
-});
-
-const hourlyDataLoading = computed(() => stationDataHourStore.isLoading);
-const hourlyDataError = computed(() => stationDataHourStore.getError);
+const hourlyDataLoading = computed(() => loading.value);
+const hourlyDataError = computed(() => error.value);
 
 const headers = ref([
   {
     text: "Hourly Data",
-    colspan: 8,
+    colspan: 9,
     class:
       "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white font-bold py-3",
   },
@@ -136,8 +112,12 @@ const columns = ref(
 );
 
 const fetchData = async () => {
-  const stationId = route.params.id;
-  await fetchHourlyData({ stationId });
+  const stationId = parseInt(route.params.id, 10);
+  if (isNaN(stationId)) {
+    console.error('Invalid station ID');
+    return;
+  }
+  await stationDataHourStore.fetchHourlyData({ stationId });
 };
 
 const applyDateFilter = () => {
@@ -152,7 +132,32 @@ const resetDateFilter = () => {
   toDate.value = null;
 };
 
-onMounted(fetchData);
+const formattedHourlyData = computed(() => {
+  if (!hourlyData.value) return [];
+  
+  return hourlyData.value.map(item => {
+    const date = new Date(item.timeStamp);
+    return {
+      ...item,
+      date: date.toLocaleDateString(),
+      time: date.toLocaleTimeString(),
+    };
+  });
+});
+
+const stationName = ref('N/A');
+const stationCity = ref('N/A');
+
+onMounted(() => {
+  fetchData();
+  if (process.client) {
+    stationName.value = window.localStorage.getItem('stationName') || 'N/A';
+    stationCity.value = window.localStorage.getItem('stationCity') || 'N/A';
+    // Clear the localStorage after retrieving the values
+    window.localStorage.removeItem('stationName');
+    window.localStorage.removeItem('stationCity');
+  }
+});
 
 watch([fromDate, toDate], applyDateFilter);
 </script>
