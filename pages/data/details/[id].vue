@@ -46,6 +46,8 @@
           :headers="headers"
           :columns="columns"
           class="w-full"
+          :sortField="'time'"
+          :sortOrder="1"
         />
       </div>
     </div>
@@ -53,7 +55,7 @@
       <p class="text-lg text-gray-600">No data available</p>
     </div>
     <div>
-      <!-- <Chart :hourlyData="hourlyData" /> -->
+      <EChart :hourlyData="hourlyData" />
     </div>
   </div>
 </template>
@@ -153,7 +155,6 @@ onMounted(() => {
   if (process.client) {
     stationName.value = window.localStorage.getItem('stationName') || 'N/A';
     stationCity.value = window.localStorage.getItem('stationCity') || 'N/A';
-    // Clear the localStorage after retrieving the values
     window.localStorage.removeItem('stationName');
     window.localStorage.removeItem('stationCity');
   }

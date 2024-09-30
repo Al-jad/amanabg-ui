@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     'nuxt3-leaflet',
     '@pinia/nuxt',
     '@nuxt/icon',
-    'nuxt-echarts',
+    // Remove 'nuxt-echarts' from here
   ],
   primevue: {
     options: {
@@ -28,4 +28,7 @@ export default defineNuxtConfig({
     '@/assets/css/main.css',
     'primeicons/primeicons.css',
   ],
+  build: {
+    transpile: ['echarts', 'vue-echarts']
+  }
 })

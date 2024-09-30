@@ -1,22 +1,24 @@
 <template>
   <div class="rounded-lg bg-white p-6 shadow-lg mt-6">
     <h2 class="mb-4 text-2xl font-semibold text-gray-700">Data Chart</h2>
-    <div class="mb-4">
-      <label for="paramSelect" class="mr-2">Select Parameter:</label>
-      <select v-model="selectedParam" id="paramSelect" class="p-2 border rounded">
-        <option v-for="param in availableParams" :key="param" :value="param">
-          {{ param }}
-        </option>
-      </select>
+    <div v-if="hourlyData && hourlyData.length > 0">
+      <div class="mb-4">
+        <label for="paramSelect" class="mr-2">Select Parameter:</label>
+        <Select v-model="selectedParam" :options="availableParams" optionLabel="label" optionValue="value" class="w-full md:w-14rem" />
+      </div>
+      <client-only>
+        <v-chart v-if="chartReady" class="chart" :option="chartOption" autoresize />
+      </client-only>
     </div>
-    <client-only>
-      <v-chart class="chart" :option="chartOption" autoresize />
-    </client-only>
+    <div v-else class="text-center text-gray-600">
+      No data available for the chart.
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch, shallowRef } from 'vue';
+import VChart from 'vue-echarts';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { LineChart } from 'echarts/charts';
@@ -27,7 +29,6 @@ import {
   DataZoomComponent,
   ToolboxComponent
 } from 'echarts/components';
-import VChart from 'vue-echarts';
 
 use([
   CanvasRenderer,
@@ -42,19 +43,22 @@ use([
 const props = defineProps({
   hourlyData: {
     type: Array,
-    required: true
+    default: () => []
   }
 });
 
 const selectedParam = ref('discharge');
+const chartReady = ref(true);
 
 const availableParams = computed(() => {
-  if (props.hourlyData.length === 0) return [];
-  return Object.keys(props.hourlyData[0]).filter(key => 
-    typeof props.hourlyData[0][key] === 'number' && 
-    key !== 'id' && 
-    key !== 'stationId'
-  );
+  if (!props.hourlyData || props.hourlyData.length === 0) return [];
+  return Object.keys(props.hourlyData[0])
+    .filter(key => 
+      typeof props.hourlyData[0][key] === 'number' && 
+      key !== 'id' && 
+      key !== 'stationId'
+    )
+    .map(key => ({ label: key, value: key }));
 });
 
 const formatDate = (timestamp) => {
@@ -62,8 +66,10 @@ const formatDate = (timestamp) => {
   return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 };
 
-const chartOption = computed(() => {
-  if (props.hourlyData.length === 0) return {};
+const chartOption = shallowRef({});
+
+const updateChartOption = () => {
+  if (!props.hourlyData || props.hourlyData.length === 0) return;
 
   const dates = props.hourlyData.map((item) => formatDate(item.timeStamp));
   const values = props.hourlyData.map((item) => item[selectedParam.value]);
@@ -78,7 +84,7 @@ const chartOption = computed(() => {
     electricConductivity: 'μS/cm'
   };
 
-  return {
+  chartOption.value = {
     toolbox: {
       feature: {
         dataZoom: {
@@ -131,7 +137,17 @@ const chartOption = computed(() => {
       }
     }
   };
-});
+};
+
+watch([() => props.hourlyData, selectedParam], () => {
+  updateChartOption();
+}, { immediate: true });
+
+watch(() => props.hourlyData, (newValue) => {
+  if (newValue && newValue.length > 0 && !selectedParam.value) {
+    selectedParam.value = availableParams.value[0]?.value || 'discharge';
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>
