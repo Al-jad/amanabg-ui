@@ -52,6 +52,7 @@
             v-model="minuteDate"
             dateFormat="dd/mm/yy"
             class="h-10"
+            :maxDate="new Date()"
           />
           <Button
             @click="fetchMinuteData"
@@ -66,6 +67,7 @@
             Reset
           </Button>
         </div>
+        <p v-if="minuteDateError" class="mt-2 text-red-500">{{ minuteDateError }}</p>
       </div>
       <div class="rounded-lg bg-white p-6 shadow-lg">
         <h2 class="mb-4 text-2xl font-semibold text-gray-700">
@@ -111,6 +113,7 @@ const {
 const fromDate = ref(null);
 const toDate = ref(null);
 const minuteDate = ref(null);
+const minuteDateError = ref('');
 const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } =
   stationDataHourStore;
 
@@ -163,9 +166,21 @@ const fetchData = async () => {
 };
 
 const fetchMinuteData = async () => {
+  if (!minuteDate.value) {
+    minuteDateError.value = 'Please select a date';
+    return;
+  }
+
+  const selectedDate = new Date(minuteDate.value);
+  const today = new Date();
+  if (selectedDate > today) {
+    minuteDateError.value = 'Selected date cannot be in the future';
+    return;
+  }
+
   const stationId = parseInt(route.params.id, 10);
-  if (isNaN(stationId) || !minuteDate.value) {
-    console.error("Invalid station ID or date not selected");
+  if (isNaN(stationId)) {
+    console.error("Invalid station ID");
     return;
   }
   await stationDataMinuteStore.fetchMinuteData({
@@ -173,6 +188,7 @@ const fetchMinuteData = async () => {
     date: minuteDate.value,
   });
   dataType.value = "Minute";
+  minuteDateError.value = '';
 };
 
 const applyDateFilter = () => {
@@ -190,6 +206,7 @@ const resetDateFilter = () => {
 const resetToHourlyData = () => {
   dataType.value = "Hourly";
   minuteDate.value = null;
+  minuteDateError.value = '';
 };
 
 const formattedData = computed(() => {
