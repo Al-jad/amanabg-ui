@@ -1,12 +1,17 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <div v-if="hourlyDataLoading" class="text-center">
+    <div v-if="dataLoading" class="text-center">
       <p class="text-lg text-gray-600">Loading...</p>
     </div>
-    <div v-else-if="hourlyDataError" class="text-center text-red-500">
-      <p class="text-lg font-semibold">{{ hourlyDataError }}</p>
+    <div v-else-if="dataError" class="text-center text-red-500">
+      <p class="text-lg font-semibold">{{ dataError }}</p>
     </div>
-    <div v-else-if="hourlyData && hourlyData.length > 0">
+    <div
+      v-else-if="
+        (hourlyData && hourlyData.length > 0) ||
+        (minuteData && minuteData.length > 0)
+      "
+    >
       <div class="flex flex-col justify-between md:flex-row">
         <h1 class="mb-6 text-2xl font-bold text-gray-800">Station Details</h1>
       </div>
@@ -31,7 +36,7 @@
           <DatePicker
             v-model="toDate"
             dateFormat="dd/mm/yy"
-            class="h-10 "
+            class="h-10"
             @change="applyDateFilter"
           />
           <button
@@ -41,11 +46,33 @@
             Reset
           </button>
         </div>
+        <div class="mt-4 flex items-center gap-4">
+          <label>Minute Data:</label>
+          <DatePicker
+            v-model="minuteDate"
+            dateFormat="dd/mm/yy"
+            class="h-10"
+          />
+          <Button
+            @click="fetchMinuteData"
+            class="rounded !bg-DarkBlue px-4 py-2 font-bold !border-none !text-white hover:!bg-DarkBlue/90"
+          >
+            Submit
+          </Button>
+          <Button 
+            @click="resetToHourlyData"
+            class="rounded !bg-DarkBlue px-4 py-2 font-bold !border-none !text-white hover:!bg-DarkBlue/90"
+          >
+            Reset
+          </Button>
+        </div>
       </div>
       <div class="rounded-lg bg-white p-6 shadow-lg">
-        <h2 class="mb-4 text-2xl font-semibold text-gray-700">Hourly Data</h2>
+        <h2 class="mb-4 text-2xl font-semibold text-gray-700">
+          {{ dataType }} Data
+        </h2>
         <Table
-          :value="filteredHourlyData"
+          :value="filteredData"
           :headers="headers"
           :columns="columns"
           class="w-full"
@@ -58,27 +85,42 @@
       <p class="text-lg text-gray-600">No data available</p>
     </div>
     <div>
-      <EChart :hourlyData="hourlyData" />
+      <EChart :hourlyData="dataType === 'Hourly' ? hourlyData : minuteData" />
     </div>
   </div>
 </template>
 
 <script setup>
+import { useStationDataMinuteStore } from "~/stores/stationDataMinute";
+
 const route = useRoute();
 const stationDataHourStore = useStationDataHourStore();
+const stationDataMinuteStore = useStationDataMinuteStore();
 
-const { hourlyData, loading, error } = storeToRefs(stationDataHourStore);
+const {
+  hourlyData,
+  loading: hourLoading,
+  error: hourError,
+} = storeToRefs(stationDataHourStore);
+const {
+  minuteData,
+  loading: minuteLoading,
+  error: minuteError,
+} = storeToRefs(stationDataMinuteStore);
 
 const fromDate = ref(null);
 const toDate = ref(null);
-const { fetchHourlyData } = stationDataHourStore;
+const minuteDate = ref(null);
+const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } =
+  stationDataHourStore;
 
-const hourlyDataLoading = computed(() => loading.value);
-const hourlyDataError = computed(() => error.value);
+const dataLoading = computed(() => hourLoading.value || minuteLoading.value);
+const dataError = computed(() => hourError.value || minuteError.value);
+const dataType = ref("Hourly");
 
 const headers = ref([
   {
-    text: "Hourly Data",
+    text: "Data",
     colspan: 9,
     class:
       "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white font-bold py-3",
@@ -120,6 +162,19 @@ const fetchData = async () => {
   await stationDataHourStore.fetchHourlyData({ stationId });
 };
 
+const fetchMinuteData = async () => {
+  const stationId = parseInt(route.params.id, 10);
+  if (isNaN(stationId) || !minuteDate.value) {
+    console.error("Invalid station ID or date not selected");
+    return;
+  }
+  await stationDataMinuteStore.fetchMinuteData({
+    stationId,
+    date: minuteDate.value,
+  });
+  dataType.value = "Minute";
+};
+
 const applyDateFilter = () => {
   if (fromDate.value && toDate.value) {
     fromDate.value.setHours(0, 0, 0, 0);
@@ -132,10 +187,17 @@ const resetDateFilter = () => {
   toDate.value = null;
 };
 
-const formattedHourlyData = computed(() => {
-  if (!hourlyData.value) return [];
+const resetToHourlyData = () => {
+  dataType.value = "Hourly";
+  minuteDate.value = null;
+};
 
-  return hourlyData.value.map((item) => {
+const formattedData = computed(() => {
+  const data =
+    dataType.value === "Hourly" ? hourlyData.value : minuteData.value;
+  if (!data) return [];
+
+  return data.map((item) => {
     const date = new Date(item.timeStamp);
     return {
       ...item,
@@ -145,10 +207,10 @@ const formattedHourlyData = computed(() => {
   });
 });
 
-const filteredHourlyData = computed(() => {
-  if (!fromDate.value || !toDate.value) return formattedHourlyData.value;
+const filteredData = computed(() => {
+  if (!fromDate.value || !toDate.value) return formattedData.value;
 
-  return formattedHourlyData.value.filter((item) => {
+  return formattedData.value.filter((item) => {
     const itemDate = new Date(item.timeStamp);
     return itemDate >= fromDate.value && itemDate <= toDate.value;
   });
