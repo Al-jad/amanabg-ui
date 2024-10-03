@@ -91,7 +91,7 @@ const emit = defineEmits(['row-click']);
 
 const onRowClick = (event) => {
   if (event.data && event.data.station && event.data.station.id) {
-    event.data.station.id = parseInt(event.data.station.id, 10);
+    event.data.stationId = parseInt(event.data.station.id, 10);
   }
   emit('row-click', event);
 };

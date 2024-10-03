@@ -10,7 +10,7 @@
         <SelectButton
           v-model="selectedView"
           :options="viewOptions"
-          class="p-button-sm"
+          class="p-button-sm "
         />
       </div>
       <div class="mb-4 flex items-center gap-4">
@@ -21,6 +21,7 @@
           placeholder="Select a city"
           aria-labelledby="City selection"
           @change="filterByCity"
+          class="!bg-DarkBlue !text-white"
         />
       </div>
       <div v-if="selectedView === 'Table'">
@@ -95,12 +96,12 @@ const citiesWithAll = computed(() => ['All', ...cities.value]);
 
 const onRowClick = (event) => {
   const { data } = event;
-  if (!data?.station.id || !data.station?.city || !data.station?.name) {
+  if (!data?.stationId || !data.station?.city || !data.station?.name) {
     console.error("Invalid event or missing required station data");
     return;
   }
 
-  const { id: stationId, station: { city: stationCity, name: stationName } } = data;
+  const { stationId: stationId, station: { city: stationCity, name: stationName } } = data;
 
   nextTick(() => {
     localStorage.setItem("stationCity", stationCity);
@@ -118,6 +119,7 @@ const headers = [
   },
   {
     text: "Last Measurement",
+    colspan: 9,
     class:
       "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
   },
@@ -127,13 +129,15 @@ const columns = [
   { header: "ID", sortable: true, field: "stationId" },
   { header: "Name", sortable: true, field: "stationName" },
   { header: "City", sortable: true, field: "stationCity" },
-  { header: "Discharge", sortable: true, field: "discharge" },
-  { header: "Total Volume/Hour", sortable: true, field: "totalVolumePerHour" },
-  { header: "Total Volume/Day", sortable: true, field: "totalVolumePerDay" },
-  { header: "Pressure", sortable: true, field: "pressure" },
+  { header: "Date", sortable: true, field: "date" },
+  { header: "Time", sortable: true, field: "time" },
+  { header: "Q m3 / m", sortable: true, field: "discharge" },
+  { header: "Q m3 / h", sortable: true, field: "totalVolumePerHour" },
+  { header: "Q m3 / d", sortable: true, field: "totalVolumePerDay" },
+  { header: "P", sortable: true, field: "pressure" },
   { header: "CL", sortable: true, field: "cl" },
-  { header: "Turbidity", sortable: true, field: "turbidity" },
-  { header: "Electric Conductivity", sortable: true, field: "electricConductivity" },
+  { header: "Turb.", sortable: true, field: "turbidity" },
+  { header: "EC", sortable: true, field: "electricConductivity" },
 ].map(column => ({
   ...column,
   class: "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white",
@@ -164,7 +168,7 @@ const formattedFilteredPipesData = computed(() => {
       stationName: item.station.name,
       stationCity: item.station.city,
       date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString(),
+      time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       timeStamp: date.toLocaleString()
     };
   });
@@ -224,3 +228,16 @@ const getDischargeArrow = (discharge) => {
   return discharge < minDischarge ? '&darr' : '&uarr;';
 };
 </script>
+
+<style>
+.p-togglebutton {
+  @apply !bg-DarkBlue !text-white;
+}
+.p-togglebutton-checked::before {
+  @apply !bg-DarkBlue !text-white;
+}
+.p-togglebutton-checked {
+  @apply !bg-DarkBlue/70 !text-white;
+}
+
+</style>

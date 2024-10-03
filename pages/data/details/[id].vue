@@ -13,11 +13,11 @@
       <div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
         <p class="mb-2">
           <strong class="text-gray-600">Name: </strong>
-          <span class="text-gray-800">{{ stationName || 'N/A' }}</span>
+          <span class="text-gray-800">{{ stationName || "N/A" }}</span>
         </p>
         <p class="mb-2">
           <strong class="text-gray-600">City: </strong>
-          <span class="text-gray-800">{{ stationCity || 'N/A' }}</span>
+          <span class="text-gray-800">{{ stationCity || "N/A" }}</span>
         </p>
         <div class="mr-4 flex items-center gap-4">
           <label for="from">From</label>
@@ -31,10 +31,13 @@
           <DatePicker
             v-model="toDate"
             dateFormat="dd/mm/yy"
-            class="h-10"
+            class="h-10 "
             @change="applyDateFilter"
           />
-          <button @click="resetDateFilter" class="bg-DarkBlue hover:bg-DarkBlue/90 text-white font-bold py-2 px-4 rounded">
+          <button
+            @click="resetDateFilter"
+            class="rounded bg-DarkBlue px-4 py-2 font-bold text-white hover:bg-DarkBlue/90"
+          >
             Reset
           </button>
         </div>
@@ -42,7 +45,7 @@
       <div class="rounded-lg bg-white p-6 shadow-lg">
         <h2 class="mb-4 text-2xl font-semibold text-gray-700">Hourly Data</h2>
         <Table
-          :value="formattedHourlyData"
+          :value="filteredHourlyData"
           :headers="headers"
           :columns="columns"
           class="w-full"
@@ -61,10 +64,6 @@
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router';
-import { useStationDataHourStore } from '~/stores/stationDataHour';
-import { storeToRefs } from 'pinia';
-
 const route = useRoute();
 const stationDataHourStore = useStationDataHourStore();
 
@@ -73,7 +72,6 @@ const { hourlyData, loading, error } = storeToRefs(stationDataHourStore);
 const fromDate = ref(null);
 const toDate = ref(null);
 const { fetchHourlyData } = stationDataHourStore;
-
 
 const hourlyDataLoading = computed(() => loading.value);
 const hourlyDataError = computed(() => error.value);
@@ -116,7 +114,7 @@ const columns = ref(
 const fetchData = async () => {
   const stationId = parseInt(route.params.id, 10);
   if (isNaN(stationId)) {
-    console.error('Invalid station ID');
+    console.error("Invalid station ID");
     return;
   }
   await stationDataHourStore.fetchHourlyData({ stationId });
@@ -136,8 +134,8 @@ const resetDateFilter = () => {
 
 const formattedHourlyData = computed(() => {
   if (!hourlyData.value) return [];
-  
-  return hourlyData.value.map(item => {
+
+  return hourlyData.value.map((item) => {
     const date = new Date(item.timeStamp);
     return {
       ...item,
@@ -147,18 +145,33 @@ const formattedHourlyData = computed(() => {
   });
 });
 
-const stationName = ref('N/A');
-const stationCity = ref('N/A');
+const filteredHourlyData = computed(() => {
+  if (!fromDate.value || !toDate.value) return formattedHourlyData.value;
+
+  return formattedHourlyData.value.filter((item) => {
+    const itemDate = new Date(item.timeStamp);
+    return itemDate >= fromDate.value && itemDate <= toDate.value;
+  });
+});
+
+const stationName = ref("N/A");
+const stationCity = ref("N/A");
 
 onMounted(() => {
   fetchData();
   if (process.client) {
-    stationName.value = window.localStorage.getItem('stationName') || 'N/A';
-    stationCity.value = window.localStorage.getItem('stationCity') || 'N/A';
-    window.localStorage.removeItem('stationName');
-    window.localStorage.removeItem('stationCity');
+    stationName.value = window.localStorage.getItem("stationName") || "N/A";
+    stationCity.value = window.localStorage.getItem("stationCity") || "N/A";
+    window.localStorage.removeItem("stationName");
+    window.localStorage.removeItem("stationCity");
   }
 });
 
 watch([fromDate, toDate], applyDateFilter);
 </script>
+
+<style>
+.p-datepicker-input {
+  @apply !bg-DarkBlue !text-white;
+}
+</style>

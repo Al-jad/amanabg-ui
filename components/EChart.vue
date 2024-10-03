@@ -1,16 +1,22 @@
 <template>
-  <div class="rounded-lg bg-white p-6 shadow-lg mt-6">
-    <h2 class="mb-4 text-2xl font-semibold text-gray-700">Data Chart</h2>
+  <div class="mt-8 rounded-lg bg-white p-8 shadow-lg">
+    <h2 class="mb-6 text-2xl font-semibold text-gray-800">Data Visualization</h2>
     <div v-if="hourlyData && hourlyData.length > 0">
-      <div class="mb-4">
-        <label for="paramSelect" class="mr-2">Select Parameter:</label>
-        <Select v-model="selectedParam" :options="availableParams" optionLabel="label" optionValue="value" class="w-full md:w-14rem" />
+      <div class="mb-6 flex items-center">
+        <label for="paramSelect" class="mr-4 text-lg font-medium text-gray-700">Select Parameter:</label>
+        <Select 
+          v-model="selectedParam" 
+          :options="availableParams" 
+          optionLabel="label" 
+          optionValue="value" 
+          class="w-full max-w-xs !bg-DarkBlue !text-white" 
+        />
       </div>
       <client-only>
         <v-chart v-if="chartReady" class="chart" :option="chartOption" autoresize />
       </client-only>
     </div>
-    <div v-else class="text-center text-gray-600">
+    <div v-else class="flex h-64 items-center justify-center text-lg text-gray-600">
       No data available for the chart.
     </div>
   </div>
@@ -56,14 +62,21 @@ const availableParams = computed(() => {
     .filter(key => 
       typeof props.hourlyData[0][key] === 'number' && 
       key !== 'id' && 
-      key !== 'stationId'
+      key !== 'stationId' &&
+      key !== 'record'
     )
-    .map(key => ({ label: key, value: key }));
+    .map(key => ({ label: key.split(/(?=[A-Z])/).join(' ').replace(/\b\w/g, c => c.toUpperCase()), value: key }));
 });
 
 const formatDate = (timestamp) => {
   const date = new Date(timestamp);
-  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
+  return date.toLocaleString('en-US', { 
+    month: 'short', 
+    day: 'numeric', 
+    hour: 'numeric', 
+    minute: 'numeric',
+    hour12: true 
+  });
 };
 
 const chartOption = shallowRef({});
@@ -107,15 +120,24 @@ const updateChartOption = () => {
     ],
     xAxis: {
       type: 'category',
-      data: dates
+      data: dates,
+      axisLabel: {
+        rotate: 0,
+        interval: 'auto',
+        formatter: (value) => {
+          return value.split(',')[0] + '\n' + value.split(',')[1];
+        },
+        margin: 15
+      }
     },
     yAxis: {
       type: 'value',
       name: units[selectedParam.value] || '',
       nameLocation: 'middle',
-      nameGap: 40,
+      nameGap: 50,
       nameTextStyle: {
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        fontSize: 14
       }
     },
     series: [
@@ -124,7 +146,11 @@ const updateChartOption = () => {
         type: 'line',
         smooth: true,
         lineStyle: {
-          width: 2
+          width: 3,
+          color: '#3B82F6'
+        },
+        itemStyle: {
+          color: '#3B82F6'
         }
       }
     ],
@@ -133,7 +159,14 @@ const updateChartOption = () => {
       formatter: function (params) {
         const value = params[0].value;
         const date = params[0].axisValue;
-        return `${date}<br/>${selectedParam.value}: ${value} ${units[selectedParam.value] || ''}`;
+        const paramName = selectedParam.value.split(/(?=[A-Z])/).join(' ').replace(/\b\w/g, c => c.toUpperCase());
+        return `<strong>${date}</strong><br/>${paramName}: ${value} ${units[selectedParam.value] || ''}`;
+      },
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+      borderColor: '#ccc',
+      borderWidth: 1,
+      textStyle: {
+        color: '#333'
       }
     }
   };
@@ -152,6 +185,7 @@ watch(() => props.hourlyData, (newValue) => {
 
 <style scoped>
 .chart {
-  height: 400px;
+  height: 500px;
+  width: 100%;
 }
 </style>
