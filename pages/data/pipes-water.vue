@@ -1,17 +1,23 @@
 <template>
-  <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-    <div class="bg-white p-8 shadow sm:rounded-lg">
-      <div class="flex items-center justify-between">
-        <h1
-          class="mb-6 text-left text-3xl font-bold text-gray-900 sm:mx-[10%] sm:text-2xl"
-        >
-          Discharge Monitoring Stations
-        </h1>
-        <SelectButton
-          v-model="selectedView"
-          :options="viewOptions"
-          class="p-button-sm "
-        />
+  <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
+    <div class="bg-white p-4 shadow sm:rounded-lg">
+      <div class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between">
+        <div class="mb-4 flex text-nowrap md:mb-0">
+          <div class="flex items-center">
+            <Icon name="fluent:water-16-filled" class="mr-2 text-2xl sm:text-xl text-blue-500" />
+            <h1 class="text-xl sm:text-lg font-bold text-black">Discharge Monitoring Stations</h1>
+          </div>
+        </div>
+        <div class="flex sm:overflow-hidden justify-center">
+          <SelectButton v-model="selectedView" :options="viewOptions" @change="handleViewChange">
+            <template #option="slotProps">
+              <div class="flex items-center">
+                <Icon :name="slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'" class="mr-2" />
+                {{ slotProps.option }}
+              </div>
+            </template>
+          </SelectButton>
+        </div>
       </div>
       <div class="mb-4 flex items-center gap-4">
         <h1>Filter by City:</h1>
@@ -167,9 +173,16 @@ const formattedFilteredPipesData = computed(() => {
       ...item,
       stationName: item.station.name,
       stationCity: item.station.city,
-      date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      timeStamp: date.toLocaleString()
+      date: date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+      time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      timeStamp: date.toLocaleString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
     };
   });
 });

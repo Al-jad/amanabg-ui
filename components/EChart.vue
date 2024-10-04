@@ -9,7 +9,7 @@
           :options="availableParams" 
           optionLabel="label" 
           optionValue="value" 
-          class="w-full max-w-xs !bg-DarkBlue !text-white" 
+          class="w-full max-w-xs !bg-DarkBlue border-none !text-white" 
         />
       </div>
       <client-only>

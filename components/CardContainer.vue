@@ -34,7 +34,7 @@ const cardItems = [
   {
     id: 3,
     title: "Map",
-    link: "/",
+    link: "/data/pipes-water?view=Map",
     external: false,
     image: "/assets/img/Map.png",
     icon: "material-symbols:location-on"
@@ -42,7 +42,7 @@ const cardItems = [
   {
     id: 4,
     title: "Consumers Tolling System",
-    link: "/",
+    link: "/tolling-system",
     external: false,
     image: "/assets/img/water-quality.jpg",
     icon: "material-symbols:water-full"

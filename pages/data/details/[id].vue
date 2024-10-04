@@ -47,12 +47,13 @@
           </button>
         </div>
         <div class="mt-4 flex items-center gap-4">
-          <label>Minute Data:</label>
+          <label>Data Per Minute:</label>
           <DatePicker
             v-model="minuteDate"
             dateFormat="dd/mm/yy"
             class="h-10"
             :maxDate="new Date()"
+            placeholder="Select Date"
           />
           <Button
             @click="fetchMinuteData"

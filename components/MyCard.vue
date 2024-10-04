@@ -25,7 +25,7 @@
       >
         <Icon
           :name="icon"
-          class="text-white text-2xl transition-transform duration-300 hover:rotate-12"
+          class="!text-white !text-2xl !transition-transform duration-300 hover:rotate-12"
         ></Icon>
       </div>
     </NuxtLink>
@@ -52,7 +52,7 @@ const props = defineProps({
   },
   icon: {
     type: String,
-    default: 'fluent:water-16-filled'
+    default: 'fluent:pipeline-32-filled'
   }
 });
 </script>

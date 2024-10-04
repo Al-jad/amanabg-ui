@@ -9,7 +9,6 @@ export default defineNuxtConfig({
     'nuxt3-leaflet',
     '@pinia/nuxt',
     '@nuxt/icon',
-    // Remove 'nuxt-echarts' from here
   ],
   primevue: {
     options: {

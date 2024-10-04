@@ -22,18 +22,18 @@
       >
         <l-popup
           class="h-48 !w-52 text-black sm:h-48 sm:w-44"
-          @click="handleClick(station.id)"
+          @click="handleClick(station)"
         >
           <div class="col-span-2 mb-2 flex items-center justify-evenly">
             <h1 class="text-2xl sm:!text-xl">
-              {{ station?.name || "Unnamed Station" }}
+              {{ station?.station?.name || "Unnamed Station" }}
             </h1>
             <i class="pi pi-external-link -mt-2 text-DarkBlue"></i>
           </div>
           <span class="-my-1 p-0 text-xl sm:text-base">
             {{
               new Date(
-                station?.lastEntryData?.timeStamp || Date.now(),
+                station?.timeStamp || Date.now(),
               ).toLocaleDateString("en-GB")
             }}
           </span>
@@ -42,7 +42,7 @@
             (
             {{
               new Date(
-                station?.lastEntryData?.timeStamp || Date.now(),
+                station?.timeStamp || Date.now(),
               ).toLocaleTimeString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -52,7 +52,7 @@
           </span>
           <br />
           <span class="sm p-0 text-xl sm:text-base">
-            Water Quality Index : {{ station?.lastEntryData?.wqi || "0" }}
+            Q (m³/min): {{ station?.discharge?.toFixed(2) || "N/A" }}
           </span>
         </l-popup>
       </l-marker>
@@ -83,7 +83,9 @@ const filteredStations = computed(() => {
     return props.stations.map(station => ({
       ...station,
       lat: station?.station?.lat, // Update to use pipesData.station.lat
-      lng: station?.station?.lng  // Update to use pipesData.station.lng
+      lng: station?.station?.lng, // Update to use pipesData.station.lng
+      discharge: station?.discharge, // Make sure this property is included
+      timeStamp: station?.timeStamp, // Include the timestamp
     })).filter((st) => st.lat != null && st.lng != null);
   } else if (props?.stations?.data && Array.isArray(props.stations.data)) {
     return props.stations.data.filter((st) => st.lat != null && st.lng != null);
@@ -92,8 +94,12 @@ const filteredStations = computed(() => {
   }
 });
 
-function handleClick(stationId) {
-  router.push(`/stations/manual/details/${stationId}`);
+function handleClick(station) {
+  if (process.client) {
+    localStorage.setItem('stationName', station?.station?.name || 'Unnamed Station');
+    localStorage.setItem('stationCity', station?.station?.city || 'N/A');
+  }
+  router.push(`/data/details/${station.stationId}`);
 }
 
 onMounted(async () => {
