@@ -41,7 +41,7 @@ const images = ref([
     alt: "Image 1",
   },
   {
-    itemImageSrc: "/assets/img/baghdad-2.jpeg",
+    itemImageSrc: "/assets/img/baghdad-stations.png",
     alt: "Image 2",
   },
   {

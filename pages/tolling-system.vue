@@ -40,7 +40,7 @@ const toDate = ref(new Date());
 const tollingData = ref([]);
 const columns = [
   { field: 'stationName', header: 'Station Name', sortable: true },
-  { field: 'discharge', header: 'Q (m³)', sortable: true },
+  { field: 'discharge', header: 'Volume (m³)', sortable: true },
   { field: 'price', header: 'Price per m³ (IQD)', sortable: true },
   { field: 'total', header: 'Total (IQD)', sortable: true }
 ].map((column) => ({
@@ -85,6 +85,6 @@ onMounted(fetchTollingData);
 
 <style>
 .p-datepicker-input {
-  @apply !bg-DarkBlue !text-white;
+  @apply !bg-gray-200 !text-black;
 }
 </style>

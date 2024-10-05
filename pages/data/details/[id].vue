@@ -13,7 +13,9 @@
       "
     >
       <div class="flex flex-col justify-between md:flex-row">
-        <h1 class="mb-6 text-2xl font-bold text-gray-800">Station Details</h1>
+        <h1 class="mb-6 text-2xl font-bold text-gray-800">
+          Station Details
+        </h1>
       </div>
       <div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
         <p class="mb-2">
@@ -63,7 +65,7 @@
           </Button>
           <Button 
             @click="resetToHourlyData"
-            class="rounded !bg-DarkBlue px-4 py-2 font-bold !border-none !text-white hover:!bg-DarkBlue/90"
+            class="rounded !bg-red-500 px-4 py-2 font-bold !border-none !text-white hover:!bg-red-600"
           >
             Reset
           </Button>
@@ -94,8 +96,6 @@
 </template>
 
 <script setup>
-import { useStationDataMinuteStore } from "~/stores/stationDataMinute";
-
 const route = useRoute();
 const stationDataHourStore = useStationDataHourStore();
 const stationDataMinuteStore = useStationDataMinuteStore();
@@ -252,6 +252,6 @@ watch([fromDate, toDate], applyDateFilter);
 
 <style>
 .p-datepicker-input {
-  @apply !bg-DarkBlue !text-white;
+  @apply !bg-gray-200 !text-black;
 }
 </style>

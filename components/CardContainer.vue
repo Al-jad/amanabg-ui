@@ -26,7 +26,7 @@ const cardItems = [
   {
     id: 2,
     title: "Water Storage Monitoring",
-    link: "/",
+    link: "/tanks",
     external: false,
     image: "/assets/img/water-tank.jpg",
     icon: "material-symbols-light:water-damage-rounded"
