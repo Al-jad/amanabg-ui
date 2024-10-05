@@ -3,7 +3,7 @@
     <div class="m-auto my-12 flex w-full max-w-lg flex-col sm:my-0">
       <div class="m-auto sm:my-12">
         <img
-          src="/assets/img/moen.png"
+          src="/assets/img/Amanat-Logo.png"
           class="h-auto w-36 rounded-full sm:w-28"
           alt="Logo"
         />
