@@ -96,6 +96,8 @@
 </template>
 
 <script setup>
+import { storeToRefs } from 'pinia';
+
 const route = useRoute();
 const stationDataHourStore = useStationDataHourStore();
 const stationDataMinuteStore = useStationDataMinuteStore();
@@ -111,8 +113,29 @@ const {
   error: minuteError,
 } = storeToRefs(stationDataMinuteStore);
 
-const fromDate = ref(null);
-const toDate = ref(null);
+// Helper function to get the start of day
+const startOfDay = (date) => {
+  const newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0);
+  return newDate;
+};
+
+// Helper function to get the end of day
+const endOfDay = (date) => {
+  const newDate = new Date(date);
+  newDate.setHours(23, 59, 59, 999);
+  return newDate;
+};
+
+// Helper function to subtract months from a date
+const subtractMonths = (date, months) => {
+  const newDate = new Date(date);
+  newDate.setMonth(newDate.getMonth() - months);
+  return newDate;
+};
+
+const fromDate = ref(startOfDay(subtractMonths(new Date(), 3)));
+const toDate = ref(endOfDay(new Date()));
 const minuteDate = ref(null);
 const minuteDateError = ref('');
 const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } =
@@ -163,7 +186,11 @@ const fetchData = async () => {
     console.error("Invalid station ID");
     return;
   }
-  await stationDataHourStore.fetchHourlyData({ stationId });
+  await stationDataHourStore.fetchHourlyData({ 
+    stationId,
+    fromDate: fromDate.value,
+    toDate: toDate.value
+  });
 };
 
 const fetchMinuteData = async () => {
@@ -200,8 +227,9 @@ const applyDateFilter = () => {
 };
 
 const resetDateFilter = () => {
-  fromDate.value = null;
-  toDate.value = null;
+  fromDate.value = startOfDay(subtractMonths(new Date(), 3));
+  toDate.value = endOfDay(new Date());
+  fetchData(); // Refetch data with reset dates
 };
 
 const resetToHourlyData = () => {

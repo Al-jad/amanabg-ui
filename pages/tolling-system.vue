@@ -14,23 +14,31 @@
         <Button @click="fetchTollingData" label="Submit" class="w-full !bg-DarkBlue !text-white !border-none" />
       </div>
     </div>
-    <div class="overflow-x-auto">
-      <Table
+    <div v-if="tollingData.length > 0" class="overflow-x-auto">
+      <DataTable
         :value="tollingData"
         :rows="10"
         :paginator="true"
         :scrollable="true"
-        :sortField="'date'"
-        :sortOrder="1"
-        :columns="columns"
-        class="min-w-full"
-        responsiveLayout="scroll"
+        removableSort
+        class="text-nowrap !bg-DarkBlue"
       >
+        <Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" :sortable="col.sortable" :headerClass="col.class">
+          <template #body="slotProps">
+            <span>{{ slotProps.data[col.field] }}</span>
+          </template>
+        </Column>
         <template #empty>
-          <div class="text-center py-4">No data available</div>
+          <div class="m-0 bg-DarkBlue p-4 text-center text-white">No data available</div>
         </template>
-      </Table>
+        <template #paginatorstart>
+          <div class="text-sm text-white">
+            Showing max 10 of {{ tollingData.length }} entries
+          </div>
+        </template>
+      </DataTable>
     </div>
+    <div v-else class="text-center py-4">No data available</div>
   </div>
 </template>
 
@@ -44,10 +52,10 @@ const columns = [
   { field: 'price', header: 'Price per m³ (IQD)', sortable: true },
   { field: 'total', header: 'Total (IQD)', sortable: true }
 ].map((column) => ({
-    ...column,
-    class:
-      "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-2",
-  }));
+  ...column,
+  class:
+    "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-2",
+}));
 
 const stationDataDayStore = useStationDataDayStore();
 
@@ -87,4 +95,24 @@ onMounted(fetchTollingData);
 .p-datepicker-input {
   @apply !bg-gray-200 !text-black;
 }
+
+.p-datatable-sort-icon {
+  @apply !text-white sm:scale-75;
+}
+.p-datatable tr {
+  @apply !bg-DarkBlue cursor-pointer;
+}
+.p-paginator {
+  @apply !bg-DarkBlue !text-white;
+}
+.p-datatable .p-datatable-tbody > tr.p-row-even {
+  @apply !bg-white !text-black;
+}
+.p-datatable .p-datatable-tbody > tr.p-row-odd {
+  @apply !bg-gray-100 !text-black;
+}
+.p-datatable .p-datatable-tbody > tr:not(.p-datatable-empty-message):hover {
+  @apply !bg-gray-300 !text-black !cursor-pointer;
+}
+
 </style>

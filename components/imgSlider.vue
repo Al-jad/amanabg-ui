@@ -14,7 +14,7 @@
       <template #item="slotProps">
         <div class="w-full">
           <img
-            class="h-96 min-w-full object-cover sm:max-h-44 sm:!min-h-44"
+            class="h-96 min-w-full object-cover sm:max-h-44 sm:!min-h-44" 
             :src="slotProps.item.itemImageSrc"
             :alt="slotProps.item.alt"
           />
