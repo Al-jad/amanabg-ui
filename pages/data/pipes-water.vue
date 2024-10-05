@@ -173,7 +173,7 @@ const formattedFilteredPipesData = computed(() => {
       ...item,
       stationName: item.station.name,
       stationCity: item.station.city,
-      date: date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+      date: date.toLocaleDateString('en-GB', { month: '2-digit', day: '2-digit', year: 'numeric' }),
       time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
       timeStamp: date.toLocaleString('en-US', {
         month: '2-digit',

@@ -158,7 +158,7 @@ const columns = ref(
   [
     { header: "Date", sortable: true, field: "date" },
     { header: "Time", sortable: true, field: "time" },
-    { header: "Q ( m3 / h )", sortable: true, field: "discharge" },
+    { header: "Q ( m3 / min )", sortable: true, field: "discharge" },
     {
       header: "Total Volume/Hour",
       sortable: true,
@@ -247,8 +247,8 @@ const formattedData = computed(() => {
     const date = new Date(item.timeStamp);
     return {
       ...item,
-      date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString(),
+      date: date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
     };
   });
 });
