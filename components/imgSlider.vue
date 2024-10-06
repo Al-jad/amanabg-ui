@@ -37,7 +37,7 @@
 <script setup>
 const images = ref([
   {
-    itemImageSrc: "/assets/img/water-hand.jpg",
+    itemImageSrc: "/assets/img/baghdad-2.png",
     alt: "Image 1",
   },
   {
@@ -45,7 +45,7 @@ const images = ref([
     alt: "Image 2",
   },
   {
-    itemImageSrc: "/assets/img/baghdad-1.jpg",
+    itemImageSrc: "/assets/img/baghdad-1.png",
     alt: "Image 3",
   },
 ]);
