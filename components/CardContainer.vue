@@ -34,7 +34,7 @@ const cardItems = [
   {
     id: 3,
     title: "Map",
-    link: "/data/pipes-water?view=Map",
+    link: "/data/pipes-water?view=map",
     external: false,
     image: "/assets/img/Map.png",
     icon: "material-symbols:location-on"

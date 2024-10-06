@@ -12,19 +12,23 @@
         (minuteData && minuteData.length > 0)
       "
     >
-      <div class="flex flex-col justify-between md:flex-row">
-        <h1 class="mb-6 text-2xl font-bold text-gray-800">
+      <div class="flex flex-col items-start gap-4 mb-8">
+        <NuxtLink to="/data/pipes-water" class="text-DarkBlue hover:text-DarkBlue/80 transition-colors duration-300 flex items-center">
+          <Icon name="mdi:arrow-left" class="mr-2" />
+          Back to All Stations
+        </NuxtLink>
+        <h1 class="text-3xl font-bold text-gray-800 pb-2 w-full">
           Station Details
         </h1>
       </div>
       <div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
         <p class="mb-2">
-          <strong class="text-gray-600">Name: </strong>
-          <span class="text-gray-800">{{ stationName || "N/A" }}</span>
+          <span class="pr-2">Name: </span>
+          <span>{{ stationName || "N/A" }}</span>
         </p>
         <p class="mb-2">
-          <strong class="text-gray-600">City: </strong>
-          <span class="text-gray-800">{{ stationCity || "N/A" }}</span>
+          <span class="pr-2">City: </span>
+          <span>{{ stationCity || "N/A" }}</span>
         </p>
         <div class="mr-4 flex items-center gap-4">
           <label for="from">From</label>
@@ -78,7 +82,6 @@
         </h2>
         <Table
           :value="filteredData"
-          :headers="headers"
           :columns="columns"
           class="w-full"
           :sortField="'time'"
@@ -145,40 +148,36 @@ const dataLoading = computed(() => hourLoading.value || minuteLoading.value);
 const dataError = computed(() => hourError.value || minuteError.value);
 const dataType = ref("Hourly");
 
-const headers = ref([
-  {
-    text: "Data",
-    colspan: 9,
-    class:
-      "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white font-bold py-3",
-  },
-]);
-
-const columns = ref(
-  [
+const columns = computed(() => {
+  const baseColumns = [
     { header: "Date", sortable: true, field: "date" },
     { header: "Time", sortable: true, field: "time" },
-    { header: "Q ( m3 / min )", sortable: true, field: "discharge" },
     {
       header: "Total Volume/Hour",
       sortable: true,
       field: "totalVolumePerHour",
     },
     { header: "Total Volume/Day", sortable: true, field: "totalVolumePerDay" },
-    { header: "Pressure", sortable: true, field: "pressure" },
+    { header: "Press.", sortable: true, field: "pressure" },
     { header: "CL", sortable: true, field: "cl" },
-    { header: "Turbidity", sortable: true, field: "turbidity" },
+    { header: "Turb.", sortable: true, field: "turbidity" },
     {
-      header: "Electric Conductivity",
+      header: "EC",
       sortable: true,
       field: "electricConductivity",
     },
-  ].map((column) => ({
+  ];
+
+  if (dataType.value === "Minute") {
+    baseColumns.splice(2, 0, { header: "Q ( m3 / min )", sortable: true, field: "discharge" });
+  }
+
+  return baseColumns.map((column) => ({
     ...column,
     class:
       "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-2",
-  })),
-);
+  }));
+});
 
 const fetchData = async () => {
   const stationId = parseInt(route.params.id, 10);
@@ -270,8 +269,6 @@ onMounted(() => {
   if (process.client) {
     stationName.value = window.localStorage.getItem("stationName") || "N/A";
     stationCity.value = window.localStorage.getItem("stationCity") || "N/A";
-    window.localStorage.removeItem("stationName");
-    window.localStorage.removeItem("stationCity");
   }
 });
 

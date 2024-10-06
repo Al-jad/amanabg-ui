@@ -10,13 +10,10 @@
               <p
                 class="mb-8 text-left text-2xl font-bold sm:text-center sm:text-base"
               >
-                Environmental Remote Sensing Center
+                Baghdad Municipality Water Monitoring System
               </p>
               <p class="w-[90%] text-left sm:text-center sm:text-sm">
-                Located at Ministry of Environment, Republic of Iraq. Our main
-                objective is to conduct site measurements, collect, display, and
-                transmit measured data via telemetry systems (satellite or
-                GPRS), covering the entire Iraqi water resources network.
+                real-time monitoring and management of water resources across Iraq. It offers comprehensive data on water tanks, discharge stations, and other critical infrastructure. Our platform enables efficient decision-making for water distribution, quality control, and resource planning.
               </p>
             </div>
           </div>

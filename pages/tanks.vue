@@ -3,7 +3,11 @@
   <div class="bg-white p-4 shadow sm:rounded-lg">
     <div class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between">
       <div class="mb-4 flex text-nowrap md:mb-0">
-        <div class="flex items-center">
+        <div class="flex flex-col items-start gap-4 mb-8">
+          <NuxtLink to="/" class="text-DarkBlue hover:text-DarkBlue/80 transition-colors duration-300 flex items-center">
+          <Icon name="mdi:arrow-left" class="mr-2" />
+          Back
+        </NuxtLink>
           <Icon name="mdi:water-tank" class="mr-2 text-2xl sm:text-xl text-blue-500" />
           <h1 class="text-xl sm:text-lg font-bold text-black">Water Tanks Monitoring</h1>
         </div>

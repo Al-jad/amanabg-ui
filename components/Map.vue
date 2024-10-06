@@ -1,44 +1,43 @@
 <template>
   <div class="h-[30rem] w-full">
     <client-only>
-      <l-map
+      <l-map :use-global-leaflet="false"
+        v-if="isMapReady"
         ref="map"
         :zoom="zoom"
-        :markerZoomAnimation="true"
-        :zoomAnimation="true"
         :center="centerLatLng"
         :options="{ attributionControl: false }"
         @update:zoom="zoomUpdate"
-        @update:center="centerUpdate">
+        @update:center="centerUpdate"
+      >
         <l-tile-layer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           layer-type="base"
           name="OpenStreetMap"
-        >
-        </l-tile-layer>
+        />
         <l-marker
           v-for="station in filteredStations"
-          :lat-lng="[station?.lat || 0, station?.lng || 0]"
-          :key="station.id || station.stationId"
+          :key="station.id"
+          :lat-lng="[station.lat, station.lng]"
         >
           <l-popup>
             <div class="h-48 !w-52 text-black sm:h-48 sm:w-44">
               <div class="col-span-2 mb-2 flex items-center justify-evenly">
                 <h1 class="text-2xl sm:!text-xl">
-                  {{ station?.station?.name || "Unnamed Station" }}
+                  {{ station.name }}
                 </h1>
                 <i class="pi pi-external-link -mt-2 text-DarkBlue"></i>
               </div>
               <span class="-my-1 p-0 text-xl sm:text-base">
-                {{ new Date(station?.timeStamp || Date.now()).toLocaleDateString("en-GB") }}
+                {{ formatDate(station.timeStamp) }}
               </span>
               <br />
               <span class="-my-4 p-0 text-xl sm:text-base">
-                ({{ new Date(station?.timeStamp || Date.now()).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) }})
+                ({{ formatTime(station.timeStamp) }})
               </span>
               <br />
               <span class="sm p-0 text-xl sm:text-base">
-                Q (m³/min): {{ station?.discharge?.toFixed(2) || "N/A" }}
+                Q (m³/min): {{ formatDischarge(station.discharge) }}
               </span>
             </div>
           </l-popup>
@@ -49,11 +48,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import 'leaflet/dist/leaflet.css';
 import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
-
 
 const props = defineProps({
   stations: {
@@ -67,29 +65,49 @@ const zoom = ref(6);
 const centerLatLng = ref([33.5152, 44.3661]);
 const router = useRouter();
 const map = ref(null);
+const isMapReady = ref(false);
 
 const filteredStations = computed(() => {
-  if (Array.isArray(props.stations)) {
-    return props.stations.map(station => ({
-      ...station,
-      lat: station?.station?.lat,
-      lng: station?.station?.lng,
-      discharge: station?.discharge,
-      timeStamp: station?.timeStamp,
-    })).filter((st) => st.lat != null && st.lng != null);
-  } else if (props.stations?.data && Array.isArray(props.stations.data)) {
-    return props.stations.data.filter((st) => st.lat != null && st.lng != null);
-  } else {
+  if (!Array.isArray(props.stations)) {
+    console.error('stations prop is not an array');
     return [];
   }
+  
+  return props.stations
+    .filter(station => {
+      if (!station) return false;
+      const lat = station?.station?.lat ?? station?.lat;
+      const lng = station?.station?.lng ?? station?.lng;
+      return lat != null && lng != null && !isNaN(lat) && !isNaN(lng);
+    })
+    .map(station => ({
+      id: station.id || station.stationId || Math.random().toString(36).substr(2, 9),
+      lat: parseFloat(station?.station?.lat ?? station?.lat),
+      lng: parseFloat(station?.station?.lng ?? station?.lng),
+      name: station?.station?.name || station?.name || 'Unnamed Station',
+      discharge: station?.discharge,
+      timeStamp: station?.timeStamp || Date.now(),
+    }));
 });
+
+function formatDate(timestamp) {
+  return new Date(timestamp).toLocaleDateString("en-GB");
+}
+
+function formatTime(timestamp) {
+  return new Date(timestamp).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+}
+
+function formatDischarge(discharge) {
+  return discharge != null ? parseFloat(discharge).toFixed(2) : 'N/A';
+}
 
 function handleClick(station) {
   if (process.client) {
-    localStorage.setItem('stationName', station?.station?.name || 'Unnamed Station');
-    localStorage.setItem('stationCity', station?.station?.city || 'N/A');
+    localStorage.setItem('stationName', station.name);
+    localStorage.setItem('stationCity', station.city || 'N/A');
   }
-  router.push(`/data/details/${station.stationId}`);
+  router.push(`/data/details/${station.id}`);
 }
 
 function zoomUpdate(newZoom) {
@@ -99,6 +117,11 @@ function zoomUpdate(newZoom) {
 function centerUpdate(newCenter) {
   centerLatLng.value = newCenter;
 }
+
+onMounted(() => {
+  // Ensure the map is only rendered on the client-side
+  isMapReady.value = true;
+});
 </script>
 
 <style scoped>

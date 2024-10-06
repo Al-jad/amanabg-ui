@@ -1,18 +1,41 @@
 <template>
   <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
     <div class="bg-white p-4 shadow sm:rounded-lg">
-      <div class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between">
+      <div
+        class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between"
+      >
         <div class="mb-4 flex text-nowrap md:mb-0">
-          <div class="flex items-center">
-            <Icon name="fluent:water-16-filled" class="mr-2 text-2xl sm:text-xl text-blue-500" />
-            <h1 class="text-xl sm:text-lg font-bold text-black">Discharge Monitoring Stations</h1>
+          <div class="mb-8 flex flex-col items-start gap-4">
+            <NuxtLink
+              to="/"
+              class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
+            >
+              <Icon name="mdi:arrow-left" class="mr-2" />
+              Back
+            </NuxtLink>
+            <div class="flex items-center gap-2">
+              <Icon
+                name="fluent:water-16-filled"
+                class="mr-2 text-2xl text-blue-500 sm:text-xl"
+              />
+              <h1 class="text-xl font-bold text-black sm:text-lg">
+                Discharge Monitoring Stations
+              </h1>
+            </div>
           </div>
         </div>
-        <div class="flex sm:overflow-hidden justify-center">
-          <SelectButton v-model="selectedView" :options="viewOptions" @change="handleViewChange">
+        <div class="flex justify-center sm:overflow-hidden">
+          <SelectButton
+            v-model="selectedView"
+            :options="viewOptions"
+            @change="handleViewChange"
+          >
             <template #option="slotProps">
               <div class="flex items-center">
-                <Icon :name="slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'" class="mr-2" />
+                <Icon
+                  :name="slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'"
+                  class="mr-2"
+                />
                 {{ slotProps.option }}
               </div>
             </template>
@@ -43,7 +66,9 @@
               <template v-if="col.field === 'discharge'">
                 <span :class="getDischargeColor(slotProps.data[col.field])">
                   {{ slotProps.data[col.field] }}
-                  <span v-html="getDischargeArrow(slotProps.data[col.field])"></span>
+                  <span
+                    v-html="getDischargeArrow(slotProps.data[col.field])"
+                  ></span>
                 </span>
               </template>
               <template v-else>
@@ -59,6 +84,15 @@
         <div v-else class="flex items-center justify-center">
           <p class="text-gray-500">No data available</p>
         </div>
+        <div class="mt-4 text-sm">
+          <p>Q (m3/m) = Flow rate of water in the pipe (discharge)</p>
+          <p>Q (m3/h) = Flow rate of water in the pipe (discharge)</p>
+          <p>Q (m3/d) = Flow rate of water in the pipe (discharge)</p>
+          <p>Pressure = Pressure of water in the pipe</p>
+          <p>Chlorine = Chlorine level in the pipe</p>
+          <p>Turb. = Turbidity of water in the pipe</p>
+          <p>EC = Electrical conductivity of water in the pipe</p>
+        </div>
       </div>
       <div v-else-if="selectedView === 'Map'">
         <Map :stations="filteredMapStations" />
@@ -70,35 +104,21 @@
         </div>
       </div>
       <br />
-      <div class="text-sm">
-        <p>
-          Q (m3/m) = Flow rate of water in the pipe (discharge)
-        </p>
-        <p>
-          Q (m3/h) = Flow rate of water in the pipe (discharge)
-        </p>
-        <p>
-          Q (m3/d) = Flow rate of water in the pipe (discharge)
-        </p>
-        <p>Pressure = Pressure of water in the pipe</p>
-        <p>Chlorine = Chlorine level in the pipe</p>
-        <p>Turb. = Turbidity of water in the pipe</p>
-        <p>EC = Electrical conductivity of water in the pipe</p>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 const router = useRouter();
+const route = useRoute();
 
-const viewOptions = ref(['Table', 'Map']);
-const selectedView = ref('Table');
+const viewOptions = ref(["Table", "Map"]);
+const selectedView = ref("Table");
 
-const selectedCity = ref('All');
+const selectedCity = ref("All");
 const cities = ref([]);
 
-const citiesWithAll = computed(() => ['All', ...cities.value]);
+const citiesWithAll = computed(() => ["All", ...cities.value]);
 
 const onRowClick = (event) => {
   const { data } = event;
@@ -107,7 +127,10 @@ const onRowClick = (event) => {
     return;
   }
 
-  const { stationId: stationId, station: { city: stationCity, name: stationName } } = data;
+  const {
+    stationId: stationId,
+    station: { city: stationCity, name: stationName },
+  } = data;
 
   nextTick(() => {
     localStorage.setItem("stationCity", stationCity);
@@ -144,9 +167,10 @@ const columns = [
   { header: "CL", sortable: true, field: "cl" },
   { header: "Turb.", sortable: true, field: "turbidity" },
   { header: "EC", sortable: true, field: "electricConductivity" },
-].map(column => ({
+].map((column) => ({
   ...column,
-  class: "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white",
+  class:
+    "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white",
 }));
 
 const stationStore = useStationStore();
@@ -157,39 +181,52 @@ const pipesData = computed(() => {
 });
 
 const extractCities = () => {
-  const uniqueCities = new Set(pipesData.value.map(item => item.station.city));
+  const uniqueCities = new Set(
+    pipesData.value.map((item) => item.station.city),
+  );
   cities.value = Array.from(uniqueCities);
 };
 
 const filteredPipesData = computed(() => {
-  if (!selectedCity.value || selectedCity.value === 'All') return pipesData.value;
-  return pipesData.value.filter(item => item.station.city === selectedCity.value);
+  if (!selectedCity.value || selectedCity.value === "All")
+    return pipesData.value;
+  return pipesData.value.filter(
+    (item) => item.station.city === selectedCity.value,
+  );
 });
 
 const formattedFilteredPipesData = computed(() => {
-  return filteredPipesData.value.map(item => {
-    const date = new Date(item.timeStamp);
+  return filteredPipesData.value.map((item) => {
+    const date = new Date(item?.timeStamp);
     return {
       ...item,
       stationName: item.station.name,
       stationCity: item.station.city,
-      date: date.toLocaleDateString('en-GB', { month: '2-digit', day: '2-digit', year: 'numeric' }),
-      time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-      timeStamp: date.toLocaleString('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      })
+      date: date.toLocaleDateString("en-GB", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric",
+      }),
+      time: date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
+      timeStamp: date.toLocaleString("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
     };
   });
 });
 
 const filteredMapStations = computed(() => {
   return filteredPipesData.value.filter(
-    (station) => station.station && station.station.lat && station.station.lng
+    (station) => station.station && station.station?.lat && station.station.lng,
   );
 });
 
@@ -223,22 +260,26 @@ watch(
       extractCities();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 onMounted(async () => {
+  const view = route.query.view?.toLowerCase();
+  if (view === "map") {
+    selectedView.value = "Map";
+  }
   await fetchInitialData();
   stationStore.connect();
 });
 
 const getDischargeColor = (discharge) => {
   const minDischarge = 11;
-  return discharge < minDischarge ? 'text-red-500' : 'text-green-500';
+  return discharge < minDischarge ? "text-red-500" : "text-green-500";
 };
 
 const getDischargeArrow = (discharge) => {
   const minDischarge = 11;
-  return discharge < minDischarge ? '&darr' : '&uarr;';
+  return discharge < minDischarge ? "&darr" : "&uarr;";
 };
 </script>
 
@@ -252,5 +293,4 @@ const getDischargeArrow = (discharge) => {
 .p-togglebutton-checked {
   @apply !bg-DarkBlue/70 !text-white;
 }
-
 </style>
