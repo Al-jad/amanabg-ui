@@ -200,8 +200,8 @@ const formattedFilteredPipesData = computed(() => {
     const date = new Date(item?.timeStamp);
     return {
       ...item,
-      stationName: item.station.name,
-      stationCity: item.station.city,
+      stationName: item?.station?.name,
+      stationCity: item?.station?.city,
       date: date.toLocaleDateString("en-GB", {
         month: "2-digit",
         day: "2-digit",
