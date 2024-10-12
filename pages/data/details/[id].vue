@@ -17,15 +17,11 @@
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to All Stations
         </NuxtLink>
-        <h1 class="text-3xl font-bold text-gray-800 pb-2 w-full">
-          Station Details
+        <h1 class="text-3xl font-bold text-gray-800 p-6 pb-0 w-full">
+          {{ stationName || 'Station name not found' }}
         </h1>
       </div>
-      <div class="mb-6 rounded-lg bg-white p-6 shadow-lg">
-        <p class="mb-2">
-          <span class="pr-2">Name: </span>
-          <span>{{ stationName || "N/A" }}</span>
-        </p>
+      <div class="mb-6 rounded-lg bg-white pt-0 p-6 shadow-lg">
         <p class="mb-2">
           <span class="pr-2">City: </span>
           <span>{{ stationCity || "N/A" }}</span>
@@ -52,29 +48,6 @@
             Reset
           </button>
         </div>
-        <div class="mt-4 flex items-center gap-4">
-          <label>Data Per Minute:</label>
-          <DatePicker
-            v-model="minuteDate"
-            dateFormat="dd/mm/yy"
-            class="h-10"
-            :maxDate="new Date()"
-            placeholder="Select Date"
-          />
-          <Button
-            @click="fetchMinuteData"
-            class="rounded !bg-DarkBlue px-4 py-2 font-bold !border-none !text-white hover:!bg-DarkBlue/90"
-          >
-            Submit
-          </Button>
-          <Button 
-            @click="resetToHourlyData"
-            class="rounded !bg-red-500 px-4 py-2 font-bold !border-none !text-white hover:!bg-red-600"
-          >
-            Reset
-          </Button>
-        </div>
-        <p v-if="minuteDateError" class="mt-2 text-red-500">{{ minuteDateError }}</p>
       </div>
       <div class="rounded-lg bg-white p-6 shadow-lg">
         <h2 class="mb-4 text-2xl font-semibold text-gray-700">
@@ -84,8 +57,9 @@
           :value="filteredData"
           :columns="columns"
           class="w-full"
-          :sortField="'time'"
+          :sortField="'date'"
           :sortOrder="1"
+          @row-click="onRowClick"
         />
       </div>
     </div>
@@ -103,18 +77,12 @@ import { storeToRefs } from 'pinia';
 
 const route = useRoute();
 const stationDataHourStore = useStationDataHourStore();
-const stationDataMinuteStore = useStationDataMinuteStore();
 
 const {
   hourlyData,
   loading: hourLoading,
   error: hourError,
 } = storeToRefs(stationDataHourStore);
-const {
-  minuteData,
-  loading: minuteLoading,
-  error: minuteError,
-} = storeToRefs(stationDataMinuteStore);
 
 // Helper function to get the start of day
 const startOfDay = (date) => {
@@ -144,8 +112,8 @@ const minuteDateError = ref('');
 const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } =
   stationDataHourStore;
 
-const dataLoading = computed(() => hourLoading.value || minuteLoading.value);
-const dataError = computed(() => hourError.value || minuteError.value);
+const dataLoading = computed(() => hourLoading.value);
+const dataError = computed(() => hourError.value);
 const dataType = ref("Hourly");
 
 const columns = computed(() => {
@@ -168,10 +136,6 @@ const columns = computed(() => {
     },
   ];
 
-  if (dataType.value === "Minute") {
-    baseColumns.splice(2, 0, { header: "Q ( m3 / min )", sortable: true, field: "discharge" });
-  }
-
   return baseColumns.map((column) => ({
     ...column,
     class:
@@ -190,32 +154,6 @@ const fetchData = async () => {
     fromDate: fromDate.value,
     toDate: toDate.value
   });
-};
-
-const fetchMinuteData = async () => {
-  if (!minuteDate.value) {
-    minuteDateError.value = 'Please select a date';
-    return;
-  }
-
-  const selectedDate = new Date(minuteDate.value);
-  const today = new Date();
-  if (selectedDate > today) {
-    minuteDateError.value = 'Selected date cannot be in the future';
-    return;
-  }
-
-  const stationId = parseInt(route.params.id, 10);
-  if (isNaN(stationId)) {
-    console.error("Invalid station ID");
-    return;
-  }
-  await stationDataMinuteStore.fetchMinuteData({
-    stationId,
-    date: minuteDate.value,
-  });
-  dataType.value = "Minute";
-  minuteDateError.value = '';
 };
 
 const applyDateFilter = () => {
@@ -238,11 +176,9 @@ const resetToHourlyData = () => {
 };
 
 const formattedData = computed(() => {
-  const data =
-    dataType.value === "Hourly" ? hourlyData.value : minuteData.value;
-  if (!data) return [];
+  if (!hourlyData.value) return [];
 
-  return data.map((item) => {
+  return hourlyData.value.map((item) => {
     const date = new Date(item.timeStamp);
     return {
       ...item,
@@ -264,6 +200,8 @@ const filteredData = computed(() => {
 const stationName = ref("N/A");
 const stationCity = ref("N/A");
 
+const router = useRouter();
+
 onMounted(() => {
   fetchData();
   if (process.client) {
@@ -273,6 +211,12 @@ onMounted(() => {
 });
 
 watch([fromDate, toDate], applyDateFilter);
+
+const onRowClick = (event) => {
+  const clickedDate = new Date(event.data.timeStamp);
+  const formattedDate = clickedDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+  router.push(`/data/details/perMinute/${route.params.id}?date=${formattedDate}`);
+};
 </script>
 
 <style>

@@ -6,7 +6,7 @@
           Manage Remote Level Stations Online by Dashboard..
         </h1>
         <Button
-          label="Dashboard" disabled
+          label="Control Panel" disabled
           class="!border-none !bg-DarkBlue !text-white hover:!bg-opacity-80 sm:m-auto sm:!mt-2 sm:w-[50%]"
           @click="redirect"
         ></Button>
