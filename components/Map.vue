@@ -61,8 +61,8 @@ const props = defineProps({
   },
 });
 
-const zoom = ref(6);
-const centerLatLng = ref([33.5152, 44.3661]);
+const zoom = ref(11);
+const centerLatLng = ref([33.3151, 44.3672]);
 const router = useRouter();
 const map = ref(null);
 const isMapReady = ref(false);

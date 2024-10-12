@@ -10,13 +10,13 @@
             >
               <div class="mr-4">
                 <img
-                  src="/assets/img/amanat-logo.png"
+                  src="/assets/img/Amanat-Logo.png"
                   class="h-12 w-12 rounded-full object-cover"
                   alt="Baghdad Municipality Logo"
                 />
               </div>
               <div class="text-white">
-                <h1 class="text-xl font-semibold sm:text-base">Baghdad Municipality</h1>
+                <h1 class="text-xl font-semibold sm:text-base">Baghdad Mayoralty</h1>
                 <p class="text-sm hidden sm:block">Republic of Iraq</p>
               </div>
             </NuxtLink>
