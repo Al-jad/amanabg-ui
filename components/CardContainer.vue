@@ -17,7 +17,7 @@
 const cardItems = [
   {
     id: 1,
-    title: "Discharge Monitoring",
+    title: "Drinking Water Discharge",
     link: "/data/pipes-water",
     external: false,
     image: "/assets/img/water-pipe.jpg",
@@ -25,7 +25,7 @@ const cardItems = [
   },
   {
     id: 2,
-    title: "Water Storage Monitoring",
+    title: "Water Storage Tanks",
     link: "/tanks",
     external: false,
     image: "/assets/img/water-tank.jpg",
@@ -41,7 +41,7 @@ const cardItems = [
   },
   {
     id: 4,
-    title: "Consumers Tolling System",
+    title: "Drinking Stastics",
     link: "/tolling-system",
     external: false,
     image: "/assets/img/water-quality.jpg",
