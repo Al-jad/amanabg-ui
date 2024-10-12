@@ -62,7 +62,7 @@
           @row-click="onRowClick"
         >
           <template #body="slotProps">
-            <TableCell v-for="col in columns" :key="col.field">
+            <Row v-for="col in columns" :key="col.field">
               <template v-if="col.field === 'discharge'">
                 <span :class="getDischargeColor(slotProps.data[col.field])">
                   {{ slotProps.data[col.field] }}
@@ -74,7 +74,7 @@
               <template v-else>
                 {{ slotProps.data[col.field] }}
               </template>
-            </TableCell>
+            </Row>
           </template>
         </Table>
         <div v-else-if="loading" class="flex items-center justify-center">
@@ -85,11 +85,11 @@
           <p class="text-gray-500">No data available</p>
         </div>
         <div class="mt-4 text-sm">
-          <p>Q (m3/m) = Flow rate of water in the pipe (discharge)</p>
-          <p>Q (m3/h) = Flow rate of water in the pipe (discharge)</p>
-          <p>Q (m3/d) = Flow rate of water in the pipe (discharge)</p>
-          <p>Pressure = Pressure of water in the pipe</p>
-          <p>Chlorine = Chlorine level in the pipe</p>
+          <p>Q (m³/min) = pipe discharge in the last minute </p>
+          <p>Q (m³/h) = pipe discharge in the last hour</p>
+          <p>Q (m³/d) = pipe discharge in the last day</p>
+          <p>P = Pressure of water in the pipe</p>
+          <p>cL⁺ = Chlorine level in the pipe</p>
           <p>Turb. = Turbidity of water in the pipe</p>
           <p>EC = Electrical conductivity of water in the pipe</p>
         </div>
@@ -160,13 +160,13 @@ const columns = [
   { header: "City", sortable: true, field: "stationCity" },
   { header: "Date", sortable: true, field: "date" },
   { header: "Time", sortable: true, field: "time" },
-  { header: "Q m³/min", sortable: true, field: "discharge" },
-  { header: "Q m³/h", sortable: true, field: "totalVolumePerHour" },
-  { header: "Q m³/d", sortable: true, field: "totalVolumePerDay" },
-  { header: "Press.", sortable: true, field: "pressure" },
-  { header: "CL", sortable: true, field: "cl" },
-  { header: "Turb.", sortable: true, field: "turbidity" },
-  { header: "EC", sortable: true, field: "electricConductivity" },
+  { header: "Q", sortable: true, field: "discharge", unit: "m³/min" },
+  { header: "Q", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
+  { header: "Q", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
+  { header: "P.", sortable: true, field: "pressure", unit: "bar" },
+  { header: "cL⁺", sortable: true, field: "cl", unit: "mg/L" },
+  { header: "Turb.", sortable: true, field: "turbidity", unit: "NTU" },
+  { header: "EC", sortable: true, field: "electricConductivity", unit: "μS/cm" },
 ].map((column) => ({
   ...column,
   class:
@@ -234,6 +234,10 @@ const dataSource = ref("API");
 const lastUpdated = ref(null);
 const loading = ref(true);
 
+const filterByCity = () => {
+  
+};
+
 const fetchInitialData = async () => {
   loading.value = true;
   try {
@@ -292,5 +296,8 @@ const getDischargeArrow = (discharge) => {
 }
 .p-togglebutton-checked {
   @apply !bg-DarkBlue/70 !text-white;
+}
+.p-select {
+  @apply !text-white
 }
 </style>

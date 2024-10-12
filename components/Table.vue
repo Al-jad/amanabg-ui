@@ -15,7 +15,16 @@
           <Column v-for="(header, index) in headers" :key="index" :header="header.text" :colspan="header.colspan" :headerClass="header.class" />
         </Row>
         <Row>
-          <Column v-for="(column, index) in columns" :key="index" :header="column.header" :sortable="column.sortable" :field="column.field" :headerClass="column.class" />
+          <Column v-for="(column, index) in columns" :key="index" :sortable="column.sortable" :field="column.field" :headerClass="column.class">
+            <template #header>
+             <div class="flex flex-col items-center">
+             <p class="font-bold">
+              {{ column.header }}
+             </p>
+              <div v-if="column.unit" class="mt-2 text-sm">({{ column.unit }})</div>
+             </div>
+            </template>
+          </Column>
         </Row>
       </ColumnGroup>
       <template #empty>
@@ -26,7 +35,6 @@
         :key="index"
         :field="column.field"
         :headerClass="column.class"
-        :header="column.header"
         :sortable="column.sortable"
       >
         <template #body="slotProps">
