@@ -225,9 +225,11 @@ const formattedFilteredPipesData = computed(() => {
 });
 
 const filteredMapStations = computed(() => {
-  return filteredPipesData.value.filter(
-    (station) => station.station && station.station?.lat && station.station.lng,
-  );
+  return filteredPipesData.value.filter((item) => {
+    return item && item.station && typeof item.station === 'object' && 
+           'lat' in item.station && 'lng' in item.station &&
+           item.station.lat !== null && item.station.lng !== null;
+  });
 });
 
 const dataSource = ref("API");
