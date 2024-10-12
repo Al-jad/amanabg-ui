@@ -267,14 +267,20 @@ watch(
   { deep: true },
 );
 
-onMounted(async () => {
+const handleViewChange = () => {
+  // Add any logic needed when view changes
+};
+
+const initializeComponent = async () => {
   const view = route.query.view?.toLowerCase();
   if (view === "map") {
     selectedView.value = "Map";
   }
   await fetchInitialData();
   stationStore.connect();
-});
+};
+
+onMounted(initializeComponent);
 
 const getDischargeColor = (discharge) => {
   const minDischarge = 11;
