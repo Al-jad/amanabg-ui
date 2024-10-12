@@ -42,7 +42,7 @@
           </SelectButton>
         </div>
       </div>
-      <div class="mb-4 flex items-center gap-4">
+      <!-- <div class="mb-4 flex items-center gap-4">
         <h1>Filter by City:</h1>
         <Select
           v-model="selectedCity"
@@ -52,7 +52,7 @@
           @change="filterByCity"
           class="!bg-DarkBlue !text-white"
         />
-      </div>
+      </div> -->
       <div v-if="selectedView === 'Table'">
         <Table
           v-if="!loading && filteredPipesData.length > 0"
@@ -155,16 +155,16 @@ const headers = [
 ];
 
 const columns = [
-  { header: "ID", sortable: true, field: "stationId" },
-  { header: "Name", sortable: true, field: "stationName" },
-  { header: "City", sortable: true, field: "stationCity" },
+  { header: "ID", sortable: false, field: "stationId" },
+  { header: "Name", sortable: false, field: "stationName" },
+  { header: "City", sortable: false, field: "stationCity" },
   { header: "Date", sortable: true, field: "date" },
   { header: "Time", sortable: true, field: "time" },
   { header: "Q", sortable: true, field: "discharge", unit: "m³/min" },
   { header: "Q", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
   { header: "Q", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
   { header: "P.", sortable: true, field: "pressure", unit: "bar" },
-  { header: "cL⁺", sortable: true, field: "cl", unit: "mg/L" },
+  { header: "Cl", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb.", sortable: true, field: "turbidity", unit: "NTU" },
   { header: "EC", sortable: true, field: "electricConductivity", unit: "μS/cm" },
 ].map((column) => ({

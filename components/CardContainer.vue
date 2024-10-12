@@ -28,7 +28,7 @@ const cardItems = [
     title: "Water Storage Tanks",
     link: "/tanks",
     external: false,
-    image: "/assets/img/water-tank.jpg",
+    image: "/assets/img/underground-water-tank.jpg",
     icon: "material-symbols-light:water-damage-rounded"
   },
   {

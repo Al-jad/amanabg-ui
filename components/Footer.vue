@@ -10,7 +10,7 @@
               <p
                 class="mb-8 text-left text-2xl font-bold sm:text-center sm:text-base"
               >
-                Baghdad Municipality Water Monitoring System
+                Baghdad Mayoralty Water Monitoring System
               </p>
               <p class="w-[90%] text-left sm:text-center sm:text-sm">
                 real-time monitoring and management of water resources across Iraq. It offers comprehensive data on water tanks, discharge stations, and other critical infrastructure. Our platform enables efficient decision-making for water distribution, quality control, and resource planning.
@@ -67,9 +67,9 @@
                 </div>
               </div>
               <div class="mt-6">
-                <p class="mb-4 text-center text-2xl font-bold">
+                <!-- <p class="mb-4 text-center text-2xl font-bold">
                   Social Channels
-                </p>
+                </p> -->
                 <div class="flex flex-row items-center gap-8">
                   <a
                     href="https://www.facebook.com/profile.php?id=100068257788511&mibextid=ZbWKwL"

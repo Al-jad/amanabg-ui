@@ -9,6 +9,10 @@
       :sortField="sortField"
       :sortOrder="sortOrder"
       @row-click="onRowClick"
+      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+      paginatorPosition="bottom"
+      paginatorClass="justify-content-center"
+      :paginatorLeft="paginatorLeft"
     >
       <ColumnGroup type="header">
         <Row>
@@ -50,11 +54,6 @@
           </template>
         </template>
       </Column>
-      <template #paginatorstart>
-        <div class="text-sm text-white">
-          Showing max {{ rows }} of {{ value.length }} entries
-        </div>
-      </template>
     </DataTable>
   </div>
 </template>
@@ -115,6 +114,8 @@ const getDischargeArrow = (discharge) => {
   const maxDischarge = 15;
   return discharge < minDischarge ? '&darr;' : discharge > maxDischarge ? '&uarr;' : '';
 };
+
+const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entries`;
 
 </script>
 

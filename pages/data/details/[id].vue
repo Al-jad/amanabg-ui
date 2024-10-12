@@ -17,7 +17,7 @@
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to All Stations
         </NuxtLink>
-        <h1 class="text-3xl font-bold text-gray-800 p-6 pb-0 w-full">
+        <h1 class="text-2xl font-bold text-gray-800 p-6 pb-0 w-full">
           {{ stationName || 'Station name not found' }}
         </h1>
       </div>
@@ -50,8 +50,8 @@
         </div>
       </div>
       <div class="rounded-lg bg-white p-6 shadow-lg">
-        <h2 class="mb-4 text-2xl font-semibold text-gray-700">
-          {{ dataType }} Data
+        <h2 class="mb-4 text-2xl font-semibold">
+          Monitoring Data
         </h2>
         <Table
           :value="filteredData"

@@ -37,15 +37,15 @@
 <script setup>
 const images = ref([
   {
-    itemImageSrc: "/assets/img/baghdad-2.png",
+    itemImageSrc: "/assets/img/Device.jfif",
     alt: "Image 1",
   },
   {
-    itemImageSrc: "/assets/img/baghdad-stations.png",
+    itemImageSrc: "/assets/img/Tanks.jfif",
     alt: "Image 2",
   },
   {
-    itemImageSrc: "/assets/img/baghdad-1.png",
+    itemImageSrc: "/assets/img/Param.jfif",
     alt: "Image 3",
   },
 ]);
