@@ -1,6 +1,7 @@
 <template>
   <div class="container mx-auto">
-    <DataTable removableSort
+    <DataTable
+      removableSort
       :value="value"
       class="text-nowrap !bg-DarkBlue"
       :rows="rows"
@@ -16,23 +17,39 @@
     >
       <ColumnGroup type="header">
         <Row>
-          <Column v-for="(header, index) in headers" :key="index" :header="header.text" :colspan="header.colspan" :headerClass="header.class" />
+          <Column
+            v-for="(header, index) in headers"
+            :key="index"
+            :header="header.text"
+            :colspan="header.colspan"
+            :headerClass="header.class"
+          />
         </Row>
         <Row>
-          <Column v-for="(column, index) in columns" :key="index" :sortable="column.sortable" :field="column.field" :headerClass="column.class">
+          <Column
+            v-for="(column, index) in columns"
+            :key="index"
+            :sortable="column.sortable"
+            :field="column.field"
+            :headerClass="column.class"
+          >
             <template #header>
-             <div class="flex flex-col items-center">
-             <p class="font-bold">
-              {{ column.header }}
-             </p>
-              <div v-if="column.unit" class="mt-2 text-sm">({{ column.unit }})</div>
-             </div>
+              <div class="flex flex-col items-center">
+                <p class="font-bold">
+                  {{ column.header }}
+                </p>
+                <div v-if="column.unit" class="mt-2 text-sm">
+                  ({{ column.unit }})
+                </div>
+              </div>
             </template>
           </Column>
         </Row>
       </ColumnGroup>
       <template #empty>
-        <div class="m-0 bg-DarkBlue p-4 text-center text-white">No data available</div>
+        <div class="m-0 bg-DarkBlue p-4 text-center text-white">
+          No data available
+        </div>
       </template>
       <Column
         v-for="(column, index) in columns"
@@ -42,16 +59,24 @@
         :sortable="column.sortable"
       >
         <template #body="slotProps">
-          <component :is="column.slot" :slotProps="slotProps" v-if="column.slot" />
-          <template v-else-if="column.field === 'discharge'">
-            <span :class="getDischargeColor(slotProps.data[column.field])">
+          <div class="text-center">
+            <component
+              :is="column.slot"
+              :slotProps="slotProps"
+              v-if="column.slot"
+            />
+            <template v-else-if="column.field === 'discharge'">
+              <span :class="getDischargeColor(slotProps.data[column.field])">
+                {{ slotProps.data[column.field] }}
+                <span
+                  v-html="getDischargeArrow(slotProps.data[column.field])"
+                ></span>
+              </span>
+            </template>
+            <template v-else>
               {{ slotProps.data[column.field] }}
-              <span v-html="getDischargeArrow(slotProps.data[column.field])"></span>
-            </span>
-          </template>
-          <template v-else>
-            {{ slotProps.data[column.field] }}
-          </template>
+            </template>
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -62,61 +87,66 @@
 const props = defineProps({
   value: {
     type: Object,
-    default: () => []
+    default: () => [],
   },
   rows: {
     type: Number,
-    default: 10
+    default: 10,
   },
   paginator: {
     type: Boolean,
-    default: true
+    default: true,
   },
   scrollable: {
     type: Boolean,
-    default: true
+    default: true,
   },
   sortField: {
     type: String,
-    default: 'station.externalId'
+    default: "station.externalId",
   },
   sortOrder: {
     type: Number,
-    default: 1
+    default: 1,
   },
   headers: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   columns: {
     type: Array,
-    default: () => []
-  }
+    default: () => [],
+  },
 });
 
-const emit = defineEmits(['row-click']);
+const emit = defineEmits(["row-click"]);
 
 const onRowClick = (event) => {
   if (event.data && event.data.station && event.data.station.id) {
     event.data.stationId = parseInt(event.data.station.id, 10);
   }
-  emit('row-click', event);
+  emit("row-click", event);
 };
 
 const getDischargeColor = (discharge) => {
   const minDischarge = 10;
   const maxDischarge = 15;
-  return discharge < minDischarge || discharge > maxDischarge ? 'text-red-500' : 'text-black';
+  return discharge < minDischarge || discharge > maxDischarge
+    ? "text-red-500"
+    : "text-black";
 };
 
 const getDischargeArrow = (discharge) => {
   const minDischarge = 10;
   const maxDischarge = 15;
-  return discharge < minDischarge ? '&darr;' : discharge > maxDischarge ? '&uarr;' : '';
+  return discharge < minDischarge
+    ? "&darr;"
+    : discharge > maxDischarge
+      ? "&uarr;"
+      : "";
 };
 
 const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entries`;
-
 </script>
 
 <style>
@@ -124,7 +154,7 @@ const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entrie
   @apply !text-white sm:scale-75;
 }
 .p-datatable tr {
-  @apply !bg-DarkBlue cursor-pointer;
+  @apply cursor-pointer !bg-DarkBlue;
 }
 .p-paginator {
   @apply !bg-DarkBlue !text-white;
@@ -165,12 +195,12 @@ const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entrie
   @apply !bg-gray-100 !text-black;
 }
 .p-datatable .p-datatable-tbody > tr:not(.p-datatable-empty-message):hover {
-  @apply !bg-gray-300 !text-black !cursor-pointer;
+  @apply !cursor-pointer !bg-gray-300 !text-black;
 }
 .p-paginator-rpp-dropdown {
-  @apply !bg-DarkNavy !text-white border-white;
+  @apply border-white !bg-DarkNavy !text-white;
 }
 .p-select-overlay {
-  @apply !bg-DarkNavy hover:!bg-DarkBlue !text-white border-white;
+  @apply border-white !bg-DarkNavy !text-white hover:!bg-DarkBlue;
 }
 </style>
