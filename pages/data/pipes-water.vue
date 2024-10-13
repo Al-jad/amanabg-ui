@@ -156,15 +156,15 @@ const headers = [
 
 const columns = [
   { header: "ID", sortable: false, field: "stationId" },
-  { header: "Name", sortable: false, field: "stationName" },
-  { header: "City", sortable: false, field: "stationCity" },
+  { header: "Project Name", sortable: false, field: "stationName" },
+  // { header: "City", sortable: false, field: "stationCity" },
   { header: "Date", sortable: true, field: "date" },
   { header: "Time", sortable: true, field: "time" },
   { header: "Q", sortable: true, field: "discharge", unit: "m³/min" },
   { header: "Q", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
   { header: "Q", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
-  { header: "P", sortable: true, field: "pressure", unit: "bar" },
-  { header: "Cl", sortable: true, field: "cl", unit: "mg/L" },
+  { header: "P", sortable: true, field: "pressure", unit: "Bar" },
+  { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
   { header: "TDS", sortable: true, field: "electricConductivity", unit: "μS/cm" },
 ].map((column) => ({

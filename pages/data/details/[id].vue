@@ -12,47 +12,50 @@
         (minuteData && minuteData.length > 0)
       "
     >
-      <div class="flex flex-col items-start gap-4 mb-8">
-        <NuxtLink to="/data/pipes-water" class="text-DarkBlue hover:text-DarkBlue/80 transition-colors duration-300 flex items-center">
+      <div class="mb-8 flex flex-col items-start gap-4">
+        <NuxtLink
+          to="/data/pipes-water"
+          class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
+        >
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to All Stations
         </NuxtLink>
-        <h1 class="text-2xl font-bold text-gray-800 p-6 pb-0 w-full">
-          {{ stationName || 'Station name not found' }}
+        <h1 class="w-full p-6 pb-0 text-2xl font-bold text-gray-800">
+          {{ stationName || "Station name not found" }}
         </h1>
       </div>
-      <div class="mb-6 rounded-lg bg-white pt-0 p-6 shadow-lg">
-        <p class="mb-2">
+      <div class="mb-6 rounded-lg bg-white p-6 pt-0 shadow-lg">
+        <!-- <p class="mb-2">
           <span class="pr-2">City: </span>
           <span>{{ stationCity || "N/A" }}</span>
-        </p>
-        <div class="mr-4 flex items-center gap-4">
-          <label for="from">From</label>
-          <DatePicker
-            v-model="fromDate"
-            dateFormat="dd/mm/yy"
-            class="h-10"
-            @change="applyDateFilter"
-          />
-          <label for="to">To</label>
-          <DatePicker
-            v-model="toDate"
-            dateFormat="dd/mm/yy"
-            class="h-10"
-            @change="applyDateFilter"
-          />
-          <button
-            @click="resetDateFilter"
-            class="rounded bg-DarkBlue px-4 py-2 font-bold text-white hover:bg-DarkBlue/90"
-          >
-            Reset
-          </button>
-        </div>
+        </p> -->
       </div>
       <div class="rounded-lg bg-white p-6 shadow-lg">
-        <h2 class="mb-4 text-2xl font-semibold">
-          Monitoring Data
-        </h2>
+        
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="mb-4 text-2xl font-semibold">Monitoring Data</h2>
+          <div class="mr-4 flex items-center gap-4">
+            <label for="from">From</label>
+            <DatePicker
+              v-model="fromDate"
+              dateFormat="dd/mm/yy"
+              class="h-10"
+              @change="applyDateFilter"
+            />
+            <label for="to">To</label>
+            <DatePicker
+              v-model="toDate"
+              dateFormat="dd/mm/yy"
+              class="h-10"
+              @change="applyDateFilter"
+            />
+            <Button
+              @click="resetDateFilter"
+              label="OK"
+              class="!border-none !bg-DarkBlue !text-white"
+            />
+          </div>
+        </div>
         <Table
           :value="filteredData"
           :columns="columns"
@@ -73,7 +76,7 @@
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia';
+import { storeToRefs } from "pinia";
 
 const route = useRoute();
 const stationDataHourStore = useStationDataHourStore();
@@ -108,7 +111,7 @@ const subtractMonths = (date, months) => {
 const fromDate = ref(startOfDay(subtractMonths(new Date(), 3)));
 const toDate = ref(endOfDay(new Date()));
 const minuteDate = ref(null);
-const minuteDateError = ref('');
+const minuteDateError = ref("");
 const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } =
   stationDataHourStore;
 
@@ -149,10 +152,10 @@ const fetchData = async () => {
     console.error("Invalid station ID");
     return;
   }
-  await stationDataHourStore.fetchHourlyData({ 
+  await stationDataHourStore.fetchHourlyData({
     stationId,
     fromDate: fromDate.value,
-    toDate: toDate.value
+    toDate: toDate.value,
   });
 };
 
@@ -172,7 +175,7 @@ const resetDateFilter = () => {
 const resetToHourlyData = () => {
   dataType.value = "Hourly";
   minuteDate.value = null;
-  minuteDateError.value = '';
+  minuteDateError.value = "";
 };
 
 const formattedData = computed(() => {
@@ -182,8 +185,15 @@ const formattedData = computed(() => {
     const date = new Date(item.timeStamp);
     return {
       ...item,
-      date: date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-      time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      date: date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+      time: date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
   });
 });
@@ -214,8 +224,11 @@ watch([fromDate, toDate], applyDateFilter);
 
 const onRowClick = (event) => {
   const clickedDate = new Date(event.data.timeStamp);
-  const formattedDate = clickedDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-  router.push(`/data/details/perMinute/${route.params.id}?date=${formattedDate}`);
+  const formattedDate = clickedDate.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+  const minuteDataUrl = `/data/details/perMinute/${route.params.id}?date=${formattedDate}`;
+
+  // Open in a new tab
+  window.open(minuteDataUrl, "_blank");
 };
 </script>
 

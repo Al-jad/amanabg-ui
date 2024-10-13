@@ -41,7 +41,7 @@ const cardItems = [
   },
   {
     id: 4,
-    title: "Drinking Stastics",
+    title: "Tolling and Statistics",
     link: "/tolling-system",
     external: false,
     image: "/assets/img/water-quality.jpg",

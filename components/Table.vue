@@ -38,7 +38,7 @@
                 <p class="font-bold">
                   {{ column.header }}
                 </p>
-                <div v-if="column.unit" class="mt-2 text-sm">
+                <div v-if="column.unit" class="mt-2 text-base">
                   ({{ column.unit }})
                 </div>
               </div>
