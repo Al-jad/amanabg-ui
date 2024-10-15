@@ -198,8 +198,8 @@ const filteredPipesData = computed(() => {
 const formattedFilteredPipesData = computed(() => {
   return filteredPipesData.value.map((item) => {
     const date = new Date(item.timeStamp);
-    // Convert EC to TDS
-    const tds = ((item.electricConductivity * 1000) / 2).toFixed(2);
+    // Convert EC to TDS using the correct formula
+    const tds = (item.electricConductivity * 0.65).toFixed(2);
     return {
       ...item,
       stationName: item.station.name,
@@ -296,6 +296,62 @@ const getDischargeArrow = (discharge) => {
   const minDischarge = 11;
   return discharge < minDischarge ? "&darr" : "&uarr;";
 };
+
+const hourlyChartData = ref([]);
+const paramNames = ref({
+  discharge: { full: 'Discharge', short: 'Q' },
+  totalVolumePerHour: { full: 'Hourly Volume', short: 'Q (h)' },
+  totalVolumePerDay: { full: 'Daily Volume', short: 'Q (d)' },
+  pressure: { full: 'Pressure', short: 'P' },
+  cl: { full: 'Chlorine', short: 'Cl' },
+  turbidity: { full: 'Turbidity', short: 'Turb' },
+  electricConductivity: { full: 'TDS', short: 'TDS' },
+});
+const units = ref({
+  discharge: 'm³/min',
+  totalVolumePerHour: 'm³/h',
+  totalVolumePerDay: 'm³/d',
+  pressure: 'Bar',
+  cl: 'mg/L',
+  turbidity: 'NTU',
+  electricConductivity: 'mg/L',
+});
+const selectedParam = ref('discharge');
+
+const formattedHourlyChartData = computed(() => {
+  return hourlyChartData.value.map(item => {
+    if (!item) return null;
+    return {
+      timeStamp: new Date(item.timeStamp),
+      discharge: item.discharge || null,
+      totalVolumePerHour: item.totalVolumePerHour || null,
+      totalVolumePerDay: item.totalVolumePerDay || null,
+      pressure: item.pressure || null,
+      cl: item.cl || null,
+      turbidity: item.turbidity || null,
+      electricConductivity: item.electricConductivity ? Number((item.electricConductivity * 0.65).toFixed(2)) : null
+    };
+  }).filter(item => item !== null);
+});
+
+// Fetch hourly data for the chart
+const fetchHourlyData = async () => {
+  try {
+    const { $axios } = useNuxtApp();
+    const { data } = await $axios.get("/Pipes/hourly_data");
+    hourlyChartData.value = Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching hourly data:", error);
+    hourlyChartData.value = [];
+  }
+};
+
+onMounted(async () => {
+  await fetchHourlyData();
+  await initializeComponent();
+});
+
+// ... (rest of the existing code)
 </script>
 
 <style>

@@ -35,6 +35,9 @@
                   ></span>
                 </span>
               </template>
+              <template v-else-if="col.field === 'electricConductivity'">
+                {{ slotProps.data[col.field].toFixed(2) }}
+              </template>
               <template v-else>
                 {{ slotProps.data[col.field] }}
               </template>
@@ -42,6 +45,12 @@
           </template>
         </Table>
       </div>
+      <EChart 
+        :hourlyData="formattedMinuteData" 
+        :paramNames="paramNames" 
+        :selectedParam="'discharge'"
+        :units="units"
+      />
     </div>
     <div v-else class="text-center">
       <p class="text-lg text-gray-600">No minute data available for the selected date</p>
@@ -51,6 +60,7 @@
 
 <script setup>
 import { storeToRefs } from 'pinia';
+import EChart from '~/components/EChart.vue';
 
 const route = useRoute();
 const stationDataMinuteStore = useStationDataMinuteStore();
@@ -61,17 +71,56 @@ const {
   error,
 } = storeToRefs(stationDataMinuteStore);
 
+const paramNames = {
+  discharge: {
+    short: "Q (min)",
+    full: "Q (Minute)"
+  },
+  totalVolumePerHour: {
+    short: "Q (h)",
+    full: "Q (Hourly)"
+  },
+  totalVolumePerDay: {
+    short: "Q (d)",
+    full: "Q (Daily)"
+  },
+  pressure: {
+    short: "P",
+    full: "Pressure"
+  },
+  cl: {
+    short: "Cl",
+    full: "Chlorine"
+  },
+  turbidity: {
+    short: "Turb.",
+    full: "Turbidity"
+  },
+  electricConductivity: {
+    short: "TDS",
+    full: "Total Dissolved Solids"
+  }
+};
 
+const units = {
+  discharge: "m³/min",
+  totalVolumePerHour: "m³/h",
+  totalVolumePerDay: "m³/d",
+  pressure: "bar",
+  cl: "mg/L",
+  turbidity: "NTU",
+  electricConductivity: "mg/L"
+};
 
 const columns = [
   { header: "Time", sortable: true, field: "time" },
   { header: "Q", sortable: true, field: "discharge", unit: "m³/min" },
   { header: "Q", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
   { header: "Q", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
-  { header: "P.", sortable: true, field: "pressure", unit: "bar" },
-  { header: "cL⁺", sortable: true, field: "cl", unit: "mg/L" },
-  { header: "Turb.", sortable: true, field: "turbidity", unit: "NTU" },
-  { header: "EC", sortable: true, field: "electricConductivity", unit: "μS/cm" },
+  { header: "P", sortable: true, field: "pressure", unit: "bar" },
+  { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
+  { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
+  { header: "TDS", sortable: true, field: "electricConductivity", unit: "mg/L" },
 ].map((column) => ({
   ...column,
   class:
@@ -91,6 +140,8 @@ const formattedMinuteData = computed(() => {
     return {
       ...item,
       time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      timeStamp: date,
+      electricConductivity: Number((item.electricConductivity * 0.65).toFixed(2)) // Convert EC to TDS using TDS = EC * 0.65 and round to 2 decimal places
     };
   });
 });
@@ -117,7 +168,3 @@ const getDischargeArrow = (discharge) => {
   return discharge < minDischarge ? "&darr;" : "&uarr;";
 };
 </script>
-
-<style scoped>
-/* Add any scoped styles here */
-</style>

@@ -166,9 +166,9 @@ const columns = computed(() => {
       field: "totalVolumePerDay",
       unit: "m³/d"
     },
-    { header: paramNames.pressure.short, sortable: true, field: "pressure", unit: "Bar" },
-    { header: paramNames.cl.short, sortable: true, field: "cl", unit: "mg/L" },
-    { header: paramNames.turbidity.short, sortable: true, field: "turbidity", unit: "NTU" },
+    { header: "P", sortable: true, field: "pressure", unit: "Bar" },
+    { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
+    { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
     {
       header: paramNames.tds.short,
       sortable: true,
@@ -221,7 +221,7 @@ const formattedHourlyData = computed(() => {
 
   return hourlyData.value.map((item) => {
     const date = new Date(item.timeStamp);
-    const tds = ((item.electricConductivity * 1000) / 2).toFixed(2);
+    const tds = (item.electricConductivity * 0.65).toFixed(2); // Updated TDS calculation
     return {
       ...item,
       date: date.toLocaleDateString("en-GB", {
