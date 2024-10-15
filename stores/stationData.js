@@ -31,7 +31,7 @@ export const useStationStore = defineStore('station', {
 
         this.connection.on('ReceiveStationData', (station, latestPipesData) => {
           this.stationData = station;
-          this.pipesData = Array.isArray(latestPipesData) ? latestPipesData : [latestPipesData];
+          this.pipesData = station
         });
 
         await this.connection.start();
@@ -51,19 +51,3 @@ export const useStationStore = defineStore('station', {
     },
   },
 });
-
-// You might want to call this in your component or App.vue
-// import { useStationStore } from './stores/stationData';
-// import { onMounted } from 'vue';
-// 
-// export default {
-//   setup() {
-//     const stationStore = useStationStore();
-//
-//     onMounted(() => {
-//       stationStore.connect();
-//     });
-//
-//     return { stationStore };
-//   }
-// };

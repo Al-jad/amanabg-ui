@@ -181,10 +181,10 @@ const pipesData = computed(() => {
 });
 
 const extractCities = () => {
-  const uniqueCities = new Set(
-    pipesData.value.map((item) => item.station.city),
-  );
-  cities.value = Array.from(uniqueCities);
+  // const uniqueCities = new Set(
+  //   pipesData.value.map((item) => item.station.city),
+  // );
+  // cities.value = Array.from(uniqueCities);
 };
 
 const filteredPipesData = computed(() => {
