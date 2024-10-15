@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, shallowRef } from 'vue';
+import { ref, computed, watch, shallowRef } from 'vue';
 import VChart from 'vue-echarts';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -50,22 +50,21 @@ const props = defineProps({
   hourlyData: {
     type: Array,
     default: () => []
+  },
+  paramNames: {
+    type: Object,
+    required: true
   }
 });
 
-const selectedParam = ref('discharge');
+const selectedParam = ref('qHour');
 const chartReady = ref(true);
 
 const availableParams = computed(() => {
-  if (!props.hourlyData || props.hourlyData.length === 0) return [];
-  return Object.keys(props.hourlyData[0])
-    .filter(key => 
-      typeof props.hourlyData[0][key] === 'number' && 
-      key !== 'id' && 
-      key !== 'stationId' &&
-      key !== 'record'
-    )
-    .map(key => ({ label: key.split(/(?=[A-Z])/).join(' ').replace(/\b\w/g, c => c.toUpperCase()), value: key }));
+  return Object.entries(props.paramNames).map(([key, value]) => ({
+    label: value.full,
+    value: key
+  }));
 });
 
 const formatDate = (timestamp) => {
@@ -88,13 +87,12 @@ const updateChartOption = () => {
   const values = props.hourlyData.map((item) => item[selectedParam.value]);
 
   const units = {
-    discharge: 'm³/h',
-    totalVolumePerHour: 'm³',
-    totalVolumePerDay: 'm³',
-    pressure: 'bar',
+    qHour: 'm³/h',
+    qDay: 'm³/d',
+    pressure: 'Bar',
     cl: 'mg/L',
     turbidity: 'NTU',
-    electricConductivity: 'μS/cm'
+    tds: 'mg/L'
   };
 
   chartOption.value = {
@@ -159,7 +157,7 @@ const updateChartOption = () => {
       formatter: function (params) {
         const value = params[0].value;
         const date = params[0].axisValue;
-        const paramName = selectedParam.value.split(/(?=[A-Z])/).join(' ').replace(/\b\w/g, c => c.toUpperCase());
+        const paramName = props.paramNames[selectedParam.value].full;
         return `<strong>${date}</strong><br/>${paramName}: ${value} ${units[selectedParam.value] || ''}`;
       },
       backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -178,7 +176,7 @@ watch([() => props.hourlyData, selectedParam], () => {
 
 watch(() => props.hourlyData, (newValue) => {
   if (newValue && newValue.length > 0 && !selectedParam.value) {
-    selectedParam.value = availableParams.value[0]?.value || 'discharge';
+    selectedParam.value = availableParams.value[0]?.value || 'qHour';
   }
 }, { immediate: true });
 </script>

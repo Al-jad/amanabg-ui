@@ -70,7 +70,11 @@
       <p class="text-lg text-gray-600">No data available</p>
     </div>
     <div>
-      <EChart :hourlyData="dataType === 'Hourly' ? hourlyData : minuteData" />
+      <EChart 
+        :hourlyData="dataType === 'Hourly' ? formattedHourlyData : formattedMinuteData" 
+        :includeTDS="true"
+        :paramNames="paramNames"
+      />
     </div>
   </div>
 </template>
@@ -119,23 +123,57 @@ const dataLoading = computed(() => hourLoading.value);
 const dataError = computed(() => hourError.value);
 const dataType = ref("Hourly");
 
+const paramNames = {
+  qHour: {
+    short: "Q (h)",
+    full: "Q (Hourly)"
+  },
+  qDay: {
+    short: "Q (d)",
+    full: "Q (Daily)"
+  },
+  pressure: {
+    short: "P",
+    full: "Pressure"
+  },
+  turbidity: {
+    short: "Turb.",
+    full: "Turbidity"
+  },
+  cl: {
+    short: "Cl",
+    full: "Chlorine"
+  },
+  tds: {
+    short: "TDS",
+    full: "Total Dissolved Solids"
+  }
+};
+
 const columns = computed(() => {
   const baseColumns = [
     { header: "Date", sortable: true, field: "date" },
     { header: "Time", sortable: true, field: "time" },
     {
-      header: "Total Volume/Hour",
+      header: paramNames.qHour.short,
       sortable: true,
       field: "totalVolumePerHour",
+      unit: "m³/h"
     },
-    { header: "Total Volume/Day", sortable: true, field: "totalVolumePerDay" },
-    { header: "Press.", sortable: true, field: "pressure" },
-    { header: "CL", sortable: true, field: "cl" },
-    { header: "Turb.", sortable: true, field: "turbidity" },
     {
-      header: "EC",
+      header: paramNames.qDay.short,
       sortable: true,
-      field: "electricConductivity",
+      field: "totalVolumePerDay",
+      unit: "m³/d"
+    },
+    { header: paramNames.pressure.short, sortable: true, field: "pressure", unit: "Bar" },
+    { header: paramNames.cl.short, sortable: true, field: "cl", unit: "mg/L" },
+    { header: paramNames.turbidity.short, sortable: true, field: "turbidity", unit: "NTU" },
+    {
+      header: paramNames.tds.short,
+      sortable: true,
+      field: "tds",
+      unit: "mg/L"
     },
   ];
 
@@ -178,11 +216,12 @@ const resetToHourlyData = () => {
   minuteDateError.value = "";
 };
 
-const formattedData = computed(() => {
+const formattedHourlyData = computed(() => {
   if (!hourlyData.value) return [];
 
   return hourlyData.value.map((item) => {
     const date = new Date(item.timeStamp);
+    const tds = ((item.electricConductivity * 1000) / 2).toFixed(2);
     return {
       ...item,
       date: date.toLocaleDateString("en-GB", {
@@ -194,16 +233,24 @@ const formattedData = computed(() => {
         hour: "2-digit",
         minute: "2-digit",
       }),
+      tds: parseFloat(tds),
+      qHour: item.totalVolumePerHour,
+      qDay: item.totalVolumePerDay,
+      timeStamp: date,
     };
-  });
+  }).sort((a, b) => a.timeStamp - b.timeStamp);
+});
+
+const formattedMinuteData = computed(() => {
+  // Similar to formattedHourlyData, but for minute data if available
+  // If you don't have minute data, you can remove this computed property
 });
 
 const filteredData = computed(() => {
-  if (!fromDate.value || !toDate.value) return formattedData.value;
+  if (!fromDate.value || !toDate.value) return formattedHourlyData.value;
 
-  return formattedData.value.filter((item) => {
-    const itemDate = new Date(item.timeStamp);
-    return itemDate >= fromDate.value && itemDate <= toDate.value;
+  return formattedHourlyData.value.filter((item) => {
+    return item.timeStamp >= fromDate.value && item.timeStamp <= toDate.value;
   });
 });
 

@@ -91,7 +91,7 @@
           <p>P = Pressure of water in the pipe</p>
           <p>cL⁺ = Chlorine level in the pipe</p>
           <p>Turb. = Turbidity of water in the pipe</p>
-          <p>EC = Electrical conductivity of water in the pipe</p>
+          <p>TDS = Total Dissolved Solids in the pipe</p>
         </div>
       </div>
       <div v-else-if="selectedView === 'Map'">
@@ -166,7 +166,7 @@ const columns = [
   { header: "P", sortable: true, field: "pressure", unit: "Bar" },
   { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
-  { header: "TDS", sortable: true, field: "electricConductivity", unit: "μS/cm" },
+  { header: "TDS", sortable: true, field: "tds", unit: "mg/L" },
 ].map((column) => ({
   ...column,
   class:
@@ -198,6 +198,8 @@ const filteredPipesData = computed(() => {
 const formattedFilteredPipesData = computed(() => {
   return filteredPipesData.value.map((item) => {
     const date = new Date(item.timeStamp);
+    // Convert EC to TDS
+    const tds = ((item.electricConductivity * 1000) / 2).toFixed(2);
     return {
       ...item,
       stationName: item.station.name,
@@ -220,6 +222,7 @@ const formattedFilteredPipesData = computed(() => {
         minute: "2-digit",
         hour12: true,
       }),
+      tds: tds,
     };
   });
 });
