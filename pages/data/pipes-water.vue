@@ -85,7 +85,7 @@
           <p class="text-gray-500">No data available</p>
         </div>
         <div class="mt-4 text-sm">
-          <p>Q (m³/min) = pipe discharge in the last minute </p>
+          <p>Q (m³/min) = pipe discharge in the last minute</p>
           <p>Q (m³/h) = pipe discharge in the last hour</p>
           <p>Q (m³/d) = pipe discharge in the last day</p>
           <p>P = Pressure of water in the pipe</p>
@@ -197,13 +197,13 @@ const filteredPipesData = computed(() => {
 
 const formattedFilteredPipesData = computed(() => {
   return filteredPipesData.value.map((item) => {
-    const date = new Date(item.timeStamp);
+    const date = new Date(item?.timeStamp);
     // Convert EC to TDS using the correct formula
-    const tds = (item.electricConductivity * 0.65).toFixed(2);
+    const tds = (item?.electricConductivity * 0.65).toFixed(2);
     return {
       ...item,
-      stationName: item.station.name,
-      stationCity: item.station.city,
+      stationName: item?.station?.name,
+      stationCity: item?.station?.city,
       date: date.toLocaleDateString("en-GB", {
         month: "2-digit",
         day: "2-digit",
@@ -229,9 +229,15 @@ const formattedFilteredPipesData = computed(() => {
 
 const filteredMapStations = computed(() => {
   return filteredPipesData.value.filter((item) => {
-    return item && item.station && typeof item.station === 'object' && 
-           'lat' in item.station && 'lng' in item.station &&
-           item.station.lat !== null && item.station.lng !== null;
+    return (
+      item &&
+      item.station &&
+      typeof item.station === "object" &&
+      "lat" in item.station &&
+      "lng" in item.station &&
+      item.station.lat !== null &&
+      item.station.lng !== null
+    );
   });
 });
 
@@ -239,9 +245,7 @@ const dataSource = ref("API");
 const lastUpdated = ref(null);
 const loading = ref(true);
 
-const filterByCity = () => {
-  
-};
+const filterByCity = () => {};
 
 const fetchInitialData = async () => {
   loading.value = true;
@@ -299,39 +303,43 @@ const getDischargeArrow = (discharge) => {
 
 const hourlyChartData = ref([]);
 const paramNames = ref({
-  discharge: { full: 'Discharge', short: 'Q' },
-  totalVolumePerHour: { full: 'Hourly Volume', short: 'Q (h)' },
-  totalVolumePerDay: { full: 'Daily Volume', short: 'Q (d)' },
-  pressure: { full: 'Pressure', short: 'P' },
-  cl: { full: 'Chlorine', short: 'Cl' },
-  turbidity: { full: 'Turbidity', short: 'Turb' },
-  electricConductivity: { full: 'TDS', short: 'TDS' },
+  discharge: { full: "Discharge", short: "Q" },
+  totalVolumePerHour: { full: "Hourly Volume", short: "Q (h)" },
+  totalVolumePerDay: { full: "Daily Volume", short: "Q (d)" },
+  pressure: { full: "Pressure", short: "P" },
+  cl: { full: "Chlorine", short: "Cl" },
+  turbidity: { full: "Turbidity", short: "Turb" },
+  electricConductivity: { full: "TDS", short: "TDS" },
 });
 const units = ref({
-  discharge: 'm³/min',
-  totalVolumePerHour: 'm³/h',
-  totalVolumePerDay: 'm³/d',
-  pressure: 'Bar',
-  cl: 'mg/L',
-  turbidity: 'NTU',
-  electricConductivity: 'mg/L',
+  discharge: "m³/min",
+  totalVolumePerHour: "m³/h",
+  totalVolumePerDay: "m³/d",
+  pressure: "Bar",
+  cl: "mg/L",
+  turbidity: "NTU",
+  electricConductivity: "mg/L",
 });
-const selectedParam = ref('discharge');
+const selectedParam = ref("discharge");
 
 const formattedHourlyChartData = computed(() => {
-  return hourlyChartData.value.map(item => {
-    if (!item) return null;
-    return {
-      timeStamp: new Date(item.timeStamp),
-      discharge: item.discharge || null,
-      totalVolumePerHour: item.totalVolumePerHour || null,
-      totalVolumePerDay: item.totalVolumePerDay || null,
-      pressure: item.pressure || null,
-      cl: item.cl || null,
-      turbidity: item.turbidity || null,
-      electricConductivity: item.electricConductivity ? Number((item.electricConductivity * 0.65).toFixed(2)) : null
-    };
-  }).filter(item => item !== null);
+  return hourlyChartData.value
+    .map((item) => {
+      if (!item) return null;
+      return {
+        timeStamp: new Date(item.timeStamp),
+        discharge: item.discharge || null,
+        totalVolumePerHour: item.totalVolumePerHour || null,
+        totalVolumePerDay: item.totalVolumePerDay || null,
+        pressure: item.pressure || null,
+        cl: item.cl || null,
+        turbidity: item.turbidity || null,
+        electricConductivity: item.electricConductivity
+          ? Number((item.electricConductivity * 0.65).toFixed(2))
+          : null,
+      };
+    })
+    .filter((item) => item !== null);
 });
 
 // Fetch hourly data for the chart
@@ -365,6 +373,6 @@ onMounted(async () => {
   @apply !bg-DarkBlue/70 !text-white;
 }
 .p-select {
-  @apply !text-white
+  @apply !text-white;
 }
 </style>

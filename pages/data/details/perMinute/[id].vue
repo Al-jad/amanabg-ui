@@ -7,12 +7,15 @@
       <p class="text-lg font-semibold">{{ error }}</p>
     </div>
     <div v-else-if="minuteData && minuteData.length > 0">
-      <div class="flex flex-col items-start gap-4 mb-8">
-        <NuxtLink :to="`/data/details/${$route.params.id}`" class="text-DarkBlue hover:text-DarkBlue/80 transition-colors duration-300 flex items-center">
+      <div class="mb-8 flex flex-col items-start gap-4">
+        <NuxtLink
+          :to="`/data/details/${$route.params.id}`"
+          class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
+        >
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to Hourly Data
         </NuxtLink>
-        <h1 class="text-3xl font-bold text-gray-800 pb-2 w-full">
+        <h1 class="w-full pb-2 text-3xl font-bold text-gray-800">
           Minute Data for {{ formattedDate }}
         </h1>
       </div>
@@ -45,61 +48,57 @@
           </template>
         </Table>
       </div>
-      <EChart 
-        :hourlyData="formattedMinuteData" 
-        :paramNames="paramNames" 
+      <EChart
+        :hourlyData="formattedMinuteData"
+        :paramNames="paramNames"
         :selectedParam="'discharge'"
         :units="units"
       />
     </div>
     <div v-else class="text-center">
-      <p class="text-lg text-gray-600">No minute data available for the selected date</p>
+      <p class="text-lg text-gray-600">
+        No minute data available for the selected date
+      </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia';
-import EChart from '~/components/EChart.vue';
 
 const route = useRoute();
 const stationDataMinuteStore = useStationDataMinuteStore();
 
-const {
-  minuteData,
-  loading,
-  error,
-} = storeToRefs(stationDataMinuteStore);
+const { minuteData, loading, error } = storeToRefs(stationDataMinuteStore);
 
 const paramNames = {
   discharge: {
     short: "Q (min)",
-    full: "Q (Minute)"
+    full: "Q (Minute)",
   },
   totalVolumePerHour: {
     short: "Q (h)",
-    full: "Q (Hourly)"
+    full: "Q (Hourly)",
   },
   totalVolumePerDay: {
     short: "Q (d)",
-    full: "Q (Daily)"
+    full: "Q (Daily)",
   },
   pressure: {
     short: "P",
-    full: "Pressure"
+    full: "Pressure",
   },
   cl: {
     short: "Cl",
-    full: "Chlorine"
+    full: "Chlorine",
   },
   turbidity: {
     short: "Turb.",
-    full: "Turbidity"
+    full: "Turbidity",
   },
   electricConductivity: {
     short: "TDS",
-    full: "Total Dissolved Solids"
-  }
+    full: "Total Dissolved Solids",
+  },
 };
 
 const units = {
@@ -109,7 +108,7 @@ const units = {
   pressure: "bar",
   cl: "mg/L",
   turbidity: "NTU",
-  electricConductivity: "mg/L"
+  electricConductivity: "mg/L",
 };
 
 const columns = [
@@ -120,7 +119,12 @@ const columns = [
   { header: "P", sortable: true, field: "pressure", unit: "bar" },
   { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
-  { header: "TDS", sortable: true, field: "electricConductivity", unit: "mg/L" },
+  {
+    header: "TDS",
+    sortable: true,
+    field: "electricConductivity",
+    unit: "mg/L",
+  },
 ].map((column) => ({
   ...column,
   class:
@@ -129,7 +133,11 @@ const columns = [
 
 const formattedDate = computed(() => {
   const date = new Date(route.query.date);
-  return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 });
 
 const formattedMinuteData = computed(() => {
@@ -139,9 +147,15 @@ const formattedMinuteData = computed(() => {
     const date = new Date(item.timeStamp);
     return {
       ...item,
-      time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      time: date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
       timeStamp: date,
-      electricConductivity: Number((item.electricConductivity * 0.65).toFixed(2)) // Convert EC to TDS using TDS = EC * 0.65 and round to 2 decimal places
+      electricConductivity: Number(
+        (item.electricConductivity * 0.65).toFixed(2),
+      ), // Convert EC to TDS using TDS = EC * 0.65 and round to 2 decimal places
     };
   });
 });

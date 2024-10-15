@@ -31,8 +31,7 @@
         </p> -->
       </div>
       <div class="rounded-lg bg-white p-6 shadow-lg">
-        
-        <div class="flex items-center justify-between mb-4">
+        <div class="mb-4 flex items-center justify-between">
           <h2 class="mb-4 text-2xl font-semibold">Monitoring Data</h2>
           <div class="mr-4 flex items-center gap-4">
             <label for="from">From</label>
@@ -70,8 +69,10 @@
       <p class="text-lg text-gray-600">No data available</p>
     </div>
     <div>
-      <EChart 
-        :hourlyData="dataType === 'Hourly' ? formattedHourlyData : formattedMinuteData" 
+      <EChart
+        :hourlyData="
+          dataType === 'Hourly' ? formattedHourlyData : formattedMinuteData
+        "
         :includeTDS="true"
         :paramNames="paramNames"
       />
@@ -80,9 +81,8 @@
 </template>
 
 <script setup>
-import { storeToRefs } from "pinia";
 
-const route = useRoute();
+const route = useRoute()
 const stationDataHourStore = useStationDataHourStore();
 
 const {
@@ -126,28 +126,28 @@ const dataType = ref("Hourly");
 const paramNames = {
   qHour: {
     short: "Q (h)",
-    full: "Q (Hourly)"
+    full: "Q (Hourly)",
   },
   qDay: {
     short: "Q (d)",
-    full: "Q (Daily)"
+    full: "Q (Daily)",
   },
   pressure: {
     short: "P",
-    full: "Pressure"
+    full: "Pressure",
   },
   turbidity: {
     short: "Turb.",
-    full: "Turbidity"
+    full: "Turbidity",
   },
   cl: {
     short: "Cl",
-    full: "Chlorine"
+    full: "Chlorine",
   },
   tds: {
     short: "TDS",
-    full: "Total Dissolved Solids"
-  }
+    full: "Total Dissolved Solids",
+  },
 };
 
 const columns = computed(() => {
@@ -158,13 +158,13 @@ const columns = computed(() => {
       header: paramNames.qHour.short,
       sortable: true,
       field: "totalVolumePerHour",
-      unit: "m³/h"
+      unit: "m³/h",
     },
     {
       header: paramNames.qDay.short,
       sortable: true,
       field: "totalVolumePerDay",
-      unit: "m³/d"
+      unit: "m³/d",
     },
     { header: "P", sortable: true, field: "pressure", unit: "Bar" },
     { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
@@ -173,7 +173,7 @@ const columns = computed(() => {
       header: paramNames.tds.short,
       sortable: true,
       field: "tds",
-      unit: "mg/L"
+      unit: "mg/L",
     },
   ];
 
@@ -219,26 +219,28 @@ const resetToHourlyData = () => {
 const formattedHourlyData = computed(() => {
   if (!hourlyData.value) return [];
 
-  return hourlyData.value.map((item) => {
-    const date = new Date(item.timeStamp);
-    const tds = (item.electricConductivity * 0.65).toFixed(2); // Updated TDS calculation
-    return {
-      ...item,
-      date: date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
-      time: date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      tds: parseFloat(tds),
-      qHour: item.totalVolumePerHour,
-      qDay: item.totalVolumePerDay,
-      timeStamp: date,
-    };
-  }).sort((a, b) => a.timeStamp - b.timeStamp);
+  return hourlyData.value
+    .map((item) => {
+      const date = new Date(item.timeStamp);
+      const tds = (item.electricConductivity * 0.65).toFixed(2); // Updated TDS calculation
+      return {
+        ...item,
+        date: date.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        time: date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        tds: parseFloat(tds),
+        qHour: item.totalVolumePerHour,
+        qDay: item.totalVolumePerDay,
+        timeStamp: date,
+      };
+    })
+    .sort((a, b) => a.timeStamp - b.timeStamp);
 });
 
 const formattedMinuteData = computed(() => {

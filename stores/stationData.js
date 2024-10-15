@@ -4,7 +4,7 @@ import { HubConnectionBuilder, HttpTransportType, LogLevel } from '@microsoft/si
 export const useStationStore = defineStore('station', {
   state: () => ({
     stationData: null,
-    pipesData: null,
+    pipesData: [],
     error: '',
     isConnecting: false,
     connectionLogs: [],
@@ -31,7 +31,7 @@ export const useStationStore = defineStore('station', {
 
         this.connection.on('ReceiveStationData', (station, latestPipesData) => {
           this.stationData = station;
-          this.pipesData = latestPipesData,station;
+          this.pipesData = Array.isArray(latestPipesData) ? latestPipesData : [latestPipesData];
         });
 
         await this.connection.start();
@@ -47,7 +47,7 @@ export const useStationStore = defineStore('station', {
 
     // Add this method to set pipes data
     setPipesData(data) {
-      this.pipesData = data;
+      this.pipesData = Array.isArray(data) ? data : [data];
     },
   },
 });
