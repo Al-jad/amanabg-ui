@@ -20,38 +20,44 @@
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to All Stations
         </NuxtLink>
-        <h1 class="w-full p-6 pb-0 text-2xl font-bold text-gray-800">
+        <h1 class="w-full p-6 pb-0 text-xl font-bold text-gray-800 sm:text-2xl">
           {{ stationName || "Station name not found" }}
         </h1>
       </div>
-      <div class="mb-6 rounded-lg bg-white p-6 pt-0 shadow-lg">
-        <!-- <p class="mb-2">
+      <!-- <div class="mb-6 rounded-lg bg-white p-4 pt-0 shadow-lg sm:p-6">
+        <p class="mb-2">
           <span class="pr-2">City: </span>
           <span>{{ stationCity || "N/A" }}</span>
-        </p> -->
-      </div>
-      <div class="rounded-lg bg-white p-6 shadow-lg">
-        <div class="mb-4 flex items-center justify-between">
-          <h2 class="mb-4 text-2xl font-semibold">Monitoring Data</h2>
-          <div class="mr-4 flex items-center gap-4">
-            <label for="from">From</label>
-            <DatePicker
-              v-model="fromDate"
-              dateFormat="dd/mm/yy"
-              class="h-10"
-              @change="applyDateFilter"
-            />
-            <label for="to">To</label>
-            <DatePicker
-              v-model="toDate"
-              dateFormat="dd/mm/yy"
-              class="h-10"
-              @change="applyDateFilter"
-            />
+        </p>
+      </div> -->
+      <div class="rounded-lg bg-white p-4 shadow-lg sm:p-6">
+        <div class="mb-4 flex sm:flex-col items-center justify-between">
+          <h2 class="mb-4 text-xl font-semibold">
+            Monitoring Data
+          </h2>
+          <div class="flex items-center gap-2 sm:gap-4">
+            <div class="w-full sm:w-auto flex flex-row items-center gap-2">
+              <label for="from" class="text-sm sm:text-base">From</label>
+              <DatePicker
+                v-model="fromDate"
+                dateFormat="dd/mm/yy"
+                class="h-8 sm:h-10"
+                @change="applyDateFilter"
+              />
+            </div>
+            <div class="w-full sm:w-auto flex flex-row items-center gap-2">
+              <label for="to" class="text-sm sm:text-base">To</label>
+              <DatePicker
+                v-model="toDate"
+                dateFormat="dd/mm/yy"
+                class="h-8 sm:h-10"
+                @change="applyDateFilter"
+              />
+            </div>
             <Button
               @click="resetDateFilter"
               label="OK"
-              class="!border-none !bg-DarkBlue !text-white"
+              class="!border-none !bg-DarkBlue text-sm !text-white sm:text-base"
             />
           </div>
         </div>
@@ -66,7 +72,7 @@
       </div>
     </div>
     <div v-else class="text-center">
-      <p class="text-lg text-gray-600">No data available</p>
+      <p class="text-base text-gray-600 sm:text-lg">No data available</p>
     </div>
     <div>
       <EChart
@@ -81,8 +87,7 @@
 </template>
 
 <script setup>
-
-const route = useRoute()
+const route = useRoute();
 const stationDataHourStore = useStationDataHourStore();
 
 const {
@@ -180,7 +185,7 @@ const columns = computed(() => {
   return baseColumns.map((column) => ({
     ...column,
     class:
-      "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-2",
+      "!bg-DarkBlue !text-xs sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
   }));
 });
 
@@ -283,6 +288,6 @@ const onRowClick = (event) => {
 
 <style>
 .p-datepicker-input {
-  @apply !bg-gray-200 !text-black;
+  @apply !bg-gray-200 text-sm !text-black sm:text-base;
 }
 </style>

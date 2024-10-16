@@ -346,7 +346,7 @@ const formattedHourlyChartData = computed(() => {
 const fetchHourlyData = async () => {
   try {
     const { $axios } = useNuxtApp();
-    const { data } = await $axios.get("/Pipes/hourly_data");
+    const { data } = await $axios.get("/Pipes/hourly");
     hourlyChartData.value = Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Error fetching hourly data:", error);
