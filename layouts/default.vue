@@ -16,8 +16,8 @@
                 />
               </div>
               <div class="text-white">
-                <h1 class="text-xl font-semibold sm:text-base">Baghdad Mayoralty</h1>
-                <p class="text-sm hidden sm:block">Republic of Iraq</p>
+                <h1 class="text-xl font-semibold sm:text-base">Water Monitoring System</h1>
+                <p class="text-sm sm:block">Baghdad Mayoralty</p>
               </div>
             </NuxtLink>
           </template>

@@ -13,7 +13,7 @@
                 Baghdad Mayoralty Water Monitoring System
               </p>
               <p class="w-[90%] text-left sm:text-center sm:text-sm">
-                real-time monitoring and management of water resources across Iraq. It offers comprehensive data on water tanks, discharge stations, and other critical infrastructure. Our platform enables efficient decision-making for water distribution, quality control, and resource planning.
+                real-time monitoring and management of water resources in Baghdad. It offers comprehensive data on water tanks, discharge stations, and other critical infrastructure. Our platform enables efficient decision-making for water distribution, quality control, and resource planning.
               </p>
             </div>
           </div>
@@ -72,7 +72,7 @@
                 </p> -->
                 <div class="flex flex-row items-center gap-8">
                   <a
-                    href="https://www.facebook.com/profile.php?id=100068257788511&mibextid=ZbWKwL"
+                    href="https://www.facebook.com/mayoralty.baghdad/"
                   >
                     <i
                       class="pi pi-facebook hover:opacity-50"
@@ -80,26 +80,26 @@
                     ></i>
                   </a>
                   <a
-                    href="https://www.instagram.com/moen.gov.iq?igsh=cWtuYmhneHFyYndp"
+                    href="/"
                   >
                     <i
                       class="pi pi-instagram hover:opacity-50"
                       style="font-size: 1.8rem"
                     ></i>
                   </a>
-                  <a href="https://linkedin.com">
+                  <a href="/">
                     <i
                       class="pi pi-linkedin hover:opacity-50"
                       style="font-size: 1.8rem"
                     ></i>
                   </a>
-                  <a href="https://x.com">
+                  <a href="/">
                     <i
                       class="pi pi-twitter hover:opacity-50"
                       style="font-size: 1.8rem"
                     ></i>
                   </a>
-                  <a href="https://youtube.com/@user-zo6lr7ez4q">
+                  <a href="https://www.youtube.com/@audaytalip">
                     <i
                       class="pi pi-youtube hover:opacity-50"
                       style="font-size: 1.8rem"

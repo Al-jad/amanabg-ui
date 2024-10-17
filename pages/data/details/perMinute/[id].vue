@@ -15,9 +15,9 @@
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to Hourly Data
         </NuxtLink>
-        <h1 class="w-full pb-2 text-3xl font-bold text-gray-800">
-          Minute Data for {{ formattedDate }}
-        </h1>
+        <div>
+          
+        </div>
       </div>
       <div class="rounded-lg bg-white p-6 shadow-lg">
         <Table
