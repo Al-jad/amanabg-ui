@@ -1,10 +1,10 @@
 <template>
   <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
-    <div class="bg-white p-4 shadow sm:rounded-lg">
+    <div class="bg-white p-4 pb-0 shadow sm:rounded-lg">
       <div
         class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between"
       >
-        <div class="mb-4 flex text-nowrap md:mb-0">
+        <div class="mb-4 flex text-nowrap sm:mb-0">
           <div class="mb-8 flex flex-col items-start gap-4">
             <NuxtLink
               to="/"
@@ -16,7 +16,7 @@
             <div class="flex items-center gap-2">
               <Icon
                 name="fluent:water-16-filled"
-                class="mr-2 text-2xl text-blue-500 sm:text-xl"
+                class="mr-2 text-2xl text-blue-500"
               />
               <h1 class="text-xl font-bold text-black sm:text-lg">
                 Discharge Monitoring Stations
@@ -24,7 +24,7 @@
             </div>
           </div>
         </div>
-        <div class="flex justify-center sm:overflow-hidden">
+        <div class="flex justify-center">
           <SelectButton
             v-model="selectedView"
             :options="viewOptions"
@@ -84,14 +84,14 @@
         <div v-else class="flex items-center justify-center">
           <p class="text-gray-500">No data available</p>
         </div>
-        <div class="mt-4 text-sm">
-          <p>Q (m³/min) = pipe discharge in the last minute</p>
-          <p>Q (m³/h) = pipe discharge in the last hour</p>
-          <p>Q (m³/d) = pipe discharge in the last day</p>
-          <p>P = Pressure of water in the pipe</p>
-          <p>Cl⁺ = Chlorine level in the pipe</p>
-          <p>Turb. = Turbidity of water in the pipe</p>
-          <p>TDS = Total Dissolved Solids in the pipe</p>
+        <div class="py-4 text-sm">
+          <p>* Q (m³/min) = pipe discharge in the last minute</p>
+          <p>* Q (m³/h) = pipe discharge in the last hour</p>
+          <p>* Q (m³/d) = pipe discharge in the last day</p>
+          <p>* P = Pressure of water in the pipe</p>
+          <p>* Cl⁺ = Chlorine level in the pipe</p>
+          <p>* Turb. = Turbidity of water in the pipe</p>
+          <p>* TDS = Total Dissolved Solids in the pipe</p>
         </div>
       </div>
       <div v-else-if="selectedView === 'Map'">
@@ -160,17 +160,17 @@ const columns = [
   // { header: "City", sortable: false, field: "stationCity" },
   { header: "Date", sortable: true, field: "date" },
   { header: "Time", sortable: true, field: "time" },
-  { header: "Q ( Minute )", sortable: true, field: "discharge", unit: "m³/min" },
-  { header: "Q ( Hour )", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
-  { header: "Q ( Day )", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
-  { header: "P", sortable: true, field: "pressure", unit: "Bar" },
-  { header: "Cl⁺", sortable: true, field: "cl", unit: "mg/L" },
-  { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
-  { header: "TDS", sortable: true, field: "tds", unit: "mg/L" },
+  { header: "Q ( Minute ) *", sortable: true, field: "discharge", unit: "m³/min" },
+  { header: "Q ( Hour ) *", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
+  { header: "Q ( Day ) *", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
+  { header: "P *", sortable: true, field: "pressure", unit: "Bar" },
+  { header: "Cl⁺ *", sortable: true, field: "cl", unit: "mg/L" },
+  { header: "Turb *", sortable: true, field: "turbidity", unit: "NTU" },
+  { header: "TDS *", sortable: true, field: "tds", unit: "mg/L" },
 ].map((column) => ({
   ...column,
   class:
-    "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white",
+    "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
 }));
 
 const stationStore = useStationStore();

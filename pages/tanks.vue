@@ -43,7 +43,7 @@
         @row-click="onRowClick"
       >
         <template #body="slotProps">
-          <TableCell v-for="col in columns" :key="col.field">
+          <Row v-for="col in columns" :key="col.field">
             <template v-if="col.field === 'level'">
               <span :class="getTankLevelColor(slotProps.data[col.field])">
                 {{ slotProps.data[col.field] }}
@@ -53,7 +53,7 @@
             <template v-else>
               {{ slotProps.data[col.field] }}
             </template>
-          </TableCell>
+          </Row>
         </template>
       </Table>
       <div v-else-if="loading" class="flex items-center justify-center">
@@ -141,7 +141,7 @@ const columns = [
   { header: "EC", sortable: true, field: "electricConductivity" },
 ].map(column => ({
   ...column,
-  class: "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white",
+  class: "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
 }));
 
 const tanksData = ref([
@@ -234,5 +234,8 @@ const filterByCity = () => {
 }
 .p-togglebutton-checked {
   @apply !bg-DarkBlue/70 !text-white;
+}
+.p-select {
+  @apply !text-white;
 }
 </style>

@@ -17,7 +17,7 @@
 const cardItems = [
   {
     id: 1,
-    title: "Drinking Water Discharge",
+    title: "Drinking Water ",
     link: "/data/pipes-water",
     external: false,
     image: "/assets/img/water-pipe.jpg",
