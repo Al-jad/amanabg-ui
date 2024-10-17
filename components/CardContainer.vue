@@ -21,7 +21,7 @@ const cardItems = [
     link: "/data/pipes-water",
     external: false,
     image: "/assets/img/water-pipe.jpg",
-    icon: "fluent:pipeline-32-filled"
+    icon: "mdi:water-pump"
   },
   {
     id: 2,
@@ -29,7 +29,7 @@ const cardItems = [
     link: "/tanks",
     external: false,
     image: "/assets/img/underground-water-tank.jpg",
-    icon: "material-symbols-light:water-damage-rounded"
+    icon: "ion:water"
   },
   {
     id: 3,
@@ -45,7 +45,7 @@ const cardItems = [
     link: "/tolling-system",
     external: false,
     image: "/assets/img/water-quality.jpg",
-    icon: "material-symbols:water-full"
+    icon: "stash:billing-info-solid"
   },
 ];
 </script>

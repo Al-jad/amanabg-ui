@@ -113,11 +113,11 @@ const units = {
 
 const columns = [
   { header: "Time", sortable: true, field: "time" },
-  { header: "Q", sortable: true, field: "discharge", unit: "m³/min" },
-  { header: "Q", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
-  { header: "Q", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
+  { header: "Q ( Minute )", sortable: true, field: "discharge", unit: "m³/min" },
+  { header: "Q ( Hour )", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
+  { header: "Q ( Day )", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
   { header: "P", sortable: true, field: "pressure", unit: "bar" },
-  { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
+  { header: "Cl⁺", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
   {
     header: "TDS",
@@ -155,7 +155,7 @@ const formattedMinuteData = computed(() => {
       timeStamp: date,
       electricConductivity: Number(
         (item.electricConductivity * 0.65).toFixed(2),
-      ), // Convert EC to TDS using TDS = EC * 0.65 and round to 2 decimal places
+      ),
     };
   });
 });

@@ -89,7 +89,7 @@
           <p>Q (m³/h) = pipe discharge in the last hour</p>
           <p>Q (m³/d) = pipe discharge in the last day</p>
           <p>P = Pressure of water in the pipe</p>
-          <p>cL⁺ = Chlorine level in the pipe</p>
+          <p>Cl⁺ = Chlorine level in the pipe</p>
           <p>Turb. = Turbidity of water in the pipe</p>
           <p>TDS = Total Dissolved Solids in the pipe</p>
         </div>
@@ -160,11 +160,11 @@ const columns = [
   // { header: "City", sortable: false, field: "stationCity" },
   { header: "Date", sortable: true, field: "date" },
   { header: "Time", sortable: true, field: "time" },
-  { header: "Q", sortable: true, field: "discharge", unit: "m³/min" },
-  { header: "Q", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
-  { header: "Q", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
+  { header: "Q ( Minute )", sortable: true, field: "discharge", unit: "m³/min" },
+  { header: "Q ( Hour )", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
+  { header: "Q ( Day )", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
   { header: "P", sortable: true, field: "pressure", unit: "Bar" },
-  { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
+  { header: "Cl⁺", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
   { header: "TDS", sortable: true, field: "tds", unit: "mg/L" },
 ].map((column) => ({

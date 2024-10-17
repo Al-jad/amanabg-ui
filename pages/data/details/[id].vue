@@ -160,22 +160,22 @@ const columns = computed(() => {
     { header: "Date", sortable: true, field: "date" },
     { header: "Time", sortable: true, field: "time" },
     {
-      header: paramNames.qHour.short,
+      header: "Q ( Hour )",
       sortable: true,
       field: "totalVolumePerHour",
       unit: "m³/h",
     },
     {
-      header: paramNames.qDay.short,
+      header: "Q ( Day )",
       sortable: true,
       field: "totalVolumePerDay",
       unit: "m³/d",
     },
     { header: "P", sortable: true, field: "pressure", unit: "Bar" },
-    { header: "cl", sortable: true, field: "cl", unit: "mg/L" },
+    { header: "Cl⁺", sortable: true, field: "cl", unit: "mg/L" },
     { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
     {
-      header: paramNames.tds.short,
+      header: "TDS",
       sortable: true,
       field: "tds",
       unit: "mg/L",
@@ -185,7 +185,7 @@ const columns = computed(() => {
   return baseColumns.map((column) => ({
     ...column,
     class:
-      "!bg-DarkBlue !text-xs sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
+      "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
   }));
 });
 
