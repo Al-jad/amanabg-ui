@@ -85,13 +85,13 @@
           <p class="text-gray-500">No data available</p>
         </div>
         <div class="py-4 text-sm">
-          <p>* Q (m³/min) = pipe discharge in the last minute</p>
-          <p>* Q (m³/h) = pipe discharge in the last hour</p>
-          <p>* Q (m³/d) = pipe discharge in the last day</p>
-          <p>* P = Pressure of water in the pipe</p>
-          <p>* Cl⁺ = Chlorine level in the pipe</p>
-          <p>* Turb. = Turbidity of water in the pipe</p>
-          <p>* TDS = Total Dissolved Solids in the pipe</p>
+          <p>* Q ( m³/min ) = total discharge in the last minute</p>
+          <p>* Q ( m³/h ) = total discharge in the last hour</p>
+          <p>* Q ( m³/d ) = total discharge in the last day</p>
+          <p>* P ( Bar ) = Water Pressure in the pipe</p>
+          <p>* Cl⁺ ( mg/L ) = Chlorine level in the pipe</p>
+          <p>* Turb. ( NTU ) = Turbidity of water in the pipe</p>
+          <p>* TDS ( ppm ) = Total Dissolved Solids in the pipe</p>
         </div>
       </div>
       <div v-else-if="selectedView === 'Map'">
@@ -166,7 +166,7 @@ const columns = [
   { header: "P *", sortable: true, field: "pressure", unit: "Bar" },
   { header: "Cl⁺ *", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb *", sortable: true, field: "turbidity", unit: "NTU" },
-  { header: "TDS *", sortable: true, field: "tds", unit: "mg/L" },
+  { header: "TDS *", sortable: true, field: "tds", unit: "ppm" },
 ].map((column) => ({
   ...column,
   class:

@@ -45,7 +45,7 @@
     <main>
       <slot />
     </main>
-    <PreFooter/>
+    <!-- <PreFooter/> -->
     <Footer/>
   </div>
 </template>

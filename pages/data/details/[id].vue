@@ -181,14 +181,14 @@ const columns = computed(() => {
       header: "TDS",
       sortable: true,
       field: "tds",
-      unit: "mg/L",
+      unit: "ppm",
     },
   ];
 
   return baseColumns.map((column) => ({
     ...column,
     class:
-      "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
+      "!bg-DarkBlue !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
   }));
 });
 
@@ -282,7 +282,7 @@ watch([fromDate, toDate], applyDateFilter);
 const onRowClick = (event) => {
   const clickedDate = new Date(event.data.timeStamp);
   const formattedDate = clickedDate.toISOString().split("T")[0]; // Format: YYYY-MM-DD
-  const minuteDataUrl = `/data/details/perMinute/${route.params.id}?date=${formattedDate}`;
+  const minuteDataUrl = `/data/details/perMinute/${route.params.id}?date=${formattedDate}&stationName=${encodeURIComponent(stationName.value)}`;
 
   // Open in a new tab
   window.open(minuteDataUrl, "_blank");

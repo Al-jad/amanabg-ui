@@ -13,7 +13,7 @@
                 Baghdad Mayoralty Water Monitoring System
               </p>
               <p class="w-[90%] text-left sm:text-center sm:text-sm">
-                real-time monitoring and management of water resources in Baghdad. It offers comprehensive data on water tanks, discharge stations, and other critical infrastructure. Our platform enables efficient decision-making for water distribution, quality control, and resource planning.
+                Real-time monitoring and management of drinking water projects in Baghdad. It offers comprehensive data on drinking water projects, water tanks, pipes, pumping stations and other critical infrastructure. Our platform enables efficient decision-making for water distribution, quality control, and resource planning.
               </p>
             </div>
           </div>
@@ -21,7 +21,7 @@
             <p
               class="mb-8 text-left text-2xl font-bold sm:text-center sm:text-base"
             >
-              Download Data Center App
+              Mobile Application
             </p>
             <div
               class="flex flex-col items-center justify-center py-4 sm:scale-75 sm:py-0"
@@ -40,7 +40,7 @@
                         />
                       </div>
                       <div class="pl-2">
-                        <p>Download App from</p>
+                        <p>Download from</p>
                         <p class="text-sm">Google Play</p>
                       </div>
                     </div>
@@ -59,7 +59,7 @@
                         />
                       </div>
                       <div class="pl-2">
-                        <p>Download App from</p>
+                        <p>Download from</p>
                         <p class="text-sm">Apple Store</p>
                       </div>
                     </div>

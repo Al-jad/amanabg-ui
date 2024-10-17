@@ -15,8 +15,13 @@
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to Hourly Data
         </NuxtLink>
-        <div>
-          
+        <div class="flex flex-col gap-2 py-2" >
+          <h1 class="text-xl font-bold">
+            {{ stationName }}
+          </h1>
+          <p class="">
+            Measurements in minutes for {{ formattedDate }}
+          </p>
         </div>
       </div>
       <div class="rounded-lg bg-white p-6 shadow-lg">
@@ -64,6 +69,10 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useStationDataMinuteStore } from '@/stores/stationDataMinute'
 
 const route = useRoute();
 const stationDataMinuteStore = useStationDataMinuteStore();
@@ -108,7 +117,7 @@ const units = {
   pressure: "bar",
   cl: "mg/L",
   turbidity: "NTU",
-  electricConductivity: "mg/L",
+  electricConductivity: "ppm",
 };
 
 const columns = [
@@ -128,8 +137,10 @@ const columns = [
 ].map((column) => ({
   ...column,
   class:
-    "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white",
+    "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
 }));
+
+const stationName = ref('');
 
 const formattedDate = computed(() => {
   const date = new Date(route.query.date);
@@ -163,6 +174,7 @@ const formattedMinuteData = computed(() => {
 onMounted(async () => {
   const stationId = parseInt(route.params.id, 10);
   const date = route.query.date;
+  stationName.value = route.query.stationName ? decodeURIComponent(route.query.stationName) : 'N/A';
 
   if (isNaN(stationId) || !date) {
     console.error("Invalid station ID or date");
