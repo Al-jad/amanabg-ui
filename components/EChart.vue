@@ -1,9 +1,8 @@
 <template>
   <div class="mt-8 rounded-lg bg-white p-8 shadow-lg">
-    <h2 class="mb-6 text-2xl font-semibold text-gray-800">Data Visualization</h2>
     <div v-if="dataLoaded && hourlyData && hourlyData.length > 0">
       <div class="mb-6 flex items-center">
-        <label for="paramSelect" class="mr-4 text-lg font-medium text-gray-700">Select Parameter:</label>
+        <label for="paramSelect" class="mr-4 text-lg sm:text-base sm:text-nowrap font-medium">Select Parameter:</label>
         <Select 
           v-model="selectedParam" 
           :options="availableParams" 

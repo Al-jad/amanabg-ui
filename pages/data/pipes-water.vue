@@ -358,8 +358,6 @@ onMounted(async () => {
   await fetchHourlyData();
   await initializeComponent();
 });
-
-// ... (rest of the existing code)
 </script>
 
 <style>

@@ -20,9 +20,42 @@
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to All Stations
         </NuxtLink>
-        <h1 class="w-full p-6 pb-0 text-xl font-bold text-gray-800 sm:text-2xl">
-          {{ stationName || "Station name not found" }}
-        </h1>
+        <div class="flex p-6 py-2 flex-col items-start sm:p-4 sm:py-1 justify-between gap-4 w-full">
+          <div class="flex justify-between sm:flex-col sm:gap-4 items-center sm:items-stretch w-full">
+            <h1 class="text-xl sm:text-left font-bold text-gray-800">
+              {{ stationName || "Station name not found" }}
+            </h1>
+            <div class="flex items-center sm:flex-col gap-2 sm:gap-4">
+              <div class="flex flex-row items-center gap-2">
+                <div class="flex flex-row items-center gap-2">
+                  <div class="flex flex-row items-center gap-2">
+                    <label for="from">From</label>
+                    <DatePicker
+                      v-model="fromDate"
+                      dateFormat="dd/mm/yy"
+                      class="h-8 sm:h-10"
+                      @change="applyDateFilter"
+                    />
+                  </div>
+                  <div class="flex flex-row items-center gap-2">
+                    <label for="to">To</label>
+                    <DatePicker
+                      v-model="toDate"
+                      dateFormat="dd/mm/yy"
+                      class="h-8 sm:h-10"
+                      @change="applyDateFilter"
+                    />
+                  </div>
+                </div>
+                <Button
+                  @click="resetDateFilter"
+                  label="OK"
+                  class="!border-none !bg-DarkBlue !text-white"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- <div class="mb-6 rounded-lg bg-white p-4 pt-0 shadow-lg sm:p-6">
         <p class="mb-2">
@@ -30,37 +63,7 @@
           <span>{{ stationCity || "N/A" }}</span>
         </p>
       </div> -->
-      <div class="rounded-lg bg-white p-4 shadow-lg sm:p-6">
-        <div class="mb-4 flex sm:flex-col items-center justify-between">
-          <h2 class="mb-4 text-xl font-semibold">
-            Monitoring Data
-          </h2>
-          <div class="flex items-center gap-2 sm:gap-4">
-            <div class="w-full sm:w-auto flex flex-row items-center gap-2">
-              <label for="from" class="text-sm sm:text-base">From</label>
-              <DatePicker
-                v-model="fromDate"
-                dateFormat="dd/mm/yy"
-                class="h-8 sm:h-10"
-                @change="applyDateFilter"
-              />
-            </div>
-            <div class="w-full sm:w-auto flex flex-row items-center gap-2">
-              <label for="to" class="text-sm sm:text-base">To</label>
-              <DatePicker
-                v-model="toDate"
-                dateFormat="dd/mm/yy"
-                class="h-8 sm:h-10"
-                @change="applyDateFilter"
-              />
-            </div>
-            <Button
-              @click="resetDateFilter"
-              label="OK"
-              class="!border-none !bg-DarkBlue text-sm !text-white sm:text-base"
-            />
-          </div>
-        </div>
+      <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
         <Table
           :value="filteredData"
           :columns="columns"
@@ -131,11 +134,11 @@ const dataType = ref("Hourly");
 const paramNames = {
   qHour: {
     short: "Q (h)",
-    full: "Q (Hourly)",
+    full: "Q ( Hour )",
   },
   qDay: {
     short: "Q (d)",
-    full: "Q (Daily)",
+    full: "Q ( Day )",
   },
   pressure: {
     short: "P",
