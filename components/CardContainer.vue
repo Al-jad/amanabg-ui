@@ -36,7 +36,7 @@ const cardItems = [
     title: "Map",
     link: "/data/pipes-water?view=map",
     external: false,
-    image: "/assets/img/Map.png\",
+    image: "/assets/img/Map.png",
     icon: "material-symbols:location-on"
   },
   {
