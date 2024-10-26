@@ -1,9 +1,10 @@
 <template>
+  <!-- Main container -->
   <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
     <div class="bg-white p-4 pb-0 shadow sm:rounded-lg">
-      <div
-        class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between"
-      >
+      <!-- Header section with back button, title, and view selector -->
+      <div class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between">
+        <!-- Back button and title -->
         <div class="mb-4 flex text-nowrap sm:mb-0">
           <div class="mb-8 flex flex-col items-start gap-4">
             <NuxtLink
@@ -24,6 +25,7 @@
             </div>
           </div>
         </div>
+        <!-- View selector (Table/Map) -->
         <div class="flex justify-center">
           <SelectButton
             v-model="selectedView"
@@ -42,18 +44,10 @@
           </SelectButton>
         </div>
       </div>
-      <!-- <div class="mb-4 flex items-center gap-4">
-        <h1>Filter by City:</h1>
-        <Select
-          v-model="selectedCity"
-          :options="citiesWithAll"
-          placeholder="Select a city"
-          aria-labelledby="City selection"
-          @change="filterByCity"
-          class="!bg-DarkBlue !text-white"
-        />
-      </div> -->
+      
+      <!-- Table view -->
       <div v-if="selectedView === 'Table'">
+        <!-- Render table if data is available -->
         <Table
           v-if="!loading && filteredPipesData.length > 0"
           :headers="headers"
@@ -77,13 +71,16 @@
             </Row>
           </template>
         </Table>
+        <!-- Loading indicator -->
         <div v-else-if="loading" class="flex items-center justify-center">
           <p class="text-gray-500">Loading data...</p>
           <span class="ml-2 animate-spin">&#8987;</span>
         </div>
+        <!-- No data message -->
         <div v-else class="flex items-center justify-center">
           <p class="text-gray-500">No data available</p>
         </div>
+        <!-- Legend for table data -->
         <div class="py-4 text-sm">
           <p>* Q ( m³/min ) = total discharge in the last minute</p>
           <p>* Q ( m³/h ) = total discharge in the last hour</p>
@@ -94,16 +91,15 @@
           <p>* TDS ( ppm ) = Total Dissolved Solids in the pipe</p>
         </div>
       </div>
+      
+      <!-- Map view -->
       <div v-else-if="selectedView === 'Map'">
         <Map :stations="filteredMapStations" />
-        <div
-          v-if="filteredMapStations.length === 0"
-          class="mt-4 text-center text-gray-500"
-        >
+        <!-- No stations message for map view -->
+        <div v-if="filteredMapStations.length === 0" class="mt-4 text-center text-gray-500">
           No stations available for map view
         </div>
       </div>
-      <br />
     </div>
   </div>
 </template>
@@ -112,14 +108,17 @@
 const router = useRouter();
 const route = useRoute();
 
+// Define view options and selected view
 const viewOptions = ref(["Table", "Map"]);
 const selectedView = ref("Table");
 
+// City selection (currently commented out)
 const selectedCity = ref("All");
 const cities = ref([]);
 
 const citiesWithAll = computed(() => ["All", ...cities.value]);
 
+// Handle row click in the table
 const onRowClick = (event) => {
   const { data } = event;
   if (!data?.stationId || !data.station?.city || !data.station?.name) {
@@ -139,6 +138,7 @@ const onRowClick = (event) => {
   });
 };
 
+// Define table headers and columns
 const headers = [
   {
     text: "Station Info",
@@ -173,13 +173,16 @@ const columns = [
     "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
 }));
 
+// Use station store for data management
 const stationStore = useStationStore();
 
+// Compute pipes data from store
 const pipesData = computed(() => {
   const storePipesData = stationStore.pipesData;
   return Array.isArray(storePipesData) ? storePipesData : [storePipesData];
 });
 
+// Extract unique cities from pipes data (currently commented out)
 const extractCities = () => {
   // const uniqueCities = new Set(
   //   pipesData.value.map((item) => item.station.city),
@@ -187,6 +190,7 @@ const extractCities = () => {
   // cities.value = Array.from(uniqueCities);
 };
 
+// Filter pipes data based on selected city
 const filteredPipesData = computed(() => {
   if (!selectedCity.value || selectedCity.value === "All")
     return pipesData.value;
@@ -195,6 +199,7 @@ const filteredPipesData = computed(() => {
   );
 });
 
+// Format filtered pipes data for display
 const formattedFilteredPipesData = computed(() => {
   return filteredPipesData.value.map((item) => {
     const date = new Date(item?.timeStamp);
@@ -227,6 +232,7 @@ const formattedFilteredPipesData = computed(() => {
   });
 });
 
+// Filter stations for map view
 const filteredMapStations = computed(() => {
   return filteredPipesData.value.filter((item) => {
     return (
@@ -241,12 +247,15 @@ const filteredMapStations = computed(() => {
   });
 });
 
+// Data source and loading state
 const dataSource = ref("API");
 const lastUpdated = ref(null);
 const loading = ref(true);
 
+// City filter function (currently empty)
 const filterByCity = () => {};
 
+// Fetch initial data from API
 const fetchInitialData = async () => {
   loading.value = true;
   try {
@@ -261,6 +270,8 @@ const fetchInitialData = async () => {
     loading.value = false;
   }
 };
+
+// Watch for changes in pipes data
 watch(
   () => stationStore.pipesData,
   (newValue) => {
@@ -276,10 +287,12 @@ watch(
   { deep: true },
 );
 
+// Handle view change (currently empty)
 const handleViewChange = () => {
   // Add any logic needed when view changes
 };
 
+// Initialize component
 const initializeComponent = async () => {
   const view = route.query.view?.toLowerCase();
   if (view === "map") {
@@ -289,8 +302,10 @@ const initializeComponent = async () => {
   stationStore.connect();
 };
 
+// Run initialization on component mount
 onMounted(initializeComponent);
 
+// Helper functions for discharge display
 const getDischargeColor = (discharge) => {
   const minDischarge = 11;
   return discharge < minDischarge ? "text-red-500" : "text-green-500";
@@ -301,6 +316,7 @@ const getDischargeArrow = (discharge) => {
   return discharge < minDischarge ? "&darr" : "&uarr;";
 };
 
+// Chart data and parameters (not currently used in the template)
 const hourlyChartData = ref([]);
 const paramNames = ref({
   discharge: { full: "Discharge", short: "Q" },
@@ -322,6 +338,7 @@ const units = ref({
 });
 const selectedParam = ref("discharge");
 
+// Format hourly chart data
 const formattedHourlyChartData = computed(() => {
   return hourlyChartData.value
     .map((item) => {
@@ -354,6 +371,7 @@ const fetchHourlyData = async () => {
   }
 };
 
+// Fetch hourly data and initialize component on mount
 onMounted(async () => {
   await fetchHourlyData();
   await initializeComponent();
@@ -361,6 +379,7 @@ onMounted(async () => {
 </script>
 
 <style>
+/* Custom styles for PrimeVue components */
 .p-togglebutton {
   @apply !bg-DarkBlue !text-white;
 }

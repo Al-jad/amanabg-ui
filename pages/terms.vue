@@ -1,8 +1,15 @@
 <template>
+  <!-- Main container with responsive padding and background -->
   <div class="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Content container with max width, background, and shadow -->
     <div class="mx-auto max-w-4xl bg-white p-8 shadow sm:rounded-lg">
+      <!-- Page title -->
       <h1 class="mb-6 text-3xl font-bold text-gray-900">Terms of Service</h1>
 
+      <!-- Terms of Service sections -->
+      <!-- Each section is wrapped in a <section> tag for semantic structure -->
+
+      <!-- 1. Introduction -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           1. Introduction
@@ -16,6 +23,7 @@
         </p>
       </section>
 
+      <!-- 2. Use of the Site -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           2. Use of the Site
@@ -30,6 +38,7 @@
         </p>
       </section>
 
+      <!-- 3. User Accounts -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           3. User Accounts
@@ -45,6 +54,7 @@
         </p>
       </section>
 
+      <!-- 4. Intellectual Property -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           4. Intellectual Property
@@ -58,6 +68,7 @@
         </p>
       </section>
 
+      <!-- 5. Termination -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           5. Termination
@@ -70,6 +81,7 @@
         </p>
       </section>
 
+      <!-- 6. Limitation of Liability -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           6. Limitation of Liability
@@ -87,6 +99,7 @@
         </p>
       </section>
 
+      <!-- 7. Governing Law -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           7. Governing Law
@@ -99,6 +112,7 @@
         </p>
       </section>
 
+      <!-- 8. Changes to the Terms -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           8. Changes to the Terms
@@ -112,10 +126,12 @@
         </p>
       </section>
 
+      <!-- 9. Contact Us -->
       <section class="mb-8">
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">9. Contact Us</h2>
         <p class="text-gray-700">
           If you have any questions about these Terms, please
+          <!-- Router link to the contact page -->
           <router-link to="/contact" class="inline text-gray-700 underline">
             <span> contact us </span>
           </router-link>

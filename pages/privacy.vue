@@ -3,19 +3,24 @@
     <div
       class="container mx-auto mb-8 max-w-4xl rounded-xl bg-white p-8 shadow-lg"
     >
+      <!-- Page title -->
       <h1 class="mb-8 p-4 text-4xl font-bold text-gray-900">Privacy Policy</h1>
 
+      <!-- Dynamic sections of the privacy policy -->
       <section
         v-for="(section, index) in privacySections"
         :key="index"
         class="mb-10 p-6"
       >
+        <!-- Section title -->
         <h2 class="mb-4 text-2xl font-semibold text-gray-800">
           {{ section.title }}
         </h2>
+        <!-- Section content (if available) -->
         <p v-if="section.content" class="mb-4 text-gray-700">
           {{ section.content }}
         </p>
+        <!-- Section list (if available) -->
         <ul
           v-if="section.list"
           class="list-inside list-disc space-y-3 text-gray-700"
@@ -27,6 +32,7 @@
         </ul>
       </section>
 
+      <!-- Last updated date -->
       <div class="mt-12 border-t border-gray-200 pt-8">
         <p class="text-center text-sm text-gray-600">
           Last updated: {{ lastUpdated }}
@@ -37,11 +43,12 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+// Reactive reference for the last updated date
+const lastUpdated = ref("October 26, 2024");
 
-const lastUpdated = ref("June 1, 2023");
-
+// Reactive reference for the privacy policy sections
 const privacySections = ref([
+  // Each object in this array represents a section of the privacy policy
   {
     title: "1. Introduction",
     content:

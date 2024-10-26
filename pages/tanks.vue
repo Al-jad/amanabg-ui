@@ -1,104 +1,124 @@
 <template>
-<div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
-  <div class="bg-white p-4 shadow sm:rounded-lg">
-    <div class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between">
-      <div class="mb-4 flex text-nowrap md:mb-0">
-        <div class="flex flex-col items-start gap-4 mb-8">
-          <NuxtLink to="/" class="text-DarkBlue hover:text-DarkBlue/80 transition-colors duration-300 flex items-center">
-          <Icon name="mdi:arrow-left" class="mr-2" />
-          Back
-        </NuxtLink>
-          <Icon name="mdi:water-tank" class="mr-2 text-2xl sm:text-xl text-blue-500" />
-          <h1 class="text-xl sm:text-lg font-bold text-black">Water Tanks Monitoring</h1>
+  <!-- Main container with responsive padding -->
+  <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
+    <div class="bg-white p-4 shadow sm:rounded-lg">
+      <!-- Header section with back button, title, and view selector -->
+      <div class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between">
+        <!-- Back button and title -->
+        <div class="mb-4 flex text-nowrap md:mb-0">
+          <div class="flex flex-col items-start gap-4 mb-8">
+            <NuxtLink to="/" class="text-DarkBlue hover:text-DarkBlue/80 transition-colors duration-300 flex items-center">
+              <Icon name="mdi:arrow-left" class="mr-2" />
+              Back
+            </NuxtLink>
+            <Icon name="mdi:water-tank" class="mr-2 text-2xl sm:text-xl text-blue-500" />
+            <h1 class="text-xl sm:text-lg font-bold text-black">Water Tanks Monitoring</h1>
+          </div>
+        </div>
+        <!-- View selector (Table/Map) -->
+        <div class="flex sm:overflow-hidden justify-center">
+          <SelectButton v-model="selectedView" :options="viewOptions" @change="handleViewChange">
+            <template #option="slotProps">
+              <div class="flex items-center">
+                <Icon :name="slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'" class="mr-2" />
+                {{ slotProps.option }}
+              </div>
+            </template>
+          </SelectButton>
         </div>
       </div>
-      <div class="flex sm:overflow-hidden justify-center">
-        <SelectButton v-model="selectedView" :options="viewOptions" @change="handleViewChange">
-          <template #option="slotProps">
-            <div class="flex items-center">
-              <Icon :name="slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'" class="mr-2" />
-              {{ slotProps.option }}
-            </div>
-          </template>
-        </SelectButton>
+
+      <!-- City filter dropdown -->
+      <div class="mb-4 flex items-center gap-4">
+        <h1>Filter by City:</h1>
+        <Select
+          v-model="selectedCity"
+          :options="citiesWithAll"
+          placeholder="Select a city"
+          aria-labelledby="City selection"
+          @change="filterByCity"
+          class="!bg-DarkBlue !text-white"
+        />
       </div>
-    </div>
-    <div class="mb-4 flex items-center gap-4">
-      <h1>Filter by City:</h1>
-      <Select
-        v-model="selectedCity"
-        :options="citiesWithAll"
-        placeholder="Select a city"
-        aria-labelledby="City selection"
-        @change="filterByCity"
-        class="!bg-DarkBlue !text-white"
-      />
-    </div>
-    <div v-if="selectedView === 'Table'">
-      <Table
-        v-if="!loading && filteredTanksData.length > 0"
-        :headers="headers"
-        :columns="columns"
-        :value="formattedFilteredTanksData"
-        @row-click="onRowClick"
-      >
-        <template #body="slotProps">
-          <Row v-for="col in columns" :key="col.field">
-            <template v-if="col.field === 'level'">
-              <span :class="getTankLevelColor(slotProps.data[col.field])">
+
+      <!-- Table view -->
+      <div v-if="selectedView === 'Table'">
+        <!-- Render table if data is available -->
+        <Table
+          v-if="!loading && filteredTanksData.length > 0"
+          :headers="headers"
+          :columns="columns"
+          :value="formattedFilteredTanksData"
+          @row-click="onRowClick"
+        >
+          <template #body="slotProps">
+            <Row v-for="col in columns" :key="col.field">
+              <template v-if="col.field === 'level'">
+                <span :class="getTankLevelColor(slotProps.data[col.field])">
+                  {{ slotProps.data[col.field] }}
+                  <span v-html="getTankLevelArrow(slotProps.data[col.field])"></span>
+                </span>
+              </template>
+              <template v-else>
                 {{ slotProps.data[col.field] }}
-                <span v-html="getTankLevelArrow(slotProps.data[col.field])"></span>
-              </span>
-            </template>
-            <template v-else>
-              {{ slotProps.data[col.field] }}
-            </template>
-          </Row>
-        </template>
-      </Table>
-      <div v-else-if="loading" class="flex items-center justify-center">
-        <p class="text-gray-500">Loading data...</p>
-        <span class="ml-2 animate-spin">&#8987;</span>
+              </template>
+            </Row>
+          </template>
+        </Table>
+        <!-- Loading indicator -->
+        <div v-else-if="loading" class="flex items-center justify-center">
+          <p class="text-gray-500">Loading data...</p>
+          <span class="ml-2 animate-spin">&#8987;</span>
+        </div>
+        <!-- No data message -->
+        <div v-else class="flex items-center justify-center">
+          <p class="text-gray-500">No data available</p>
+        </div>
       </div>
-      <div v-else class="flex items-center justify-center">
-        <p class="text-gray-500">No data available</p>
+
+      <!-- Map view -->
+      <div v-else-if="selectedView === 'Map'">
+        <Map :stations="filteredMapStations" />
+        <!-- No tanks available message -->
+        <div
+          v-if="filteredMapStations.length === 0"
+          class="mt-4 text-center text-gray-500"
+        >
+          No tanks available for map view
+        </div>
       </div>
-    </div>
-    <div v-else-if="selectedView === 'Map'">
-      <Map :stations="filteredMapStations" />
-      <div
-        v-if="filteredMapStations.length === 0"
-        class="mt-4 text-center text-gray-500"
-      >
-        No tanks available for map view
+
+      <!-- Legend for tank data -->
+      <br />
+      <div class="text-sm">
+        <p>Level = Water level in the tank</p>
+        <p>Capacity = Total capacity of the tank</p>
+        <p>Inflow = Rate of water flowing into the tank</p>
+        <p>Outflow = Rate of water flowing out of the tank</p>
+        <p>Chlorine = Chlorine level in the tank</p>
+        <p>Turb. = Turbidity of water in the tank</p>
+        <p>EC = Electrical conductivity of water in the tank</p>
       </div>
-    </div>
-    <br />
-    <div class="text-sm">
-      <p>Level = Water level in the tank</p>
-      <p>Capacity = Total capacity of the tank</p>
-      <p>Inflow = Rate of water flowing into the tank</p>
-      <p>Outflow = Rate of water flowing out of the tank</p>
-      <p>Chlorine = Chlorine level in the tank</p>
-      <p>Turb. = Turbidity of water in the tank</p>
-      <p>EC = Electrical conductivity of water in the tank</p>
     </div>
   </div>
-</div>
 </template>
 
 <script setup>
 
 const router = useRouter();
 
+// View options and selected view state
 const viewOptions = ref(['Table', 'Map']);
 const selectedView = ref('Table');
 
+// City filter state
 const selectedCity = ref('All');
 const cities = ref(['Baghdad', 'Mosul', 'Basra', 'Erbil']);
 
+// Computed property to include 'All' option in cities list
 const citiesWithAll = computed(() => ['All', ...cities.value]);
 
+// Handle row click in the table view
 const onRowClick = (event) => {
   const { data } = event;
   if (!data?.tankId || !data.tankCity || !data.tankName) {
@@ -113,6 +133,7 @@ const onRowClick = (event) => {
   });
 };
 
+// Table headers and columns configuration
 const headers = [
   {
     text: "Tank Info",
@@ -144,6 +165,7 @@ const columns = [
   class: "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
 }));
 
+// Sample tank data (replace with actual data fetching logic)
 const tanksData = ref([
   {
     tankId: 1,
@@ -172,11 +194,13 @@ const tanksData = ref([
   // Add more static data as needed
 ]);
 
+// Filter tanks data based on selected city
 const filteredTanksData = computed(() => {
   if (!selectedCity.value || selectedCity.value === 'All') return tanksData.value;
   return tanksData.value.filter(item => item.tank.city === selectedCity.value);
 });
 
+// Format filtered tanks data for display
 const formattedFilteredTanksData = computed(() => {
   return filteredTanksData.value.map(item => {
     const date = new Date(item.timeStamp);
@@ -198,6 +222,7 @@ const formattedFilteredTanksData = computed(() => {
   });
 });
 
+// Filter map stations to only include tanks with valid coordinates
 const filteredMapStations = computed(() => {
   return filteredTanksData.value.filter(
     (tank) => tank.tank && tank.tank.lat && tank.tank.lng
@@ -206,16 +231,19 @@ const filteredMapStations = computed(() => {
 
 const loading = ref(false);
 
+// Determine color for tank level display
 const getTankLevelColor = (level) => {
   const minLevel = 50; // Assuming 50% as the minimum safe level
   return level < minLevel ? 'text-red-500' : 'text-green-500';
 };
 
+// Determine arrow direction for tank level display
 const getTankLevelArrow = (level) => {
   const minLevel = 50; // Assuming 50% as the minimum safe level
   return level < minLevel ? '&darr;' : '&uarr;';
 };
 
+// Placeholder functions for view change and city filtering
 const handleViewChange = () => {
   // Add any specific logic for view change if needed
 };
@@ -226,6 +254,7 @@ const filterByCity = () => {
 </script>
 
 <style>
+/* Custom styles for UI components */
 .p-togglebutton {
   @apply !bg-DarkBlue !text-white;
 }

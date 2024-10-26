@@ -1,17 +1,18 @@
 <template>
   <div class="container mx-auto px-4 py-8">
+    <!-- Loading state -->
     <div v-if="dataLoading" class="text-center">
       <p class="text-lg text-gray-600">Loading...</p>
     </div>
+    
+    <!-- Error state -->
     <div v-else-if="dataError" class="text-center text-red-500">
       <p class="text-lg font-semibold">{{ dataError }}</p>
     </div>
-    <div
-      v-else-if="
-        (hourlyData && hourlyData.length > 0) ||
-        (minuteData && minuteData.length > 0)
-      "
-    >
+    
+    <!-- Data display -->
+    <div v-else-if="(hourlyData && hourlyData.length > 0) || (minuteData && minuteData.length > 0)">
+      <!-- Header section with back button and station name -->
       <div class="mb-8 flex flex-col items-start gap-4">
         <NuxtLink
           to="/data/pipes-water"
@@ -49,7 +50,7 @@
                 </div>
                 <Button
                   @click="resetDateFilter"
-                  label="OK"
+                  label="Reset"
                   class="!border-none !bg-DarkBlue !text-white"
                 />
               </div>
@@ -57,12 +58,8 @@
           </div>
         </div>
       </div>
-      <!-- <div class="mb-6 rounded-lg bg-white p-4 pt-0 shadow-lg sm:p-6">
-        <p class="mb-2">
-          <span class="pr-2">City: </span>
-          <span>{{ stationCity || "N/A" }}</span>
-        </p>
-      </div> -->
+      
+      <!-- Data table -->
       <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
         <Table
           :value="filteredData"
@@ -74,14 +71,16 @@
         />
       </div>
     </div>
+    
+    <!-- No data state -->
     <div v-else class="text-center">
       <p class="text-base text-gray-600 sm:text-lg">No data available</p>
     </div>
+    
+    <!-- Chart component -->
     <div>
       <EChart
-        :hourlyData="
-          dataType === 'Hourly' ? formattedHourlyData : formattedMinuteData
-        "
+        :hourlyData="dataType === 'Hourly' ? formattedHourlyData : formattedMinuteData"
         :includeTDS="true"
         :paramNames="paramNames"
       />
@@ -99,38 +98,40 @@ const {
   error: hourError,
 } = storeToRefs(stationDataHourStore);
 
-// Helper function to get the start of day
+// Helper functions for date manipulation
 const startOfDay = (date) => {
   const newDate = new Date(date);
   newDate.setHours(0, 0, 0, 0);
   return newDate;
 };
 
-// Helper function to get the end of day
 const endOfDay = (date) => {
   const newDate = new Date(date);
   newDate.setHours(23, 59, 59, 999);
   return newDate;
 };
 
-// Helper function to subtract months from a date
 const subtractMonths = (date, months) => {
   const newDate = new Date(date);
   newDate.setMonth(newDate.getMonth() - months);
   return newDate;
 };
 
+// Reactive references for date filtering
 const fromDate = ref(startOfDay(subtractMonths(new Date(), 3)));
 const toDate = ref(endOfDay(new Date()));
 const minuteDate = ref(null);
 const minuteDateError = ref("");
-const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } =
-  stationDataHourStore;
 
+// Destructure store actions
+const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } = stationDataHourStore;
+
+// Computed properties for loading and error states
 const dataLoading = computed(() => hourLoading.value);
 const dataError = computed(() => hourError.value);
 const dataType = ref("Hourly");
 
+// Parameter names for chart and table
 const paramNames = {
   qHour: {
     short: "Q (h)",
@@ -158,6 +159,7 @@ const paramNames = {
   },
 };
 
+// Table columns configuration
 const columns = computed(() => {
   const baseColumns = [
     { header: "Date", sortable: true, field: "date" },
@@ -192,6 +194,7 @@ const columns = computed(() => {
   }));
 });
 
+// Function to fetch data from the API
 const fetchData = async () => {
   const stationId = parseInt(route.params.id, 10);
   if (isNaN(stationId)) {
@@ -205,6 +208,7 @@ const fetchData = async () => {
   });
 };
 
+// Functions for date filter manipulation
 const applyDateFilter = () => {
   if (fromDate.value && toDate.value) {
     fromDate.value.setHours(0, 0, 0, 0);
@@ -224,6 +228,7 @@ const resetToHourlyData = () => {
   minuteDateError.value = "";
 };
 
+// Computed property to format hourly data
 const formattedHourlyData = computed(() => {
   if (!hourlyData.value) return [];
 
@@ -251,11 +256,13 @@ const formattedHourlyData = computed(() => {
     .sort((a, b) => a.timeStamp - b.timeStamp);
 });
 
+// Computed property to format minute data (if available)
 const formattedMinuteData = computed(() => {
   // Similar to formattedHourlyData, but for minute data if available
   // If you don't have minute data, you can remove this computed property
 });
 
+// Computed property to filter data based on selected date range
 const filteredData = computed(() => {
   if (!fromDate.value || !toDate.value) return formattedHourlyData.value;
 
@@ -264,11 +271,13 @@ const filteredData = computed(() => {
   });
 });
 
+// Reactive references for station information
 const stationName = ref("N/A");
 const stationCity = ref("N/A");
 
 const router = useRouter();
 
+// Lifecycle hook to fetch data and set station information on component mount
 onMounted(() => {
   fetchData();
   if (process.client) {
@@ -277,8 +286,10 @@ onMounted(() => {
   }
 });
 
+// Watch for changes in date filter and apply
 watch([fromDate, toDate], applyDateFilter);
 
+// Handler for row click in the data table
 const onRowClick = (event) => {
   const clickedDate = new Date(event.data.timeStamp);
   const formattedDate = clickedDate.toISOString().split("T")[0]; // Format: YYYY-MM-DD
@@ -290,6 +301,7 @@ const onRowClick = (event) => {
 </script>
 
 <style>
+/* Custom styles for date picker input */
 .p-datepicker-input {
   @apply !bg-gray-200 text-sm !text-black sm:text-base;
 }

@@ -1,19 +1,26 @@
 <template>
   <div class="container mx-auto px-4 py-4 sm:py-6 md:py-8">
     <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Water Discharge Tolling System</h1>
+    
+    <!-- Date range selection and submit button -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 sm:mb-6">
+      <!-- From date picker -->
       <div class="w-full">
         <label for="fromDate" class="block text-sm font-medium text-gray-700 mb-1">From</label>
         <DatePicker v-model="fromDate" dateFormat="dd/mm/yy" class="w-full" />
       </div>
+      <!-- To date picker -->
       <div class="w-full">
         <label for="toDate" class="block text-sm font-medium text-gray-700 mb-1">To</label>
         <DatePicker v-model="toDate" dateFormat="dd/mm/yy" class="w-full" />
       </div>
+      <!-- Submit button -->
       <div class="flex items-end w-full">
         <Button @click="fetchTollingData" label="Submit" class="w-full !bg-DarkBlue !text-white !border-none" />
       </div>
     </div>
+    
+    <!-- Data table for tolling data -->
     <div v-if="tollingData.length > 0" class="overflow-x-auto">
       <DataTable
         :value="tollingData"
@@ -23,14 +30,17 @@
         removableSort
         class="text-nowrap !bg-DarkBlue"
       >
+        <!-- Dynamic columns based on the columns array -->
         <Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header" :sortable="col.sortable" :headerClass="col.class">
           <template #body="slotProps">
             <span>{{ slotProps.data[col.field] }}</span>
           </template>
         </Column>
+        <!-- Empty state template -->
         <template #empty>
           <div class="m-0 bg-DarkBlue p-4 text-center text-white">No data available</div>
         </template>
+        <!-- Custom paginator start template -->
         <template #paginatorstart>
           <div class="text-sm text-white">
             Showing max 10 of {{ tollingData.length }} entries
@@ -38,14 +48,20 @@
         </template>
       </DataTable>
     </div>
+    <!-- Fallback message when no data is available -->
     <div v-else class="text-center py-4">No data available</div>
   </div>
 </template>
 
 <script setup>
+// Initial date range (last month to today)
 const fromDate = ref(new Date(new Date().setMonth(new Date().getMonth() - 1)));
 const toDate = ref(new Date());
+
+// Reactive reference for tolling data
 const tollingData = ref([]);
+
+// Column definitions for the data table
 const columns = [
   { field: 'stationName', header: 'Station Name', sortable: true },
   { field: 'discharge', header: 'Volume (m³)', sortable: true },
@@ -57,12 +73,15 @@ const columns = [
     "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-2",
 }));
 
+// Store for fetching station data
 const stationDataDayStore = useStationDataDayStore();
 
+// Helper function to format numbers with commas
 const formatNumber = (number) => {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
+// Function to fetch and process tolling data
 const fetchTollingData = async () => {
   if (!fromDate.value || !toDate.value) {
     console.error('Please select both start and end dates');
@@ -70,11 +89,13 @@ const fetchTollingData = async () => {
   }
 
   try {
+    // Fetch daily data from the store
     await stationDataDayStore.fetchDailyData({
       startDate: fromDate.value,
       endDate: toDate.value
     });
 
+    // Process and format the data for display
     if (stationDataDayStore.dailyData && stationDataDayStore.dailyData.length > 0) {
       tollingData.value = stationDataDayStore.dailyData.map(station => ({
         stationName: station.stationName,
@@ -88,10 +109,12 @@ const fetchTollingData = async () => {
   }
 };
 
+// Fetch data on component mount
 onMounted(fetchTollingData);
 </script>
 
 <style>
+/* Custom styles for PrimeVue components */
 .p-datepicker-input {
   @apply !bg-gray-200 !text-black;
 }
@@ -114,5 +137,4 @@ onMounted(fetchTollingData);
 .p-datatable .p-datatable-tbody > tr:not(.p-datatable-empty-message):hover {
   @apply !bg-gray-300 !text-black !cursor-pointer;
 }
-
 </style>
