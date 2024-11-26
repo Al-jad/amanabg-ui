@@ -1,15 +1,15 @@
 <template>
   <!-- Main container -->
-  <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
-    <div class="bg-white p-4 pb-0 shadow sm:rounded-lg">
+  <div class="container px-4 py-8 mx-auto sm:px-4 lg:px-8">
+    <div class="p-4 pb-0 bg-white shadow sm:rounded-lg">
       <!-- Header section with back button, title, and view selector -->
-      <div class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between">
+      <div class="flex flex-col mb-8 sm:flex-col md:flex-row md:items-center md:justify-between">
         <!-- Back button and title -->
-        <div class="mb-4 flex text-nowrap sm:mb-0">
-          <div class="mb-8 flex flex-col items-start gap-4">
+        <div class="flex mb-4 text-nowrap sm:mb-0">
+          <div class="flex flex-col items-start gap-4 mb-8">
             <NuxtLink
               to="/"
-              class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
+              class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80"
             >
               <Icon name="mdi:arrow-left" class="mr-2" />
               Back
@@ -121,7 +121,7 @@ const citiesWithAll = computed(() => ["All", ...cities.value]);
 // Handle row click in the table
 const onRowClick = (event) => {
   const { data } = event;
-  if (!data?.stationId || !data.station?.city || !data.station?.name) {
+  if (!data?.stationId || !data.station?.name) {
     console.error("Invalid event or missing required station data");
     return;
   }
@@ -142,31 +142,46 @@ const onRowClick = (event) => {
 const headers = [
   {
     text: "Station Info",
-    colspan: 3,
+    colspan: 2,
     class:
       "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
   },
   {
     text: "Last Measurement",
-    colspan: 9,
+    colspan: 10,
     class:
       "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
   },
+  // {
+  //   text: "Connection",
+  //   colspan: 1,
+  //   class:
+  //     "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
+  // }
 ];
 
 const columns = [
   { header: "ID", sortable: false, field: "stationId" },
   { header: "Project Name", sortable: false, field: "stationName" },
   // { header: "City", sortable: false, field: "stationCity" },
+  {
+    header: "Status",
+    sortable: false,
+    field: "status",
+  },
   { header: "Date", sortable: true, field: "date" },
   { header: "Time", sortable: true, field: "time" },
-  { header: "Q ( Minute ) *", sortable: true, field: "discharge", unit: "m³/min" },
+  { header: "Q1 ( Minute ) *", sortable: true, field: "discharge", unit: "m³/min" },
+  { header: "Q2 ( Minute ) *", sortable: true, field: "discharge2", unit: "m³/min" },
   { header: "Q ( Hour ) *", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
   { header: "Q ( Day ) *", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
-  { header: "P *", sortable: true, field: "pressure", unit: "Bar" },
+  { header: "P1 *", sortable: true, field: "pressure", unit: "Bar" },
+  { header: "P2 *", sortable: true, field: "pressure2", unit: "Bar" },
+  { header: "Temp", sortable: true, field: "temperature", unit: "C"},
   { header: "Cl⁺ *", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb *", sortable: true, field: "turbidity", unit: "NTU" },
   { header: "TDS *", sortable: true, field: "tds", unit: "ppm" },
+  // { header: "Operating Time", sortable: true, field: "operatingTime" },
 ].map((column) => ({
   ...column,
   class:

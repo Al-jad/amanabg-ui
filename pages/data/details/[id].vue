@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container px-4 py-8 mx-auto">
     <!-- Loading state -->
     <div v-if="dataLoading" class="text-center">
       <p class="text-lg text-gray-600">Loading...</p>
@@ -13,20 +13,20 @@
     <!-- Data display -->
     <div v-else-if="(hourlyData && hourlyData.length > 0) || (minuteData && minuteData.length > 0)">
       <!-- Header section with back button and station name -->
-      <div class="mb-8 flex flex-col items-start gap-4">
+      <div class="flex flex-col items-start gap-4 mb-8">
         <NuxtLink
           to="/data/pipes-water"
-          class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
+          class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80"
         >
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to All Stations
         </NuxtLink>
-        <div class="flex p-6 py-2 flex-col items-start sm:p-4 sm:py-1 justify-between gap-4 w-full">
-          <div class="flex justify-between sm:flex-col sm:gap-4 items-center sm:items-stretch w-full">
-            <h1 class="text-xl sm:text-left font-bold text-gray-800">
+        <div class="flex flex-col items-start justify-between w-full gap-4 p-6 py-2 sm:p-4 sm:py-1">
+          <div class="flex items-center justify-between w-full sm:flex-col sm:gap-4 sm:items-stretch">
+            <h1 class="text-xl font-bold text-gray-800 sm:text-left">
               {{ stationName || "Station name not found" }}
             </h1>
-            <div class="flex items-center sm:flex-col gap-2 sm:gap-4">
+            <div class="flex items-center gap-2 sm:flex-col sm:gap-4">
               <div class="flex flex-row items-center gap-2">
                 <div class="flex flex-row items-center gap-2">
                   <div class="flex flex-row items-center gap-2">
@@ -60,7 +60,7 @@
       </div>
       
       <!-- Data table -->
-      <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
+      <div class="p-4 bg-white rounded-lg shadow-lg sm:p-4">
         <Table
           :value="filteredData"
           :columns="columns"
@@ -133,9 +133,13 @@ const dataType = ref("Hourly");
 
 // Parameter names for chart and table
 const paramNames = {
-  qHour: {
-    short: "Q (h)",
-    full: "Q ( Hour )",
+  q1Hour: {
+    short: "Q1 (h)",
+    full: "Q1 ( Hour )",
+  },
+  q2Hour: {
+    short: "Q2 (h)",
+    full: "Q2 ( Hour )",
   },
   qDay: {
     short: "Q (d)",
@@ -157,6 +161,10 @@ const paramNames = {
     short: "TDS",
     full: "Total Dissolved Solids",
   },
+  temp: {
+    short: "Temp",
+    full: "Temperature"
+  }
 };
 
 // Table columns configuration
@@ -165,18 +173,20 @@ const columns = computed(() => {
     { header: "Date", sortable: true, field: "date" },
     { header: "Time", sortable: true, field: "time" },
     {
-      header: "Q ( Hour )",
+      header: "Q1 ( Hour )",
       sortable: true,
-      field: "totalVolumePerHour",
+      field: "discharge",
       unit: "m³/h",
     },
     {
-      header: "Q ( Day )",
+      header: "Q2 ( Hour )",
       sortable: true,
-      field: "totalVolumePerDay",
+      field: "discharge2",
       unit: "m³/d",
     },
-    { header: "P", sortable: true, field: "pressure", unit: "Bar" },
+    { header: "P1", sortable: true, field: "pressure", unit: "Bar" },
+    { header: "P1", sortable: true, field: "pressure2", unit: "Bar" },
+    { header: "Temp" , sortable: true, field: "temperature", unit: "C" },
     { header: "Cl⁺", sortable: true, field: "cl", unit: "mg/L" },
     { header: "Turb", sortable: true, field: "turbidity", unit: "NTU" },
     {
@@ -248,9 +258,10 @@ const formattedHourlyData = computed(() => {
           minute: "2-digit",
         }),
         tds: parseFloat(tds),
-        qHour: item.totalVolumePerHour,
-        qDay: item.totalVolumePerDay,
+        q1Hour: item.discharge,
+        q2Hour: item.discharge2,
         timeStamp: date,
+        temp: item.temperature
       };
     })
     .sort((a, b) => a.timeStamp - b.timeStamp);

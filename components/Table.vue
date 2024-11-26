@@ -65,13 +65,13 @@
               :slotProps="slotProps"
               v-if="column.slot"
             />
-            <template v-else-if="column.field === 'discharge'">
-              <span :class="getDischargeColor(slotProps.data[column.field])">
-                {{ slotProps.data[column.field] }}
-                <span
-                  v-html="getDischargeArrow(slotProps.data[column.field])"
-                ></span>
-              </span>
+            <template v-else-if="column.field === 'status'">
+              <div class="status-cell" :class="getStatusClass(slotProps.data[column.field], slotProps.data.timeStamp)">
+                <div class="flex items-center justify-center gap-2">
+                  <div class="h-2 w-2 rounded-full status-indicator"></div>
+                  {{ getDisplayStatus(slotProps.data[column.field], slotProps.data.timeStamp) }}
+                </div>
+              </div>
             </template>
             <template v-else>
               {{ slotProps.data[column.field] }}
@@ -128,22 +128,25 @@ const onRowClick = (event) => {
   emit("row-click", event);
 };
 
-const getDischargeColor = (discharge) => {
-  const minDischarge = 10;
-  const maxDischarge = 15;
-  return discharge < minDischarge || discharge > maxDischarge
-    ? "text-red-500"
-    : "text-black";
+const isDataFresh = (timestamp) => {
+  if (!timestamp) return false;
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+  const dataTime = new Date(timestamp);
+  return dataTime > thirtyMinutesAgo;
 };
 
-const getDischargeArrow = (discharge) => {
-  const minDischarge = 10;
-  const maxDischarge = 15;
-  return discharge < minDischarge
-    ? "&darr;"
-    : discharge > maxDischarge
-      ? "&uarr;"
-      : "";
+const getDisplayStatus = (status, timestamp) => {
+  if (!isDataFresh(timestamp)) {
+    return 'OFF';
+  }
+  return status || 'ON';
+};
+
+const getStatusClass = (status, timestamp) => {
+  if (!isDataFresh(timestamp)) {
+    return 'status-off';
+  }
+  return status === 'OFF' ? 'status-off' : 'status-on';
 };
 
 const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entries`;
@@ -160,34 +163,6 @@ const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entrie
   @apply !bg-DarkBlue !text-white;
 }
 
-.wqi-cell {
-  @apply flex h-16 w-16 flex-col items-center justify-center rounded-full shadow-sm;
-}
-
-.wqi-value {
-  @apply text-sm font-bold;
-}
-
-.wqi-description {
-  @apply text-xs;
-}
-
-.excellent {
-  @apply bg-gradient-to-br from-blue-400 to-blue-600 text-white;
-}
-.good {
-  @apply bg-gradient-to-br from-green-400 to-green-600 text-white;
-}
-.fair {
-  @apply bg-gradient-to-br from-yellow-400 to-yellow-600 text-gray-900;
-}
-.poor {
-  @apply bg-gradient-to-br from-orange-400 to-orange-600 text-white;
-}
-.very-poor {
-  @apply bg-gradient-to-br from-red-400 to-red-600 text-white;
-}
-
 .p-datatable .p-datatable-tbody > tr.p-row-even {
   @apply !bg-white !text-black;
 }
@@ -202,5 +177,25 @@ const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entrie
 }
 .p-select-overlay {
   @apply border-white !bg-DarkNavy !text-white hover:!bg-DarkBlue;
+}
+
+.status-cell {
+  @apply text-nowrap px-4 rounded-lg py-2 !text-center text-xl;
+}
+
+.status-on {
+  @apply bg-gradient-to-br from-green-50 to-green-100 text-green-800;
+}
+
+.status-on .status-indicator {
+  @apply h-3 w-3 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-sm shadow-green-500/50;
+}
+
+.status-off {
+  @apply bg-gradient-to-br from-red-50 to-red-100 text-red-800;
+}
+
+.status-off .status-indicator {
+  @apply h-3 w-3 rounded-full bg-gradient-to-br from-red-400 to-red-600 shadow-sm shadow-red-500/50;
 }
 </style>
