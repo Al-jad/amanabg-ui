@@ -47,7 +47,7 @@
         </Row>
       </ColumnGroup>
       <template #empty>
-        <div class="m-0 bg-DarkBlue p-4 text-center text-white">
+        <div class="p-4 m-0 text-center text-white bg-DarkBlue">
           No data available
         </div>
       </template>
@@ -68,13 +68,13 @@
             <template v-else-if="column.field === 'status'">
               <div class="status-cell" :class="getStatusClass(slotProps.data[column.field], slotProps.data.timeStamp)">
                 <div class="flex items-center justify-center gap-2">
-                  <div class="h-2 w-2 rounded-full status-indicator"></div>
+                  <div class="w-2 h-2 rounded-full status-indicator"></div>
                   {{ getDisplayStatus(slotProps.data[column.field], slotProps.data.timeStamp) }}
                 </div>
               </div>
             </template>
             <template v-else>
-              {{ slotProps.data[column.field] }}
+              {{ slotProps.data[column.field] || 0 }}
             </template>
           </div>
         </template>
