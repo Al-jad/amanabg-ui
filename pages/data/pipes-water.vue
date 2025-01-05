@@ -152,36 +152,25 @@ const headers = [
     class:
       "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
   },
-  // {
-  //   text: "Connection",
-  //   colspan: 1,
-  //   class:
-  //     "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
-  // }
 ];
 
 const columns = [
-  { header: "ID", sortable: false, field: "stationId" },
-  { header: "Project Name", sortable: false, field: "stationName" },
-  // { header: "City", sortable: false, field: "stationCity" },
   {
     header: "Status",
     sortable: false,
     field: "status",
   },
-  { header: "Date", sortable: true, field: "date" },
-  { header: "Time", sortable: true, field: "time" },
-  { header: "Q1 ( Minute ) *", sortable: true, field: "discharge", unit: "m³/min" },
-  { header: "Q2 ( Minute ) *", sortable: true, field: "discharge2", unit: "m³/min" },
+  { header: "ID", sortable: false, field: "stationId" },
+  { header: "Project Name", sortable: false, field: "stationName" },
+  { header: "Date Time", sortable: true, field: "timeStamp" },
+  { header: "Q ( Minute ) *", sortable: true, field: "discharge", unit: "m³/min" },
   { header: "Q ( Hour ) *", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
   { header: "Q ( Day ) *", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
-  { header: "P1 *", sortable: true, field: "pressure", unit: "Bar" },
-  { header: "P2 *", sortable: true, field: "pressure2", unit: "Bar" },
+  { header: "P *", sortable: true, field: "pressure", unit: "Bar" },
   { header: "Temp", sortable: true, field: "temperature", unit: "C"},
   { header: "Cl⁺ *", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb *", sortable: true, field: "turbidity", unit: "NTU" },
   { header: "TDS *", sortable: true, field: "tds", unit: "ppm" },
-  // { header: "Operating Time", sortable: true, field: "operatingTime" },
 ].map((column) => ({
   ...column,
   class:
@@ -218,25 +207,14 @@ const filteredPipesData = computed(() => {
 const formattedFilteredPipesData = computed(() => {
   return filteredPipesData.value.map((item) => {
     const date = new Date(item?.timeStamp);
-    // Convert EC to TDS using the correct formula
     const tds = (item?.electricConductivity * 0.65).toFixed(2);
     return {
       ...item,
       stationName: item?.station?.name,
       stationCity: item?.station?.city,
-      date: date.toLocaleDateString("en-GB", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "numeric",
-      }),
-      time: date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }),
       timeStamp: date.toLocaleString("en-US", {
-        month: "2-digit",
         day: "2-digit",
+        month: "2-digit",
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
