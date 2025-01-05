@@ -75,12 +75,12 @@
           :sortField="'timeStamp'"
           :sortOrder="-1"
           @row-click="onRowClick"
-          :paginator="selectedFrequency === 'minute'"
+          :paginator="selectedFrequency === 'minute' || selectedFrequency === 'hour'"
           :rows="10"
           :totalRecords="pagination.total"
           :first="pagination.skip"
           :lazy="true"
-          :loading="stationDataMinuteStore.loading"
+          :loading="dataLoading"
           @page="onPageChange"
         />
       </div>
@@ -283,20 +283,30 @@ const formattedHourlyData = computed(() => {
   return hourlyData.value.data
     .filter((item) => item != null)
     .map((item) => {
-      const date = new Date(item.date);
+      const date = item.date ? new Date(item.date) : new Date();
+      
+      const formattedDate = date.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+
       const tds = item.electricConductivity
         ? (item.electricConductivity * 0.65).toFixed(2)
         : null;
+
       return {
         ...item,
-        date: date.toLocaleDateString("en-GB"),
-        time: date.toLocaleTimeString("en-US"),
+        dateTime: formattedDate,
+        timeStamp: date,
         tds: tds ? parseFloat(tds) : 0,
         q: item.discharge || 0,
         qHour: item.totalVolumePerHour || 0,
         qDay: item.totalVolumePerDay || 0,
         pressure: item.pressure || 0,
-        timeStamp: date,
         temp: item.temperature || "0",
       };
     })
@@ -382,10 +392,12 @@ const handleFrequencyChange = async () => {
       });
       break;
     case 'hour':
-      await fetchHourlyData({
+      await stationDataHourStore.fetchHourlyData({
         stationId,
         fromDate: fromDate.value,
         toDate: toDate.value,
+        skip: 0,
+        take: 10
       });
       break;
     case 'day':
@@ -398,15 +410,21 @@ const handleFrequencyChange = async () => {
   }
 };
 const onPageChange = (event) => {
+  const stationId = parseInt(route.params.id, 10);
+  const skip = event.first;
+  const take = event.rows;
+
   if (selectedFrequency.value === 'minute') {
-    const stationId = parseInt(route.params.id, 10);
-    const skip = event.first;
-    const take = event.rows;
-
-    console.log('Pagination event:', { skip, take });
-
     stationDataMinuteStore.fetchMinuteData({
       stationId,
+      skip,
+      take
+    });
+  } else if (selectedFrequency.value === 'hour') {
+    stationDataHourStore.fetchHourlyData({
+      stationId,
+      fromDate: fromDate.value,
+      toDate: toDate.value,
       skip,
       take
     });
@@ -427,7 +445,12 @@ const chartData = computed(() => {
         temp: item.temperature || 0,
       }));
     case 'hour':
-      return formattedHourlyData.value;
+      if (!stationDataHourStore.allHourlyData?.data) return [];
+      return stationDataHourStore.allHourlyData.data.map(item => ({
+        ...item,
+        timeStamp: new Date(item.date),
+        tds: item.electricConductivity ? (item.electricConductivity * 0.65).toFixed(2) : 0,
+      }));
     case 'day':
       return stationDataDayStore.data || [];
     default:
