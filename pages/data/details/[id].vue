@@ -315,7 +315,7 @@ const filteredData = computed(() => {
   
   return data.map(item => ({
     ...item,
-    dateTime: new Date(item.timeStamp).toLocaleString('en-GB', {
+    dateTime: new Date(item.date || item.timeStamp).toLocaleString('en-GB', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -323,7 +323,7 @@ const filteredData = computed(() => {
       minute: '2-digit',
       hour12: true
     }),
-    timeStamp: new Date(item.timeStamp),
+    timeStamp: new Date(item.date || item.timeStamp),
     discharge: item.discharge || '-',
     totalVolumePerDay: item.totalVolumePerDay || '-',
     pressure: item.pressure || '-',

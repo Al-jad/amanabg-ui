@@ -22,7 +22,7 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
           year: 'numeric',
         }).replace(/\//g, '-');
 
-        const response = await $axios.get(`/Pipes/byMinute?stationId=${stationId}&date=${formattedDate}`);
+        const response = await $axios.get(`/Pipes/realtime?stationId=${stationId}`);
         this.minuteData = response.data;
       } catch (error) {
         console.error('Error fetching minute data:', error);
