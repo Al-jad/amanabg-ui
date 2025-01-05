@@ -10,10 +10,15 @@
       :sortField="sortField"
       :sortOrder="sortOrder"
       @row-click="onRowClick"
-      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+      :lazy="true"
+      :totalRecords="totalRecords"
+      :loading="loading"
+      @page="onPage"
+      :first="first"
+      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+      :currentPageReportTemplate="currentPageReport"
       paginatorPosition="bottom"
       paginatorClass="justify-content-center"
-      :paginatorLeft="paginatorLeft"
     >
       <ColumnGroup type="header">
         <Row>
@@ -80,13 +85,85 @@
         </template>
       </Column>
     </DataTable>
+
+    <div v-if="paginator" class="flex flex-col gap-4 mt-6 sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-lg shadow-sm">
+      <!-- Records Info -->
+      <div class="text-sm text-gray-600 font-medium">
+        {{ currentPageReport }}
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="flex items-center justify-center gap-2">
+        <!-- First Page -->
+        <button
+          class="custom-paginator-button"
+          :disabled="first === 0"
+          @click="onPage({ first: 0, rows, pageCount: Math.ceil(totalRecords / rows) })"
+        >
+          <Icon name="mdi:chevron-double-left" class="w-4 h-4" />
+        </button>
+
+        <!-- Previous Page -->
+        <button
+          class="custom-paginator-button"
+          :disabled="first === 0"
+          @click="onPage({ first: Math.max(first - rows, 0), rows, pageCount: Math.ceil(totalRecords / rows) })"
+        >
+          <Icon name="mdi:chevron-left" class="w-4 h-4" />
+        </button>
+
+        <!-- Page Numbers -->
+        <div class="flex items-center gap-1">
+          <template v-for="pageNumber in visiblePages" :key="pageNumber">
+            <button
+              class="custom-paginator-button min-w-[2.5rem]"
+              :class="{ 'bg-DarkBlue !text-white': isCurrentPage(pageNumber) }"
+              @click="onPage({ first: (pageNumber - 1) * rows, rows, pageCount: Math.ceil(totalRecords / rows) })"
+            >
+              {{ pageNumber }}
+            </button>
+          </template>
+        </div>
+
+        <!-- Next Page -->
+        <button
+          class="custom-paginator-button"
+          :disabled="first + rows >= totalRecords"
+          @click="onPage({ first: first + rows, rows, pageCount: Math.ceil(totalRecords / rows) })"
+        >
+          <Icon name="mdi:chevron-right" class="w-4 h-4" />
+        </button>
+
+        <!-- Last Page -->
+        <button
+          class="custom-paginator-button"
+          :disabled="first + rows >= totalRecords"
+          @click="onPage({ first: Math.floor(totalRecords / rows) * rows, rows, pageCount: Math.ceil(totalRecords / rows) })"
+        >
+          <Icon name="mdi:chevron-double-right" class="w-4 h-4" />
+        </button>
+
+        <!-- Rows per page dropdown -->
+        <select
+          v-model="currentRows"
+          class="custom-paginator-dropdown ml-4"
+          @change="onRowsChange"
+        >
+          <option v-for="option in [10, 20, 50]" :key="option" :value="option">
+            {{ option }} per page
+          </option>
+        </select>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { computed, ref } from 'vue';
+
 const props = defineProps({
   value: {
-    type: Object,
+    type: Array,
     default: () => [],
   },
   rows: {
@@ -117,9 +194,21 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  totalRecords: {
+    type: Number,
+    default: 0,
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  first: {
+    type: Number,
+    default: 0,
+  }
 });
 
-const emit = defineEmits(["row-click"]);
+const emit = defineEmits(["row-click", "page"]);
 
 const onRowClick = (event) => {
   if (event.data && event.data.station && event.data.station.id) {
@@ -127,6 +216,16 @@ const onRowClick = (event) => {
   }
   emit("row-click", event);
 };
+
+const onPage = (event) => {
+  emit("page", event);
+};
+
+const currentPageReport = computed(() => {
+  const start = props.first + 1;
+  const end = Math.min(props.first + props.rows, props.totalRecords);
+  return `Showing ${start} to ${end} of ${props.totalRecords} entries`;
+});
 
 const isDataFresh = (timestamp) => {
   if (!timestamp) return false;
@@ -149,7 +248,35 @@ const getStatusClass = (status, timestamp) => {
   return status === 'OFF' ? 'status-off' : 'status-on';
 };
 
-const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entries`;
+const currentRows = ref(props.rows);
+const visiblePages = computed(() => {
+  const currentPage = Math.floor(props.first / props.rows) + 1;
+  const totalPages = Math.ceil(props.totalRecords / props.rows);
+  const delta = 2;
+  
+  let start = Math.max(currentPage - delta, 1);
+  let end = Math.min(currentPage + delta, totalPages);
+
+  if (currentPage <= delta) {
+    end = Math.min(2 * delta + 1, totalPages);
+  } else if (currentPage >= totalPages - delta) {
+    start = Math.max(totalPages - 2 * delta, 1);
+  }
+
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+});
+
+const isCurrentPage = (pageNumber) => {
+  return Math.floor(props.first / props.rows) + 1 === pageNumber;
+};
+
+const onRowsChange = () => {
+  emit("page", {
+    first: 0,
+    rows: currentRows.value,
+    pageCount: Math.ceil(props.totalRecords / currentRows.value)
+  });
+};
 </script>
 
 <style>
@@ -197,5 +324,50 @@ const paginatorLeft = `Showing max ${props.rows} of ${props.value.length} entrie
 
 .status-off .status-indicator {
   @apply h-3 w-3 rounded-full bg-gradient-to-br from-red-400 to-red-600 shadow-sm shadow-red-500/50;
+}
+
+.p-datatable-loading-overlay {
+  @apply !bg-DarkBlue/50;
+}
+
+.p-datatable-loading-icon {
+  @apply !text-white;
+}
+
+.p-paginator .p-paginator-current {
+  @apply !text-white;
+}
+
+.p-paginator .p-paginator-pages .p-paginator-page {
+  @apply !text-white bg-DarkBlue hover:!bg-DarkNavy;
+}
+
+.p-paginator .p-paginator-first,
+.p-paginator .p-paginator-prev,
+.p-paginator .p-paginator-next,
+.p-paginator .p-paginator-last {
+  @apply !text-white hover:!bg-DarkBlue/80;
+}
+
+.custom-paginator-button {
+  @apply px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md 
+  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-DarkBlue
+  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white;
+}
+
+.custom-paginator-dropdown {
+  @apply px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md 
+  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-DarkBlue cursor-pointer;
+}
+
+/* Responsive styles */
+@media (max-width: 640px) {
+  .custom-paginator-button {
+    @apply px-2 py-1;
+  }
+
+  .custom-paginator-dropdown {
+    @apply px-2 py-1 text-xs;
+  }
 }
 </style>

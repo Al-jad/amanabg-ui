@@ -76,6 +76,13 @@
           :sortField="'timeStamp'"
           :sortOrder="-1"
           @row-click="onRowClick"
+          :paginator="selectedFrequency === 'minute'"
+          :rows="10"
+          :totalRecords="pagination.total"
+          :first="pagination.skip"
+          :lazy="true"
+          :loading="stationDataMinuteStore.loading"
+          @page="onPageChange"
         />
       </div>
     </div>
@@ -297,11 +304,7 @@ const filteredData = computed(() => {
   let data;
   switch (selectedFrequency.value) {
     case 'minute':
-      data = stationDataMinuteStore.minuteData?.data || stationDataMinuteStore.minuteData;
-      
-      if (data && !Array.isArray(data)) {
-        data = [data];
-      }
+      data = storeMinuteData.value?.data || [];
       break;
     case 'hour':
       data = formattedHourlyData.value;
@@ -311,11 +314,11 @@ const filteredData = computed(() => {
       break;
   }
 
-  if (!data) return [];
+  if (!data || !Array.isArray(data)) return [];
   
   return data.map(item => ({
     ...item,
-    dateTime: new Date(item.date || item.timeStamp).toLocaleString('en-GB', {
+    dateTime: new Date(item.date).toLocaleString('en-GB', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -323,7 +326,7 @@ const filteredData = computed(() => {
       minute: '2-digit',
       hour12: true
     }),
-    timeStamp: new Date(item.date || item.timeStamp),
+    timeStamp: new Date(item.date),
     discharge: item.discharge || '-',
     totalVolumePerDay: item.totalVolumePerDay || '-',
     pressure: item.pressure || '-',
@@ -350,23 +353,28 @@ const onRowClick = (event) => {
   const minuteDataUrl = `/data/details/perMinute/${route.params.id}?date=${formattedDate}&stationName=${encodeURIComponent(stationName.value)}`;
   window.open(minuteDataUrl, "_blank");
 };
-const minuteData = ref([]);
 const selectedParam = ref("q1Hour");
 const selectedFrequency = ref('minute');
 const stationDataMinuteStore = useStationDataMinuteStore();
-const stationDataDayStore = useStationDataDayStore();
+const { 
+  minuteData: storeMinuteData, 
+  loading: minuteLoading, 
+  error: minuteError, 
+  pagination 
+} = storeToRefs(stationDataMinuteStore);
+const paginationRows = computed(() => pagination.value?.take || 10);
+const totalRecords = computed(() => pagination.value?.total || 0);
+const currentPage = computed(() => pagination.value?.currentPage || 0);
 const handleFrequencyChange = async () => {
   const stationId = parseInt(route.params.id, 10);
   if (isNaN(stationId)) return;
 
   switch (selectedFrequency.value) {
     case 'minute':
-      const today = new Date();
-      const formattedDate = `${today.getMonth() + 1}-${today.getDate()}-${today.getFullYear()}`;
-      
       await stationDataMinuteStore.fetchMinuteData({
         stationId,
-        date: formattedDate,
+        skip: 0,
+        take: 10
       });
       break;
     case 'hour':
@@ -383,6 +391,21 @@ const handleFrequencyChange = async () => {
         toDate: toDate.value,
       });
       break;
+  }
+};
+const onPageChange = (event) => {
+  if (selectedFrequency.value === 'minute') {
+    const stationId = parseInt(route.params.id, 10);
+    const skip = event.first;
+    const take = event.rows;
+
+    console.log('Pagination event:', { skip, take });
+
+    stationDataMinuteStore.fetchMinuteData({
+      stationId,
+      skip,
+      take
+    });
   }
 };
 </script>
