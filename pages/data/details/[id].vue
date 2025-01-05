@@ -91,8 +91,8 @@
     </div>
     <div>
       <EChart
-        v-if="formattedHourlyData.length > 0"
-        :hourlyData="formattedHourlyData"
+        v-if="chartData.length > 0"
+        :hourlyData="chartData"
         :includeTDS="true"
         :paramNames="paramNames"
         :units="units"
@@ -146,6 +146,10 @@ const dataError = computed(() => {
 });
 const dataType = ref("Hourly");
 const paramNames = {
+  discharge: {
+    short: "Q (min)",
+    full: "Q ( Minute )",
+  },
   qHour: {
     short: "Q (h)",
     full: "Q ( Hour )",
@@ -408,6 +412,28 @@ const onPageChange = (event) => {
     });
   }
 };
+const chartData = computed(() => {
+  switch (selectedFrequency.value) {
+    case 'minute':
+      if (!storeMinuteData.value?.data || !Array.isArray(storeMinuteData.value.data)) return [];
+      return storeMinuteData.value.data.map(item => ({
+        ...item,
+        timeStamp: new Date(item.date),
+        tds: item.electricConductivity ? (item.electricConductivity * 0.65).toFixed(2) : 0,
+        q: item.discharge || 0,
+        qHour: item.totalVolumePerHour || 0,
+        qDay: item.totalVolumePerDay || 0,
+        pressure: item.pressure || 0,
+        temp: item.temperature || 0,
+      }));
+    case 'hour':
+      return formattedHourlyData.value;
+    case 'day':
+      return stationDataDayStore.data || [];
+    default:
+      return [];
+  }
+});
 </script>
 <style>
 .p-datepicker-input {

@@ -85,76 +85,6 @@
         </template>
       </Column>
     </DataTable>
-
-    <div v-if="paginator" class="flex flex-col gap-4 mt-6 sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-lg shadow-sm">
-      <!-- Records Info -->
-      <div class="text-sm text-gray-600 font-medium">
-        {{ currentPageReport }}
-      </div>
-
-      <!-- Pagination Controls -->
-      <div class="flex items-center justify-center gap-2">
-        <!-- First Page -->
-        <button
-          class="custom-paginator-button"
-          :disabled="first === 0"
-          @click="onPage({ first: 0, rows, pageCount: Math.ceil(totalRecords / rows) })"
-        >
-          <Icon name="mdi:chevron-double-left" class="w-4 h-4" />
-        </button>
-
-        <!-- Previous Page -->
-        <button
-          class="custom-paginator-button"
-          :disabled="first === 0"
-          @click="onPage({ first: Math.max(first - rows, 0), rows, pageCount: Math.ceil(totalRecords / rows) })"
-        >
-          <Icon name="mdi:chevron-left" class="w-4 h-4" />
-        </button>
-
-        <!-- Page Numbers -->
-        <div class="flex items-center gap-1">
-          <template v-for="pageNumber in visiblePages" :key="pageNumber">
-            <button
-              class="custom-paginator-button min-w-[2.5rem]"
-              :class="{ 'bg-DarkBlue !text-white': isCurrentPage(pageNumber) }"
-              @click="onPage({ first: (pageNumber - 1) * rows, rows, pageCount: Math.ceil(totalRecords / rows) })"
-            >
-              {{ pageNumber }}
-            </button>
-          </template>
-        </div>
-
-        <!-- Next Page -->
-        <button
-          class="custom-paginator-button"
-          :disabled="first + rows >= totalRecords"
-          @click="onPage({ first: first + rows, rows, pageCount: Math.ceil(totalRecords / rows) })"
-        >
-          <Icon name="mdi:chevron-right" class="w-4 h-4" />
-        </button>
-
-        <!-- Last Page -->
-        <button
-          class="custom-paginator-button"
-          :disabled="first + rows >= totalRecords"
-          @click="onPage({ first: Math.floor(totalRecords / rows) * rows, rows, pageCount: Math.ceil(totalRecords / rows) })"
-        >
-          <Icon name="mdi:chevron-double-right" class="w-4 h-4" />
-        </button>
-
-        <!-- Rows per page dropdown -->
-        <select
-          v-model="currentRows"
-          class="custom-paginator-dropdown ml-4"
-          @change="onRowsChange"
-        >
-          <option v-for="option in [10, 20, 50]" :key="option" :value="option">
-            {{ option }} per page
-          </option>
-        </select>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -339,7 +269,10 @@ const onRowsChange = () => {
 }
 
 .p-paginator .p-paginator-pages .p-paginator-page {
-  @apply !text-white bg-DarkBlue hover:!bg-DarkNavy;
+  @apply !text-white bg-DarkBlue hover:!bg-DarkNavy focus:!bg-DarkNavy;
+}
+.p-paginator .p-paginator-pages .p-paginator-page-selected {
+  @apply !text-white bg-DarkNavy
 }
 
 .p-paginator .p-paginator-first,
