@@ -289,4 +289,7 @@ watch(
   height: 500px;
   width: 100%;
 }
+.p-select-list , .p-select {
+  @apply !bg-white !text-black;
+}
 </style>

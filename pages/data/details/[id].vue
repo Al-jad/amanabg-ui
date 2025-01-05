@@ -360,7 +360,8 @@ const selectedParam = ref("q1Hour");
 const selectedFrequency = ref('minute');
 const stationDataMinuteStore = useStationDataMinuteStore();
 const { 
-  minuteData: storeMinuteData, 
+  minuteData: storeMinuteData,
+  allMinuteData: storeAllMinuteData,
   loading: minuteLoading, 
   error: minuteError, 
   pagination 
@@ -414,8 +415,8 @@ const onPageChange = (event) => {
 const chartData = computed(() => {
   switch (selectedFrequency.value) {
     case 'minute':
-      if (!storeMinuteData.value?.data || !Array.isArray(storeMinuteData.value.data)) return [];
-      return storeMinuteData.value.data.map(item => ({
+      if (!stationDataMinuteStore.allMinuteData?.data || !Array.isArray(stationDataMinuteStore.allMinuteData.data)) return [];
+      return stationDataMinuteStore.allMinuteData.data.map(item => ({
         ...item,
         timeStamp: new Date(item.date),
         tds: item.electricConductivity ? (item.electricConductivity * 0.65).toFixed(2) : 0,
@@ -442,5 +443,8 @@ const frequencyOptions = [
 <style>
 .p-datepicker-input {
   @apply !bg-gray-200 text-sm !text-black sm:text-base;
+}
+.p-select-list {
+  @apply !bg-white !text-black;
 }
 </style>

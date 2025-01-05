@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 export const useStationDataMinuteStore = defineStore('stationDataMinute', {
   state: () => ({
     minuteData: null,
+    allMinuteData: null,
     loading: false,
     error: null,
     pagination: {
@@ -27,13 +28,21 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
           }
         });
 
+        const allDataResponse = await $axios.get(`/Pipes/realtime`, {
+          params: {
+            stationId,
+            skip: 0,
+            take: 999999
+          }
+        });
+
         this.minuteData = response.data;
+        this.allMinuteData = allDataResponse.data;
         this.pagination = {
           skip,
           take,
           total: response.data.count || 0
         };
-
 
       } catch (error) {
         console.error('Error fetching minute data:', error);
