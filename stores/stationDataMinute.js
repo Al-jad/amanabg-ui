@@ -19,9 +19,6 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
 
       try {
         const { $axios } = useNuxtApp();
-        
-        console.log('Fetching data with:', { stationId, skip, take }); // Debug log
-
         const response = await $axios.get(`/Pipes/realtime`, {
           params: {
             stationId,
@@ -37,8 +34,6 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
           total: response.data.count || 0
         };
 
-        console.log('Response data:', response.data); // Debug log
-        console.log('Updated pagination:', this.pagination); // Debug log
 
       } catch (error) {
         console.error('Error fetching minute data:', error);

@@ -17,15 +17,14 @@
         </NuxtLink>
         <div class="flex items-center gap-4">
           <label class="text-gray-700">Data Frequency:</label>
-          <select 
-            v-model="selectedFrequency" 
-            class="px-3 py-2 border rounded-md bg-white"
+          <Select
+            v-model="selectedFrequency"
+            :options="frequencyOptions"
+            optionLabel="label"
+            optionValue="value"
+            class="w-40"
             @change="handleFrequencyChange"
-          >
-            <option value="minute">Minute</option>
-            <option value="hour">Hour</option>
-            <option value="day">Day</option>
-          </select>
+          />
         </div>
         <div
           class="flex flex-col items-start justify-between w-full gap-4 p-6 py-2 sm:p-4 sm:py-1"
@@ -434,6 +433,11 @@ const chartData = computed(() => {
       return [];
   }
 });
+const frequencyOptions = [
+  { label: 'Minute', value: 'minute' },
+  { label: 'Hour', value: 'hour' },
+  { label: 'Day', value: 'day' }
+];
 </script>
 <style>
 .p-datepicker-input {
