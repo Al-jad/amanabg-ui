@@ -6,12 +6,7 @@
     <div v-else-if="dataError" class="text-center text-red-500">
       <p class="text-lg font-semibold">{{ dataError }}</p>
     </div>
-    <div
-      v-else-if="
-        (hourlyData && hourlyData.length > 0) ||
-        (minuteData && minuteData.length > 0)
-      "
-    >
+    <div v-else-if="filteredData && filteredData.length > 0">
       <div class="flex flex-col items-start gap-4 mb-8">
         <NuxtLink
           to="/data/pipes-water"
@@ -20,6 +15,18 @@
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to All Stations
         </NuxtLink>
+        <div class="flex items-center gap-4">
+          <label class="text-gray-700">Data Frequency:</label>
+          <select 
+            v-model="selectedFrequency" 
+            class="px-3 py-2 border rounded-md bg-white"
+            @change="handleFrequencyChange"
+          >
+            <option value="minute">Minute</option>
+            <option value="hour">Hour</option>
+            <option value="day">Day</option>
+          </select>
+        </div>
         <div
           class="flex flex-col items-start justify-between w-full gap-4 p-6 py-2 sm:p-4 sm:py-1"
         >
@@ -116,29 +123,33 @@ const minuteDate = ref(null);
 const minuteDateError = ref("");
 const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } =
   stationDataHourStore;
-const dataLoading = computed(() => hourLoading.value);
-const dataError = computed(() => hourError.value);
+const dataLoading = computed(() => {
+  switch (selectedFrequency.value) {
+    case 'minute': return stationDataMinuteStore.loading;
+    case 'hour': return hourLoading.value;
+    case 'day': return stationDataDayStore.loading;
+  }
+});
+const dataError = computed(() => {
+  switch (selectedFrequency.value) {
+    case 'minute': return stationDataMinuteStore.error;
+    case 'hour': return hourError.value;
+    case 'day': return stationDataDayStore.error;
+  }
+});
 const dataType = ref("Hourly");
 const paramNames = {
-  q1Hour: {
-    short: "Q1 (h)",
-    full: "Q1 ( Hour )",
-  },
-  q2Hour: {
-    short: "Q2 (h)",
-    full: "Q2 ( Hour )",
+  qHour: {
+    short: "Q (h)",
+    full: "Q ( Hour )",
   },
   qDay: {
     short: "Q (d)",
     full: "Q ( Day )",
   },
-  pressure1: {
-    short: "P1",
-    full: "Pressure 1",
-  },
-  pressure2: {
-    short: "P2",
-    full: "Pressure 2",
+  pressure: {
+    short: "P",
+    full: "Pressure",
   },
   turbidity: {
     short: "Turb.",
@@ -159,33 +170,32 @@ const paramNames = {
 };
 const columns = computed(() => {
   const baseColumns = [
-    { header: "Date", sortable: true, field: "date" },
-    { header: "Time", sortable: true, field: "time" },
+    { header: "DateTime", sortable: true, field: "dateTime" },
     {
-      header: "Q1 ( Hour )",
+      header: "Q ( Min )",
       sortable: true,
       field: "discharge",
+      unit: "m³/min",
+      defaultValue: "-"
+    },
+    {
+      header: "Q ( Hour )",
+      sortable: true,
+      field: "totalVolumePerHour",
       unit: "m³/h",
       defaultValue: "-"
     },
     {
-      header: "Q2 ( Hour )",
+      header: "Q ( Day )",
       sortable: true,
-      field: "discharge2",
+      field: "totalVolumePerDay",
       unit: "m³/d",
       defaultValue: "-"
     },
     { 
-      header: "P1", 
+      header: "P", 
       sortable: true, 
       field: "pressure", 
-      unit: "Bar",
-      defaultValue: "-"
-    },
-    { 
-      header: "P2", 
-      sortable: true, 
-      field: "pressure2", 
       unit: "Bar",
       defaultValue: "-"
     },
@@ -229,11 +239,7 @@ const fetchData = async () => {
     console.error("Invalid station ID");
     return;
   }
-  await stationDataHourStore.fetchHourlyData({
-    stationId,
-    fromDate: fromDate.value,
-    toDate: toDate.value,
-  });
+  await handleFrequencyChange();
 };
 const applyDateFilter = () => {
   if (fromDate.value && toDate.value) {
@@ -252,22 +258,22 @@ const resetToHourlyData = () => {
   minuteDateError.value = "";
 };
 const units = {
-  q1Hour: "m³/h",
-  q2Hour: "m³/h",
+  q: "m³/min",
+  qHour: "m³/h",
   qDay: "m³/d", 
-  pressure1: "Bar",
-  pressure2: "Bar",
+  pressure: "Bar",
   turbidity: "NTU",
   cl: "mg/L",
   tds: "ppm",
   temp: "C",
 };
 const formattedHourlyData = computed(() => {
-  if (!hourlyData.value || hourlyData.value.length === 0) return [];
-  return hourlyData.value
+  if (!hourlyData.value?.data || !Array.isArray(hourlyData.value.data) || hourlyData.value.data.length === 0) return [];
+  
+  return hourlyData.value.data
     .filter((item) => item != null)
     .map((item) => {
-      const date = new Date(item.timeStamp);
+      const date = new Date(item.date);
       const tds = item.electricConductivity
         ? (item.electricConductivity * 0.65).toFixed(2)
         : null;
@@ -276,11 +282,10 @@ const formattedHourlyData = computed(() => {
         date: date.toLocaleDateString("en-GB"),
         time: date.toLocaleTimeString("en-US"),
         tds: tds ? parseFloat(tds) : 0,
-        q1Hour: item.discharge || 0,
-        q2Hour: item.discharge2 || 0,
+        q: item.discharge || 0,
+        qHour: item.totalVolumePerHour || 0,
         qDay: item.totalVolumePerDay || 0,
-        pressure1: item.pressure || 0,
-        pressure2: item.pressure2 || 0,
+        pressure: item.pressure || 0,
         timeStamp: date,
         temp: item.temperature || "0",
       };
@@ -289,10 +294,44 @@ const formattedHourlyData = computed(() => {
 });
 const formattedMinuteData = computed(() => {});
 const filteredData = computed(() => {
-  if (!fromDate.value || !toDate.value) return formattedHourlyData.value;
-  return formattedHourlyData.value.filter((item) => {
-    return item.timeStamp >= fromDate.value && item.timeStamp <= toDate.value;
-  });
+  let data;
+  switch (selectedFrequency.value) {
+    case 'minute':
+      data = stationDataMinuteStore.minuteData?.data || stationDataMinuteStore.minuteData;
+      
+      if (data && !Array.isArray(data)) {
+        data = [data];
+      }
+      break;
+    case 'hour':
+      data = formattedHourlyData.value;
+      break;
+    case 'day':
+      data = stationDataDayStore.data;
+      break;
+  }
+
+  if (!data) return [];
+  
+  return data.map(item => ({
+    ...item,
+    dateTime: new Date(item.timeStamp).toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }),
+    timeStamp: new Date(item.timeStamp),
+    discharge: item.discharge || '-',
+    totalVolumePerDay: item.totalVolumePerDay || '-',
+    pressure: item.pressure || '-',
+    temperature: item.temperature || '-',
+    cl: item.cl || '-',
+    turbidity: item.turbidity || '-',
+    tds: item.electricConductivity ? (item.electricConductivity * 0.65).toFixed(2) : '-'
+  }));
 });
 const stationName = ref("N/A");
 const stationCity = ref("N/A");
@@ -313,6 +352,39 @@ const onRowClick = (event) => {
 };
 const minuteData = ref([]);
 const selectedParam = ref("q1Hour");
+const selectedFrequency = ref('minute');
+const stationDataMinuteStore = useStationDataMinuteStore();
+const stationDataDayStore = useStationDataDayStore();
+const handleFrequencyChange = async () => {
+  const stationId = parseInt(route.params.id, 10);
+  if (isNaN(stationId)) return;
+
+  switch (selectedFrequency.value) {
+    case 'minute':
+      const today = new Date();
+      const formattedDate = `${today.getMonth() + 1}-${today.getDate()}-${today.getFullYear()}`;
+      
+      await stationDataMinuteStore.fetchMinuteData({
+        stationId,
+        date: formattedDate,
+      });
+      break;
+    case 'hour':
+      await fetchHourlyData({
+        stationId,
+        fromDate: fromDate.value,
+        toDate: toDate.value,
+      });
+      break;
+    case 'day':
+      await stationDataDayStore.fetchDailyData({
+        stationId,
+        fromDate: fromDate.value,
+        toDate: toDate.value,
+      });
+      break;
+  }
+};
 </script>
 <style>
 .p-datepicker-input {
