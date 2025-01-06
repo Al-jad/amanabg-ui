@@ -32,7 +32,7 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
           params: {
             stationId,
             skip: 0,
-            take: 999999
+            take: 1000
           }
         });
 
