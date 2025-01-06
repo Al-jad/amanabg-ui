@@ -1,10 +1,7 @@
 <template>
-  <!-- Main container -->
   <div class="container px-4 py-8 mx-auto sm:px-4 lg:px-8">
     <div class="p-4 pb-0 bg-white shadow sm:rounded-lg">
-      <!-- Header section with back button, title, and view selector -->
       <div class="flex flex-col mb-8 sm:flex-col md:flex-row md:items-center md:justify-between">
-        <!-- Back button and title -->
         <div class="flex mb-4 text-nowrap sm:mb-0">
           <div class="flex flex-col items-start gap-4 mb-8">
             <NuxtLink
@@ -25,7 +22,6 @@
             </div>
           </div>
         </div>
-        <!-- View selector (Table/Map) -->
         <div class="flex justify-center">
           <SelectButton
             v-model="selectedView"
@@ -44,43 +40,21 @@
           </SelectButton>
         </div>
       </div>
-      
-      <!-- Table view -->
       <div v-if="selectedView === 'Table'">
-        <!-- Render table if data is available -->
         <Table
           v-if="!loading && filteredPipesData.length > 0"
           :headers="headers"
           :columns="columns"
           :value="formattedFilteredPipesData"
-          @row-click="onRowClick"
-        >
-          <template #body="slotProps">
-            <Row v-for="col in columns" :key="col.field">
-              <template v-if="col.field === 'discharge'">
-                <span :class="getDischargeColor(slotProps.data[col.field])">
-                  {{ slotProps.data[col.field] }}
-                  <span
-                    v-html="getDischargeArrow(slotProps.data[col.field])"
-                  ></span>
-                </span>
-              </template>
-              <template v-else>
-                {{ slotProps.data[col.field] }}
-              </template>
-            </Row>
-          </template>
+          @row-click="onRowClick">
         </Table>
-        <!-- Loading indicator -->
         <div v-else-if="loading" class="flex items-center justify-center">
           <p class="text-gray-500">Loading data...</p>
           <span class="ml-2 animate-spin">&#8987;</span>
         </div>
-        <!-- No data message -->
         <div v-else class="flex items-center justify-center">
           <p class="text-gray-500">No data available</p>
         </div>
-        <!-- Legend for table data -->
         <div class="py-4 text-sm">
           <p>* Q ( m³/min ) = total discharge in the last minute</p>
           <p>* Q ( m³/h ) = total discharge in the last hour</p>
@@ -92,10 +66,8 @@
         </div>
       </div>
       
-      <!-- Map view -->
       <div v-else-if="selectedView === 'Map'">
         <Map :stations="filteredMapStations" />
-        <!-- No stations message for map view -->
         <div v-if="filteredMapStations.length === 0" class="mt-4 text-center text-gray-500">
           No stations available for map view
         </div>
@@ -108,17 +80,12 @@
 const router = useRouter();
 const route = useRoute();
 
-// Define view options and selected view
 const viewOptions = ref(["Table", "Map"]);
 const selectedView = ref("Table");
 
-// City selection (currently commented out)
 const selectedCity = ref("All");
 const cities = ref([]);
 
-const citiesWithAll = computed(() => ["All", ...cities.value]);
-
-// Handle row click in the table
 const onRowClick = (event) => {
   const { data } = event;
   if (!data?.stationId || !data.station?.name) {
@@ -138,11 +105,10 @@ const onRowClick = (event) => {
   });
 };
 
-// Define table headers and columns
 const headers = [
   {
     text: "Station Info",
-    colspan: 2,
+    colspan: 3,
     class:
       "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
   },
@@ -177,24 +143,13 @@ const columns = [
     "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
 }));
 
-// Use station store for data management
 const stationStore = useStationStore();
 
-// Compute pipes data from store
 const pipesData = computed(() => {
   const storePipesData = stationStore.pipesData;
   return Array.isArray(storePipesData) ? storePipesData : [storePipesData];
 });
 
-// Extract unique cities from pipes data (currently commented out)
-const extractCities = () => {
-  // const uniqueCities = new Set(
-  //   pipesData.value.map((item) => item.station.city),
-  // );
-  // cities.value = Array.from(uniqueCities);
-};
-
-// Filter pipes data based on selected city
 const filteredPipesData = computed(() => {
   if (!selectedCity.value || selectedCity.value === "All")
     return pipesData.value;
@@ -203,7 +158,6 @@ const filteredPipesData = computed(() => {
   );
 });
 
-// Format filtered pipes data for display
 const formattedFilteredPipesData = computed(() => {
   return filteredPipesData.value.map((item) => {
     const date = new Date(item?.timeStamp);
@@ -212,7 +166,7 @@ const formattedFilteredPipesData = computed(() => {
       ...item,
       stationName: item?.station?.name,
       stationCity: item?.station?.city,
-      timeStamp: date.toLocaleString("en-US", {
+      timeStamp: date.toLocaleString("en-GB", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -225,7 +179,6 @@ const formattedFilteredPipesData = computed(() => {
   });
 });
 
-// Filter stations for map view
 const filteredMapStations = computed(() => {
   return filteredPipesData.value.filter((item) => {
     return (
@@ -240,15 +193,10 @@ const filteredMapStations = computed(() => {
   });
 });
 
-// Data source and loading state
 const dataSource = ref("API");
 const lastUpdated = ref(null);
 const loading = ref(true);
 
-// City filter function (currently empty)
-const filterByCity = () => {};
-
-// Fetch initial data from API
 const fetchInitialData = async () => {
   loading.value = true;
   try {
@@ -256,7 +204,6 @@ const fetchInitialData = async () => {
     const { data } = await $axios.get("/Pipes/latest_data");
     stationStore.setPipesData(data);
     lastUpdated.value = new Date().toLocaleString();
-    extractCities();
   } catch (error) {
     console.error("Error fetching initial data:", error);
   } finally {
@@ -264,7 +211,6 @@ const fetchInitialData = async () => {
   }
 };
 
-// Watch for changes in pipes data
 watch(
   () => stationStore.pipesData,
   (newValue) => {
@@ -274,18 +220,11 @@ watch(
         dataSource.value = "WebSocket";
       }
       loading.value = false;
-      extractCities();
     }
   },
   { deep: true },
 );
 
-// Handle view change (currently empty)
-const handleViewChange = () => {
-  // Add any logic needed when view changes
-};
-
-// Initialize component
 const initializeComponent = async () => {
   const view = route.query.view?.toLowerCase();
   if (view === "map") {
@@ -295,78 +234,7 @@ const initializeComponent = async () => {
   stationStore.connect();
 };
 
-// Run initialization on component mount
-onMounted(initializeComponent);
-
-// Helper functions for discharge display
-const getDischargeColor = (discharge) => {
-  const minDischarge = 11;
-  return discharge < minDischarge ? "text-red-500" : "text-green-500";
-};
-
-const getDischargeArrow = (discharge) => {
-  const minDischarge = 11;
-  return discharge < minDischarge ? "&darr" : "&uarr;";
-};
-
-// Chart data and parameters (not currently used in the template)
-const hourlyChartData = ref([]);
-const paramNames = ref({
-  discharge: { full: "Discharge", short: "Q" },
-  totalVolumePerHour: { full: "Hourly Volume", short: "Q (h)" },
-  totalVolumePerDay: { full: "Daily Volume", short: "Q (d)" },
-  pressure: { full: "Pressure", short: "P" },
-  cl: { full: "Chlorine", short: "Cl" },
-  turbidity: { full: "Turbidity", short: "Turb" },
-  electricConductivity: { full: "TDS", short: "TDS" },
-});
-const units = ref({
-  discharge: "m³/min",
-  totalVolumePerHour: "m³/h",
-  totalVolumePerDay: "m³/d",
-  pressure: "Bar",
-  cl: "mg/L",
-  turbidity: "NTU",
-  electricConductivity: "mg/L",
-});
-const selectedParam = ref("discharge");
-
-// Format hourly chart data
-const formattedHourlyChartData = computed(() => {
-  return hourlyChartData.value
-    .map((item) => {
-      if (!item) return null;
-      return {
-        timeStamp: new Date(item.timeStamp),
-        discharge: item.discharge || null,
-        totalVolumePerHour: item.totalVolumePerHour || null,
-        totalVolumePerDay: item.totalVolumePerDay || null,
-        pressure: item.pressure || null,
-        cl: item.cl || null,
-        turbidity: item.turbidity || null,
-        electricConductivity: item.electricConductivity
-          ? Number((item.electricConductivity * 0.65).toFixed(2))
-          : null,
-      };
-    })
-    .filter((item) => item !== null);
-});
-
-// Fetch hourly data for the chart
-const fetchHourlyData = async () => {
-  try {
-    const { $axios } = useNuxtApp();
-    const { data } = await $axios.get("/Pipes/hourly");
-    hourlyChartData.value = Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error("Error fetching hourly data:", error);
-    hourlyChartData.value = [];
-  }
-};
-
-// Fetch hourly data and initialize component on mount
 onMounted(async () => {
-  await fetchHourlyData();
   await initializeComponent();
 });
 </script>
