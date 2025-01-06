@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-export const useStationDataMinuteStore = defineStore('stationDataMinute', {
+export const useStationDetailsDataStore = defineStore('stationDetailsData', {
   state: () => ({
     data: null,
     allData: null,

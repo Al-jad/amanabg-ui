@@ -122,8 +122,9 @@
   </div>
 </template>
 <script setup>
+import { useStationDetailsDataStore } from '~/stores/stationDetailsData';
 const route = useRoute();
-const stationDataStore = useStationDataMinuteStore();
+const stationDataStore = useStationDetailsDataStore();
 const {
   data: storeData,
   allData: storeAllData,
@@ -152,7 +153,7 @@ const toDate = ref(endOfDay(new Date()));
 const paramNames = {
   discharge: {
     short: "Q",
-    full: "Q",
+    full: "Discharge",
   },
   waterLevel: {
     short: "WL",
@@ -204,13 +205,13 @@ const columns = computed(() => {
       sortable: true,
       field: "waterLevel",
       unit: "m",
-      defaultValue: "-",
+      defaultValue: 0,
     },
     {
       header: "P",
       sortable: true,
       field: "pressure",
-      unit: "Bar",
+      unit: "m",
       defaultValue: "-",
     },
     {
@@ -269,55 +270,13 @@ const resetDateFilter = () => {
 };
 const units = {
   q: "m³/min",
-  qHour: "m³/h",
-  qDay: "m³/d",
   pressure: "Bar",
   turbidity: "NTU",
   cl: "mg/L",
   tds: "ppm",
   temp: "C",
+  waterLevel: "m"
 };
-const formattedHourlyData = computed(() => {
-  if (
-    !hourlyData.value?.data ||
-    !Array.isArray(hourlyData.value.data) ||
-    hourlyData.value.data.length === 0
-  )
-    return [];
-
-  return hourlyData.value.data
-    .filter((item) => item != null)
-    .map((item) => {
-      const date = item.date ? new Date(item.date) : new Date();
-
-      const formattedDate = date.toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-
-      const tds = item.electricConductivity
-        ? (item.electricConductivity * 0.65).toFixed(2)
-        : null;
-
-      return {
-        ...item,
-        dateTime: formattedDate,
-        timeStamp: date,
-        tds: tds ? parseFloat(tds) : 0,
-        q: item.discharge || 0,
-        qHour: item.totalVolumePerHour || 0,
-        qDay: item.totalVolumePerDay || 0,
-        pressure: item.pressure || 0,
-        temp: item.temperature || "0",
-      };
-    })
-    .sort((a, b) => b.timeStamp - a.timeStamp);
-});
-const formattedMinuteData = computed(() => {});
 const filteredData = computed(() => {
   const data = storeData.value?.data || [];
 
@@ -336,7 +295,6 @@ const filteredData = computed(() => {
     })}`,
     timeStamp: new Date(item.date),
     discharge: item.discharge || "-",
-    totalVolumePerDay: item.totalVolumePerDay || "-",
     pressure: item.pressure || "-",
     temperature: item.temperature || "-",
     cl: item.cl || "-",
@@ -344,11 +302,11 @@ const filteredData = computed(() => {
     tds: item.electricConductivity
       ? (item.electricConductivity * 0.65).toFixed(2)
       : "-",
+    waterLevel: item.waterLevel || "-",
   }));
 });
 const stationName = ref("N/A");
 const stationCity = ref("N/A");
-const router = useRouter();
 onMounted(() => {
   fetchData();
   if (process.client) {
@@ -395,10 +353,9 @@ const chartData = computed(() => {
       ? (item.electricConductivity * 0.65).toFixed(2)
       : 0,
     q: item.discharge || 0,
-    qHour: item.totalVolumePerHour || 0,
-    qDay: item.totalVolumePerDay || 0,
     pressure: item.pressure || 0,
     temp: item.temperature || 0,
+    waterLevel: item.waterLevel || 0,
   }));
 });
 </script>
@@ -411,5 +368,20 @@ const chartData = computed(() => {
 }
 .p-datatable .p-datatable-tbody > tr > td {
   white-space: pre-line;
+}
+.p-select {
+  @apply !bg-gray-100 !border !border-DarkBlue !text-black;
+}
+.p-select-option {
+  @apply !bg-gray-100 !border !border-DarkBlue !text-black;
+}
+.p-select-option-selected {
+  @apply !bg-DarkBlue !text-white;
+}
+.p-select-label {
+  @apply !text-black;
+}
+.p-select .p-component .p-inputwrapper {
+  @apply !bg-gray-100;
 }
 </style>
