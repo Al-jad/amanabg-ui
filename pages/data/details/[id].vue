@@ -15,17 +15,7 @@
           <Icon name="mdi:arrow-left" class="mr-2" />
           Back to All Stations
         </NuxtLink>
-        <div class="flex items-center gap-4">
-          <label class="text-gray-700">Data Frequency:</label>
-          <Select
-            v-model="selectedFrequency"
-            :options="frequencyOptions"
-            optionLabel="label"
-            optionValue="value"
-            class="w-40"
-            @change="handleFrequencyChange"
-          />
-        </div>
+
         <div
           class="flex flex-col items-start justify-between w-full gap-4 p-6 py-2 sm:p-4 sm:py-1"
         >
@@ -38,31 +28,63 @@
             <div class="flex items-center gap-2 sm:flex-col sm:gap-4">
               <div class="flex flex-row items-center gap-2">
                 <div class="flex flex-row items-center gap-2">
-                  <div class="flex flex-row items-center gap-2">
-                    <label for="from">From</label>
-                    <DatePicker
-                      v-model="fromDate"
-                      dateFormat="dd/mm/yy"
-                      class="h-8 sm:h-10"
-                      @change="applyDateFilter"
-                    />
-                  </div>
-                  <div class="flex flex-row items-center gap-2">
-                    <label for="to">To</label>
-                    <DatePicker
-                      v-model="toDate"
-                      dateFormat="dd/mm/yy"
-                      class="h-8 sm:h-10"
-                      @change="applyDateFilter"
-                    />
-                  </div>
+                  <label for="from">From</label>
+                  <DatePicker
+                    v-model="fromDate"
+                    dateFormat="dd/mm/yy"
+                    class="h-8 sm:h-10"
+                    @change="applyDateFilter"
+                  />
                 </div>
-                <Button
-                  @click="resetDateFilter"
-                  label="Reset"
-                  class="!border-none !bg-DarkBlue !text-white"
-                />
+                <div class="flex flex-row items-center gap-2">
+                  <label for="to">To</label>
+                  <DatePicker
+                    v-model="toDate"
+                    dateFormat="dd/mm/yy"
+                    class="h-8 sm:h-10"
+                    @change="applyDateFilter"
+                  />
+                </div>
               </div>
+              <Button
+                @click="resetDateFilter"
+                label="Reset"
+                class="!border-none !bg-DarkBlue !text-white"
+              />
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex gap-2 sm:flex-wrap">
+              <Button
+                :class="[
+                  '!border-none !px-6 !py-2',
+                  selectedDuration === 0
+                    ? '!bg-DarkBlue !text-white'
+                    : '!bg-gray-200 !text-DarkBlue',
+                ]"
+                label="Minute"
+                @click="handleDurationChange(0)"
+              />
+              <Button
+                :class="[
+                  '!border-none !px-6 !py-2',
+                  selectedDuration === 1
+                    ? '!bg-DarkBlue !text-white'
+                    : '!bg-gray-200 !text-DarkBlue',
+                ]"
+                label="Hour"
+                @click="handleDurationChange(1)"
+              />
+              <Button
+                :class="[
+                  '!border-none !px-6 !py-2',
+                  selectedDuration === 2
+                    ? '!bg-DarkBlue !text-white'
+                    : '!bg-gray-200 !text-DarkBlue',
+                ]"
+                label="Day"
+                @click="handleDurationChange(2)"
+              />
             </div>
           </div>
         </div>
@@ -74,8 +96,7 @@
           class="w-full"
           :sortField="'timeStamp'"
           :sortOrder="-1"
-          @row-click="onRowClick"
-          :paginator="selectedFrequency === 'minute' || selectedFrequency === 'hour'"
+          :paginator="selectedDuration === 0 || selectedDuration === 1"
           :rows="10"
           :totalRecords="pagination.total"
           :first="pagination.skip"
@@ -102,12 +123,14 @@
 </template>
 <script setup>
 const route = useRoute();
-const stationDataHourStore = useStationDataHourStore();
+const stationDataStore = useStationDataMinuteStore();
 const {
-  hourlyData,
-  loading: hourLoading,
-  error: hourError,
-} = storeToRefs(stationDataHourStore);
+  data: storeData,
+  allData: storeAllData,
+  loading: dataLoading,
+  error: dataError,
+  pagination,
+} = storeToRefs(stationDataStore);
 const startOfDay = (date) => {
   const newDate = new Date(date);
   newDate.setHours(0, 0, 0, 0);
@@ -125,37 +148,15 @@ const subtractMonths = (date, months) => {
 };
 const fromDate = ref(startOfDay(subtractMonths(new Date(), 3)));
 const toDate = ref(endOfDay(new Date()));
-const minuteDate = ref(null);
-const minuteDateError = ref("");
-const { fetchHourlyData, fetchMinuteData: fetchMinuteDataStore } =
-  stationDataHourStore;
-const dataLoading = computed(() => {
-  switch (selectedFrequency.value) {
-    case 'minute': return stationDataMinuteStore.loading;
-    case 'hour': return hourLoading.value;
-    case 'day': return stationDataDayStore.loading;
-  }
-});
-const dataError = computed(() => {
-  switch (selectedFrequency.value) {
-    case 'minute': return stationDataMinuteStore.error;
-    case 'hour': return hourError.value;
-    case 'day': return stationDataDayStore.error;
-  }
-});
-const dataType = ref("Hourly");
+
 const paramNames = {
   discharge: {
-    short: "Q (min)",
-    full: "Q ( Minute )",
+    short: "Q",
+    full: "Q",
   },
-  qHour: {
-    short: "Q (h)",
-    full: "Q ( Hour )",
-  },
-  qDay: {
-    short: "Q (d)",
-    full: "Q ( Day )",
+  waterLevel: {
+    short: "WL",
+    full: "Water Level",
   },
   pressure: {
     short: "P",
@@ -182,65 +183,69 @@ const columns = computed(() => {
   const baseColumns = [
     { header: "DateTime", sortable: true, field: "dateTime" },
     {
-      header: "Q ( Min )",
+      header:
+        selectedDuration.value === 0
+          ? "Q"
+          : selectedDuration.value === 1
+            ? "Q"
+            : "Q",
       sortable: true,
       field: "discharge",
-      unit: "m³/min",
-      defaultValue: "-"
+      unit:
+        selectedDuration.value === 0
+          ? "m³/min"
+          : selectedDuration.value === 1
+            ? "m³/h"
+            : "m³/d",
+      defaultValue: "-",
     },
     {
-      header: "Q ( Hour )",
+      header: "Level",
       sortable: true,
-      field: "totalVolumePerHour",
-      unit: "m³/h",
-      defaultValue: "-"
+      field: "waterLevel",
+      unit: "m",
+      defaultValue: "-",
     },
     {
-      header: "Q ( Day )",
+      header: "P",
       sortable: true,
-      field: "totalVolumePerDay",
-      unit: "m³/d",
-      defaultValue: "-"
-    },
-    { 
-      header: "P", 
-      sortable: true, 
-      field: "pressure", 
+      field: "pressure",
       unit: "Bar",
-      defaultValue: "-"
+      defaultValue: "-",
     },
-    { 
-      header: "Temp", 
-      sortable: true, 
-      field: "temperature", 
+    {
+      header: "Temp",
+      sortable: true,
+      field: "temperature",
       unit: "C",
-      defaultValue: "-"
+      defaultValue: "-",
     },
-    { 
-      header: "Cl⁺", 
-      sortable: true, 
-      field: "cl", 
+    {
+      header: "Cl⁺",
+      sortable: true,
+      field: "cl",
       unit: "mg/L",
-      defaultValue: "-"
+      defaultValue: "-",
     },
-    { 
-      header: "Turb", 
-      sortable: true, 
-      field: "turbidity", 
+    {
+      header: "Turb",
+      sortable: true,
+      field: "turbidity",
       unit: "NTU",
-      defaultValue: "-"
+      defaultValue: "-",
     },
     {
       header: "TDS",
       sortable: true,
       field: "tds",
       unit: "ppm",
-      defaultValue: "-"
+      defaultValue: "-",
     },
   ];
   return baseColumns.map((column) => ({
     ...column,
-    class: "!bg-DarkBlue !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
+    class:
+      "!bg-DarkBlue !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
   }));
 });
 const fetchData = async () => {
@@ -249,7 +254,7 @@ const fetchData = async () => {
     console.error("Invalid station ID");
     return;
   }
-  await handleFrequencyChange();
+  await handleDurationChange(selectedDuration.value);
 };
 const applyDateFilter = () => {
   if (fromDate.value && toDate.value) {
@@ -262,15 +267,10 @@ const resetDateFilter = () => {
   toDate.value = endOfDay(new Date());
   fetchData();
 };
-const resetToHourlyData = () => {
-  dataType.value = "Hourly";
-  minuteDate.value = null;
-  minuteDateError.value = "";
-};
 const units = {
   q: "m³/min",
   qHour: "m³/h",
-  qDay: "m³/d", 
+  qDay: "m³/d",
   pressure: "Bar",
   turbidity: "NTU",
   cl: "mg/L",
@@ -278,20 +278,25 @@ const units = {
   temp: "C",
 };
 const formattedHourlyData = computed(() => {
-  if (!hourlyData.value?.data || !Array.isArray(hourlyData.value.data) || hourlyData.value.data.length === 0) return [];
-  
+  if (
+    !hourlyData.value?.data ||
+    !Array.isArray(hourlyData.value.data) ||
+    hourlyData.value.data.length === 0
+  )
+    return [];
+
   return hourlyData.value.data
     .filter((item) => item != null)
     .map((item) => {
       const date = item.date ? new Date(item.date) : new Date();
-      
-      const formattedDate = date.toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
+
+      const formattedDate = date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
       });
 
       const tds = item.electricConductivity
@@ -314,39 +319,31 @@ const formattedHourlyData = computed(() => {
 });
 const formattedMinuteData = computed(() => {});
 const filteredData = computed(() => {
-  let data;
-  switch (selectedFrequency.value) {
-    case 'minute':
-      data = storeMinuteData.value?.data || [];
-      break;
-    case 'hour':
-      data = formattedHourlyData.value;
-      break;
-    case 'day':
-      data = stationDataDayStore.data;
-      break;
-  }
+  const data = storeData.value?.data || [];
 
-  if (!data || !Array.isArray(data)) return [];
-  
-  return data.map(item => ({
+  if (!Array.isArray(data)) return [];
+
+  return data.map((item) => ({
     ...item,
-    dateTime: new Date(item.date).toLocaleString('en-GB', {
+    dateTime: `${new Date(item.date).toLocaleString('en-GB', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
+      year: 'numeric'
+    })}\n${new Date(item.date).toLocaleString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
-    }),
+    })}`,
     timeStamp: new Date(item.date),
-    discharge: item.discharge || '-',
-    totalVolumePerDay: item.totalVolumePerDay || '-',
-    pressure: item.pressure || '-',
-    temperature: item.temperature || '-',
-    cl: item.cl || '-',
-    turbidity: item.turbidity || '-',
-    tds: item.electricConductivity ? (item.electricConductivity * 0.65).toFixed(2) : '-'
+    discharge: item.discharge || "-",
+    totalVolumePerDay: item.totalVolumePerDay || "-",
+    pressure: item.pressure || "-",
+    temperature: item.temperature || "-",
+    cl: item.cl || "-",
+    turbidity: item.turbidity || "-",
+    tds: item.electricConductivity
+      ? (item.electricConductivity * 0.65).toFixed(2)
+      : "-",
   }));
 });
 const stationName = ref("N/A");
@@ -360,108 +357,50 @@ onMounted(() => {
   }
 });
 watch([fromDate, toDate], applyDateFilter);
-const onRowClick = (event) => {
-  const clickedDate = new Date(event.data.timeStamp);
-  const formattedDate = clickedDate.toISOString().split("T")[0];
-  const minuteDataUrl = `/data/details/perMinute/${route.params.id}?date=${formattedDate}&stationName=${encodeURIComponent(stationName.value)}`;
-  window.open(minuteDataUrl, "_blank");
-};
+
 const selectedParam = ref("q1Hour");
-const selectedFrequency = ref('minute');
-const stationDataMinuteStore = useStationDataMinuteStore();
-const { 
-  minuteData: storeMinuteData,
-  allMinuteData: storeAllMinuteData,
-  loading: minuteLoading, 
-  error: minuteError, 
-  pagination 
-} = storeToRefs(stationDataMinuteStore);
-const paginationRows = computed(() => pagination.value?.take || 10);
-const totalRecords = computed(() => pagination.value?.total || 0);
-const currentPage = computed(() => pagination.value?.currentPage || 0);
-const handleFrequencyChange = async () => {
+const selectedDuration = ref(0);
+const handleDurationChange = async (duration) => {
+  selectedDuration.value = duration;
   const stationId = parseInt(route.params.id, 10);
   if (isNaN(stationId)) return;
 
-  switch (selectedFrequency.value) {
-    case 'minute':
-      await stationDataMinuteStore.fetchMinuteData({
-        stationId,
-        skip: 0,
-        take: 10
-      });
-      break;
-    case 'hour':
-      await stationDataHourStore.fetchHourlyData({
-        stationId,
-        fromDate: fromDate.value,
-        toDate: toDate.value,
-        skip: 0,
-        take: 10
-      });
-      break;
-    case 'day':
-      await stationDataDayStore.fetchDailyData({
-        stationId,
-        fromDate: fromDate.value,
-        toDate: toDate.value,
-      });
-      break;
-  }
+  await stationDataStore.fetchData({
+    stationId,
+    duration,
+    skip: 0,
+    take: 10,
+  });
 };
 const onPageChange = (event) => {
   const stationId = parseInt(route.params.id, 10);
   const skip = event.first;
   const take = event.rows;
 
-  if (selectedFrequency.value === 'minute') {
-    stationDataMinuteStore.fetchMinuteData({
-      stationId,
-      skip,
-      take
-    });
-  } else if (selectedFrequency.value === 'hour') {
-    stationDataHourStore.fetchHourlyData({
-      stationId,
-      fromDate: fromDate.value,
-      toDate: toDate.value,
-      skip,
-      take
-    });
-  }
+  stationDataStore.fetchData({
+    stationId,
+    duration: selectedDuration.value,
+    skip,
+    take,
+  });
 };
 const chartData = computed(() => {
-  switch (selectedFrequency.value) {
-    case 'minute':
-      if (!stationDataMinuteStore.allMinuteData?.data || !Array.isArray(stationDataMinuteStore.allMinuteData.data)) return [];
-      return stationDataMinuteStore.allMinuteData.data.map(item => ({
-        ...item,
-        timeStamp: new Date(item.date),
-        tds: item.electricConductivity ? (item.electricConductivity * 0.65).toFixed(2) : 0,
-        q: item.discharge || 0,
-        qHour: item.totalVolumePerHour || 0,
-        qDay: item.totalVolumePerDay || 0,
-        pressure: item.pressure || 0,
-        temp: item.temperature || 0,
-      }));
-    case 'hour':
-      if (!stationDataHourStore.allHourlyData?.data) return [];
-      return stationDataHourStore.allHourlyData.data.map(item => ({
-        ...item,
-        timeStamp: new Date(item.date),
-        tds: item.electricConductivity ? (item.electricConductivity * 0.65).toFixed(2) : 0,
-      }));
-    case 'day':
-      return stationDataDayStore.data || [];
-    default:
-      return [];
-  }
+  if (!storeAllData.value?.data || !Array.isArray(storeAllData.value.data))
+    return [];
+
+  return storeAllData.value.data.map((item) => ({
+    ...item,
+    timeStamp: new Date(item.date),
+    tds: item.electricConductivity
+      ? (item.electricConductivity * 0.65).toFixed(2)
+      : 0,
+    q: item.discharge || 0,
+    qHour: item.totalVolumePerHour || 0,
+    qDay: item.totalVolumePerDay || 0,
+    pressure: item.pressure || 0,
+    temp: item.temperature || 0,
+  }));
 });
-const frequencyOptions = [
-  { label: 'Minute', value: 'minute' },
-  { label: 'Hour', value: 'hour' },
-  { label: 'Day', value: 'day' }
-];
 </script>
 <style>
 .p-datepicker-input {
@@ -469,5 +408,8 @@ const frequencyOptions = [
 }
 .p-select-list {
   @apply !bg-white !text-black;
+}
+.p-datatable .p-datatable-tbody > tr > td {
+  white-space: pre-line;
 }
 </style>

@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 
 export const useStationDataMinuteStore = defineStore('stationDataMinute', {
   state: () => ({
-    minuteData: null,
-    allMinuteData: null,
+    data: null,
+    allData: null,
     loading: false,
     error: null,
     pagination: {
@@ -14,7 +14,7 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
   }),
 
   actions: {
-    async fetchMinuteData({ stationId, skip = 0, take = 10 }) {
+    async fetchData({ stationId, duration = 0, skip = 0, take = 10 }) {
       this.loading = true;
       this.error = null;
 
@@ -23,6 +23,7 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
         const response = await $axios.get(`/Pipes/realtime`, {
           params: {
             stationId,
+            byDuration: duration,
             skip,
             take
           }
@@ -31,13 +32,14 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
         const allDataResponse = await $axios.get(`/Pipes/realtime`, {
           params: {
             stationId,
+            byDuration: duration,
             skip: 0,
             take: 1000
           }
         });
 
-        this.minuteData = response.data;
-        this.allMinuteData = allDataResponse.data;
+        this.data = response.data;
+        this.allData = allDataResponse.data;
         this.pagination = {
           skip,
           take,
@@ -45,8 +47,8 @@ export const useStationDataMinuteStore = defineStore('stationDataMinute', {
         };
 
       } catch (error) {
-        console.error('Error fetching minute data:', error);
-        this.error = 'Failed to fetch minute data. Please try again.';
+        console.error('Error fetching data:', error);
+        this.error = 'Failed to fetch data. Please try again.';
       } finally {
         this.loading = false;
       }
