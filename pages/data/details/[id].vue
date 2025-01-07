@@ -1,7 +1,52 @@
 <template>
   <div class="container px-4 py-8 mx-auto">
-    <div v-if="dataLoading" class="text-center">
-      <p class="text-lg text-gray-600">Loading...</p>
+    <div v-if="dataLoading">
+      <!-- Skeleton Loading State -->
+      <div class="flex flex-col gap-8">
+        <!-- Back Button Skeleton -->
+        <div class="w-32 h-6 bg-gray-200 rounded animate-pulse"></div>
+        
+        <!-- Header Section Skeleton -->
+        <div class="flex flex-col gap-4">
+          <div class="flex justify-between sm:flex-col sm:gap-4">
+            <!-- Station Name Skeleton -->
+            <div class="w-64 h-8 bg-gray-200 rounded animate-pulse"></div>
+            
+            <!-- Date Picker Skeleton -->
+            <div class="flex items-center gap-4 sm:flex-col">
+              <div class="flex gap-2">
+                <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div class="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+          
+          <!-- Duration Buttons Skeleton -->
+          <div class="flex gap-2">
+            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+
+        <!-- Table Skeleton -->
+        <div class="p-4 bg-white rounded-lg shadow-lg">
+          <div class="flex flex-col gap-4">
+            <!-- Table Header Skeleton -->
+            <div class="grid grid-cols-8 gap-4">
+              <div v-for="i in 8" :key="`header-${i}`" class="h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <!-- Table Rows Skeleton -->
+            <div v-for="row in 5" :key="`row-${row}`" class="grid grid-cols-8 gap-4">
+              <div v-for="col in 8" :key="`cell-${row}-${col}`" class="h-8 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart Skeleton -->
+        <div class="w-full h-[400px] bg-gray-200 rounded animate-pulse"></div>
+      </div>
     </div>
     <div v-else-if="dataError" class="text-center text-red-500">
       <p class="text-lg font-semibold">{{ dataError }}</p>
@@ -91,7 +136,7 @@
       </div>
       <div class="p-4 bg-white rounded-lg shadow-lg sm:p-4">
         <Table
-          :value="filteredData"
+          :value="dataLoading ? Array(10).fill({}) : filteredData"
           :columns="columns"
           class="w-full"
           :sortField="'timeStamp'"
@@ -103,7 +148,15 @@
           :lazy="true"
           :loading="dataLoading"
           @page="onPageChange"
-        />
+        >
+          <template #loading>
+            <tr v-for="i in 10" :key="i">
+              <td v-for="col in columns" :key="col.field" class="p-3">
+                <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+              </td>
+            </tr>
+          </template>
+        </Table>
       </div>
     </div>
     <div v-else class="text-center">
@@ -147,7 +200,12 @@ const subtractMonths = (date, months) => {
   newDate.setMonth(newDate.getMonth() - months);
   return newDate;
 };
-const fromDate = ref(startOfDay(subtractMonths(new Date(), 3)));
+const subtractYears = (date, years) => {
+  const newDate = new Date(date);
+  newDate.setFullYear(newDate.getFullYear() - years);
+  return newDate;
+};
+const fromDate = ref(startOfDay(subtractYears(new Date(), 1)));
 const toDate = ref(endOfDay(new Date()));
 
 const paramNames = {
@@ -264,7 +322,7 @@ const applyDateFilter = () => {
   }
 };
 const resetDateFilter = () => {
-  fromDate.value = startOfDay(subtractMonths(new Date(), 3));
+  fromDate.value = startOfDay(subtractYears(new Date(), 1));
   toDate.value = endOfDay(new Date());
   fetchData();
 };
@@ -328,6 +386,8 @@ const handleDurationChange = async (duration) => {
     duration,
     skip: 0,
     take: 10,
+    fromDate: fromDate.value,
+    toDate: toDate.value
   });
 };
 const onPageChange = (event) => {
@@ -340,6 +400,8 @@ const onPageChange = (event) => {
     duration: selectedDuration.value,
     skip,
     take,
+    fromDate: fromDate.value,
+    toDate: toDate.value
   });
 };
 const chartData = computed(() => {

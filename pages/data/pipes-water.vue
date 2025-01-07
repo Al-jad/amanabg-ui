@@ -45,12 +45,24 @@
           v-if="!loading && filteredPipesData.length > 0"
           :headers="headers"
           :columns="columns"
-          :value="formattedFilteredPipesData"
-          @row-click="onRowClick">
+          :value="loading ? Array(10).fill({}) : formattedFilteredPipesData"
+          :loading="loading"
+          @row-click="onRowClick"
+        >
+          <template #loading>
+            <tr v-for="i in 10" :key="i">
+              <td v-for="col in columns" :key="col.field" class="p-3">
+                <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+              </td>
+            </tr>
+          </template>
         </Table>
-        <div v-else-if="loading" class="flex items-center justify-center">
-          <p class="text-gray-500">Loading data...</p>
-          <span class="ml-2 animate-spin">&#8987;</span>
+        <div v-else-if="loading" class="flex items-center justify-center p-4">
+          <div class="w-full">
+            <div v-for="i in 5" :key="i" class="mb-4">
+              <div class="h-12 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
         </div>
         <div v-else class="flex items-center justify-center">
           <p class="text-gray-500">No data available</p>
