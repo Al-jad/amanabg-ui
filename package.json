@@ -19,6 +19,7 @@
     "nuxt": "^3.13.0",
     "nuxt-echarts": "^0.2.3",
     "nuxt3-leaflet": "^1.0.13",
+    "papaparse": "^5.4.1",
     "pinia": "^2.2.2",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.7",

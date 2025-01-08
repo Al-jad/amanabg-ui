@@ -14,7 +14,7 @@ export const useStationDetailsDataStore = defineStore('stationDetailsData', {
   }),
 
   actions: {
-    async fetchData({ stationId, duration = 0, skip = 0, take = 10, fromDate, toDate }) {
+    async fetchTableData({ stationId, duration, skip, take, fromDate, toDate }) {
       this.loading = true;
       this.error = null;
 
@@ -24,8 +24,8 @@ export const useStationDetailsDataStore = defineStore('stationDetailsData', {
           params: {
             stationId,
             byDuration: duration,
-            skip,
-            take,
+            skip: skip,
+            take: take,
             fromDate,
             toDate
           }
@@ -36,7 +36,7 @@ export const useStationDetailsDataStore = defineStore('stationDetailsData', {
             stationId,
             byDuration: duration,
             skip: 0,
-            take: 1000,
+            take: 36000,
             fromDate,
             toDate
           }
@@ -56,6 +56,6 @@ export const useStationDetailsDataStore = defineStore('stationDetailsData', {
       } finally {
         this.loading = false;
       }
-    }
+    },
   }
 });

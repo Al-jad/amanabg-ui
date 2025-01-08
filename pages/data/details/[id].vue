@@ -308,14 +308,24 @@ const fetchData = async () => {
     console.error("Invalid station ID");
     return;
   }
-  await stationDataStore.fetchData({
-    stationId,
-    duration: selectedDuration.value,
-    skip: 0,
-    take: 10,
-    fromDate: fromDate.value,
-    toDate: toDate.value
-  });
+  
+  // Fetch both initially
+  await Promise.all([
+    stationDataStore.fetchTableData({
+      stationId,
+      duration: selectedDuration.value,
+      skip: 0,
+      take: 10,
+      fromDate: fromDate.value,
+      toDate: toDate.value
+    }),
+    stationDataStore.fetchChartData({
+      stationId,
+      duration: selectedDuration.value,
+      fromDate: fromDate.value,
+      toDate: toDate.value
+    })
+  ]);
 };
 const applyDateFilter = () => {
   if (fromDate.value && toDate.value) {
@@ -325,6 +335,7 @@ const applyDateFilter = () => {
 };
 const handleDateChange = () => {
   applyDateFilter();
+  // When dates change, we need both new table and chart data
   fetchData();
 };
 const units = {
@@ -382,25 +393,19 @@ const handleDurationChange = async (duration) => {
   const stationId = parseInt(route.params.id, 10);
   if (isNaN(stationId)) return;
 
-  await stationDataStore.fetchData({
-    stationId,
-    duration,
-    skip: 0,
-    take: 10,
-    fromDate: fromDate.value,
-    toDate: toDate.value
-  });
+  // When duration changes, we need both new table and chart data
+  await fetchData();
 };
-const onPageChange = (event) => {
+const onPageChange = async (event) => {
   const stationId = parseInt(route.params.id, 10);
-  const skip = event.first;
-  const take = event.rows;
+  if (isNaN(stationId)) return;
 
-  stationDataStore.fetchData({
+  // Only fetch table data for pagination
+  await stationDataStore.fetchTableData({
     stationId,
     duration: selectedDuration.value,
-    skip,
-    take,
+    skip: event.first,
+    take: event.rows,
     fromDate: fromDate.value,
     toDate: toDate.value
   });
