@@ -78,7 +78,7 @@
                     v-model="fromDate"
                     dateFormat="dd/mm/yy"
                     class="h-8 sm:h-10"
-                    @date-select="handleDateChange"
+                    @date-select="handleFromDateChange"
                   />
                 </div>
                 <div class="flex flex-row items-center gap-2">
@@ -87,7 +87,7 @@
                     v-model="toDate"
                     dateFormat="dd/mm/yy"
                     class="h-8 sm:h-10"
-                    @date-select="handleDateChange"
+                    @date-select="handleToDateChange"
                   />
                 </div>
               </div>
@@ -322,27 +322,31 @@ const fetchData = async () => {
     return;
   }
   
-  // Fetch both initially
+  // Format dates as ISO strings for API
+  const formattedFromDate = fromDate.value.toISOString();
+  const formattedToDate = toDate.value.toISOString();
+  
   await Promise.all([
     stationDataStore.fetchTableData({
       stationId,
       duration: selectedDuration.value,
       skip: 0,
       take: 10,
-      fromDate: fromDate.value,
-      toDate: toDate.value
+      fromDate: formattedFromDate,
+      toDate: formattedToDate
     })
   ]);
 };
-const applyDateFilter = () => {
-  if (fromDate.value && toDate.value) {
-    fromDate.value = startOfDay(fromDate.value);
-    toDate.value = endOfDay(toDate.value);
-  }
+const handleFromDateChange = (event) => {
+  // Ensure we have a valid date object
+  const date = event instanceof Date ? event : new Date(event);
+  fromDate.value = startOfDay(date);
+  fetchData();
 };
-const handleDateChange = () => {
-  applyDateFilter();
-  // When dates change, we need both new table and chart data
+const handleToDateChange = (event) => {
+  // Ensure we have a valid date object
+  const date = event instanceof Date ? event : new Date(event);
+  toDate.value = endOfDay(date);
   fetchData();
 };
 const units = {
@@ -391,7 +395,6 @@ onMounted(() => {
     stationCity.value = window.localStorage.getItem("stationCity") || "N/A";
   }
 });
-watch([fromDate, toDate], applyDateFilter);
 
 const selectedParam = ref("discharge");
 const selectedDuration = ref(1);
