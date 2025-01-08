@@ -194,6 +194,7 @@
           :columns="columns"
           :value="loading ? Array(10).fill({}) : formattedFilteredPipesData"
           :loading="loading"
+          :current-page-report="false"
           @row-click="onRowClick"
         >
           <template #loading>

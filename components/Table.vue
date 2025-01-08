@@ -135,6 +135,10 @@ const props = defineProps({
   first: {
     type: Number,
     default: 0,
+  },
+  currentPageReport: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -152,6 +156,7 @@ const onPage = (event) => {
 };
 
 const currentPageReport = computed(() => {
+  if (!props.currentPageReport) return '';
   const start = props.first + 1;
   const end = Math.min(props.first + props.rows, props.totalRecords);
   return `Showing ${start} to ${end} of ${props.totalRecords} entries`;
