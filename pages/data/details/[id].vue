@@ -78,7 +78,7 @@
                     v-model="fromDate"
                     dateFormat="dd/mm/yy"
                     class="h-8 sm:h-10"
-                    @change="applyDateFilter"
+                    @date-select="handleDateChange"
                   />
                 </div>
                 <div class="flex flex-row items-center gap-2">
@@ -87,15 +87,10 @@
                     v-model="toDate"
                     dateFormat="dd/mm/yy"
                     class="h-8 sm:h-10"
-                    @change="applyDateFilter"
+                    @date-select="handleDateChange"
                   />
                 </div>
               </div>
-              <Button
-                @click="resetDateFilter"
-                label="Reset"
-                class="!border-none !bg-DarkBlue !text-white"
-              />
             </div>
           </div>
           <div class="flex items-center gap-4">
@@ -313,17 +308,23 @@ const fetchData = async () => {
     console.error("Invalid station ID");
     return;
   }
-  await handleDurationChange(selectedDuration.value);
+  await stationDataStore.fetchData({
+    stationId,
+    duration: selectedDuration.value,
+    skip: 0,
+    take: 10,
+    fromDate: fromDate.value,
+    toDate: toDate.value
+  });
 };
 const applyDateFilter = () => {
   if (fromDate.value && toDate.value) {
-    fromDate.value.setHours(0, 0, 0, 0);
-    toDate.value.setHours(23, 59, 59, 999);
+    fromDate.value = startOfDay(fromDate.value);
+    toDate.value = endOfDay(toDate.value);
   }
 };
-const resetDateFilter = () => {
-  fromDate.value = startOfDay(subtractYears(new Date(), 1));
-  toDate.value = endOfDay(new Date());
+const handleDateChange = () => {
+  applyDateFilter();
   fetchData();
 };
 const units = {
