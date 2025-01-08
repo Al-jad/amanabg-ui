@@ -1,7 +1,9 @@
 <template>
   <div class="container px-4 py-8 mx-auto sm:px-4 lg:px-8">
     <div class="p-4 pb-0 bg-white shadow sm:rounded-lg">
-      <div class="flex flex-col mb-8 sm:flex-col md:flex-row md:items-center md:justify-between">
+      <div
+        class="flex flex-col mb-8 sm:flex-col md:flex-row md:items-center md:justify-between"
+      >
         <div class="flex mb-4 text-nowrap sm:mb-0">
           <div class="flex flex-col items-start gap-4 mb-8">
             <NuxtLink
@@ -40,6 +42,151 @@
           </SelectButton>
         </div>
       </div>
+      <div
+        class="grid grid-cols-1 gap-4 mb-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+      >
+        <template v-for="item in filteredPipesData" :key="item.stationId">
+          <!-- Station Card -->
+          <div
+            v-if="!item.station.name.toLowerCase().includes('tank')"
+            class="p-4 transition-shadow bg-white border rounded-lg shadow-sm cursor-pointer hover:shadow-md"
+            @click="onCardClick(item)"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <Icon
+                  name="fluent:water-16-filled"
+                  class="text-xl text-blue-500"
+                />
+                <h3 class="font-semibold text-gray-700">
+                  {{ item.station.name }}
+                </h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1">
+                  <div
+                    :class="[
+                      'h-2 w-2 rounded-full',
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                        ? 'bg-green-500'
+                        : 'bg-red-500',
+                    ]"
+                  ></div>
+                  <span
+                    class="text-xs"
+                    :class="[
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                        ? 'text-green-600'
+                        : 'text-red-600',
+                    ]"
+                  >
+                    {{
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                        ? "Active"
+                        : "Inactive"
+                    }}
+                  </span>
+                </div>
+                <Icon
+                  name="mdi:information"
+                  class="text-gray-400 cursor-pointer hover:text-gray-600"
+                  :title="`Last updated: ${new Date(item.timeStamp).toLocaleString()}`"
+                />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-3 rounded bg-gray-50">
+                <p class="mb-1 text-xs font-medium text-gray-500">Q (m³/min)</p>
+                <p class="text-lg font-semibold text-DarkBlue">
+                  {{ item.dischargeInMinute 
+                    ? Number(item.dischargeInMinute).toLocaleString('en-US', { 
+                        minimumFractionDigits: 2, 
+                        maximumFractionDigits: 2 
+                      }) 
+                    : '0.00' 
+                  }}
+                </p>
+              </div>
+              <div class="p-3 rounded bg-gray-50">
+                <p class="mb-1 text-xs font-medium text-gray-500">P (m)</p>
+                <p class="text-lg font-semibold text-DarkBlue">
+                  {{ item.pressure 
+                    ? Number(item.pressure).toLocaleString('en-US', { 
+                        minimumFractionDigits: 2, 
+                        maximumFractionDigits: 2 
+                      }) 
+                    : '0.00' 
+                  }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Tank Card -->
+          <div
+            v-else
+            class="p-4 transition-shadow bg-white border rounded-lg shadow-sm cursor-pointer hover:shadow-md"
+            @click="onCardClick(item)"
+          >
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <Icon name="mdi:tank" class="text-xl text-blue-500" />
+                <h3 class="font-semibold text-gray-700">
+                  {{ item.station.name }}
+                </h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1">
+                  <div
+                    :class="[
+                      'h-2 w-2 rounded-full',
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                        ? 'bg-green-500'
+                        : 'bg-red-500',
+                    ]"
+                  ></div>
+                  <span
+                    class="text-xs"
+                    :class="[
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                        ? 'text-green-600'
+                        : 'text-red-600',
+                    ]"
+                  >
+                    {{
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                        ? "Active"
+                        : "Inactive"
+                    }}
+                  </span>
+                </div>
+                <Icon
+                  name="mdi:information"
+                  class="text-gray-400 cursor-pointer hover:text-gray-600"
+                  :title="`Last updated: ${new Date(item.timeStamp).toLocaleString()}`"
+                />
+              </div>
+            </div>
+            <div class="p-3 rounded bg-gray-50">
+              <p class="mb-1 text-xs font-medium text-gray-500">L (m)</p>
+              <p class="text-lg font-semibold text-DarkBlue">
+                {{ item.waterLevel 
+                  ? Number(item.waterLevel).toLocaleString('en-US', { 
+                      minimumFractionDigits: 2, 
+                      maximumFractionDigits: 2 
+                    }) 
+                  : '0.00' 
+                }}
+              </p>
+            </div>
+          </div>
+        </template>
+      </div>
       <div v-if="selectedView === 'Table'">
         <Table
           v-if="!loading && filteredPipesData.length > 0"
@@ -71,16 +218,19 @@
           <p>* Q ( m³/min ) = total discharge in the last minute</p>
           <p>* Q ( m³/h ) = total discharge in the last hour</p>
           <p>* Q ( m³/d ) = total discharge in the last day</p>
-          <p>* P ( Bar ) = Water Pressure in the pipe</p>
+          <p>* P ( m ) = Water Pressure in the pipe</p>
           <p>* Cl⁺ ( mg/L ) = Chlorine level in the pipe</p>
           <p>* Turb. ( NTU ) = Turbidity of water in the pipe</p>
           <p>* TDS ( ppm ) = Total Dissolved Solids in the pipe</p>
         </div>
       </div>
-      
+
       <div v-else-if="selectedView === 'Map'">
         <Map :stations="filteredMapStations" />
-        <div v-if="filteredMapStations.length === 0" class="mt-4 text-center text-gray-500">
+        <div
+          v-if="filteredMapStations.length === 0"
+          class="mt-4 text-center text-gray-500"
+        >
           No stations available for map view
         </div>
       </div>
@@ -146,15 +296,13 @@ const columns = [
   { header: "Q *", sortable: true, field: "dischargeInDay", unit: "m³/d" },
   { header: "P *", sortable: true, field: "pressure", unit: "m" },
   { header: "Water Level", sortable: true, field: "waterLevel", unit: "m" },
-  { header: "Water Quality", sortable: true, field: "waterQuality", unit: "m" },
-  { header: "Temp", sortable: true, field: "temperature", unit: "C"},
+  { header: "Temp", sortable: true, field: "temperature", unit: "C" },
   { header: "Cl⁺ *", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb *", sortable: true, field: "turbidity", unit: "NTU" },
   { header: "TDS *", sortable: true, field: "tds", unit: "ppm" },
 ].map((column) => ({
   ...column,
-  class:
-    "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
+  class: "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
 }));
 
 const stationStore = useStationStore();
@@ -175,9 +323,6 @@ const filteredPipesData = computed(() => {
 const formattedFilteredPipesData = computed(() => {
   return filteredPipesData.value.map((item) => {
     const date = new Date(item?.timeStamp);
-    const tds = item?.electricConductivity != null 
-      ? (item.electricConductivity * 0.65).toFixed(2) 
-      : '0.00';
     return {
       ...item,
       stationName: item?.station?.name,
@@ -190,7 +335,60 @@ const formattedFilteredPipesData = computed(() => {
         minute: "2-digit",
         hour12: true,
       }),
-      tds: tds,
+      dischargeInMinute: item?.dischargeInMinute 
+        ? Number(item.dischargeInMinute).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
+      dischargeInHour: item?.dischargeInHour 
+        ? Number(item.dischargeInHour).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
+      dischargeInDay: item?.dischargeInDay 
+        ? Number(item.dischargeInDay).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
+      pressure: item?.pressure 
+        ? Number(item.pressure).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
+      waterLevel: item?.waterLevel 
+        ? Number(item.waterLevel).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
+      temperature: item?.temperature 
+        ? Number(item.temperature).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
+      cl: item?.cl 
+        ? Number(item.cl).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
+      turbidity: item?.turbidity 
+        ? Number(item.turbidity).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
+      tds: item?.electricConductivity 
+        ? Number(item.electricConductivity * 0.65).toLocaleString('en-US', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+          }) 
+        : '0.00',
     };
   });
 });
@@ -253,6 +451,24 @@ const initializeComponent = async () => {
 onMounted(async () => {
   await initializeComponent();
 });
+
+const onCardClick = (item) => {
+  if (!item?.stationId || !item.station?.name) {
+    console.error("Invalid item or missing required station data");
+    return;
+  }
+
+  const {
+    stationId,
+    station: { city: stationCity, name: stationName },
+  } = item;
+
+  nextTick(() => {
+    localStorage.setItem("stationCity", stationCity);
+    localStorage.setItem("stationName", stationName);
+    router.push({ path: `/data/details/${parseInt(stationId, 10)}` });
+  });
+};
 </script>
 
 <style>

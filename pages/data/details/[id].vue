@@ -130,6 +130,13 @@
         </div>
       </div>
       <div class="p-4 bg-white rounded-lg shadow-lg sm:p-4">
+        <div class="mb-4">
+          <Button
+            label="Export to CSV"
+            class="!bg-DarkBlue !text-white !border-none !px-4 !py-2"
+            @click="exportToCSV"
+          />
+        </div>
         <Table
           :value="dataLoading ? Array(10).fill({}) : filteredData"
           :columns="columns"
@@ -171,6 +178,7 @@
 </template>
 <script setup>
 import { useStationDetailsDataStore } from '~/stores/stationDetailsData';
+import Papa from 'papaparse';
 const route = useRoute();
 const stationDataStore = useStationDetailsDataStore();
 const {
@@ -200,7 +208,12 @@ const subtractYears = (date, years) => {
   newDate.setFullYear(newDate.getFullYear() - years);
   return newDate;
 };
-const fromDate = ref(startOfDay(subtractYears(new Date(), 1)));
+const subtractDays = (date, days) => {
+  const newDate = new Date(date);
+  newDate.setDate(newDate.getDate() - days);
+  return newDate;
+};
+const fromDate = ref(startOfDay(subtractDays(new Date(), 2)));
 const toDate = ref(endOfDay(new Date()));
 
 const paramNames = {
@@ -318,12 +331,6 @@ const fetchData = async () => {
       take: 10,
       fromDate: fromDate.value,
       toDate: toDate.value
-    }),
-    stationDataStore.fetchChartData({
-      stationId,
-      duration: selectedDuration.value,
-      fromDate: fromDate.value,
-      toDate: toDate.value
     })
   ]);
 };
@@ -364,15 +371,15 @@ const filteredData = computed(() => {
       hour12: true
     })}`,
     timeStamp: new Date(item.date),
-    discharge: item.discharge || "-",
-    pressure: item.pressure || "-",
-    temperature: item.temperature || 0,
-    cl: item.cl || 0,
-    turbidity: item.turbidity || 0,
-    tds: item.electricConductivity
-      ? (item.electricConductivity * 0.65).toFixed(2)
-      : 0,
-    waterLevel: item.waterLevel || 0,
+    discharge: item.discharge ? Number(item.discharge).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-",
+    pressure: item.pressure ? Number(item.pressure).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "-",
+    temperature: item.temperature ? Number(item.temperature).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00",
+    cl: item.cl ? Number(item.cl).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00",
+    turbidity: item.turbidity ? Number(item.turbidity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00",
+    tds: item.electricConductivity 
+      ? (item.electricConductivity * 0.65).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : "0.00",
+    waterLevel: item.waterLevel ? Number(item.waterLevel).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00",
   }));
 });
 const stationName = ref("N/A");
@@ -386,8 +393,8 @@ onMounted(() => {
 });
 watch([fromDate, toDate], applyDateFilter);
 
-const selectedParam = ref("q1Hour");
-const selectedDuration = ref(0);
+const selectedParam = ref("discharge");
+const selectedDuration = ref(1);
 const handleDurationChange = async (duration) => {
   selectedDuration.value = duration;
   const stationId = parseInt(route.params.id, 10);
@@ -426,6 +433,77 @@ const chartData = computed(() => {
     waterLevel: item.waterLevel || 0,
   }));
 });
+const exportToCSV = async () => {
+  if (!filteredData.value || filteredData.value.length === 0) return;
+
+  // Fetch all data for the selected date range
+  const stationId = parseInt(route.params.id, 10);
+  if (isNaN(stationId)) return;
+
+  try {
+    // Show loading state (you might want to add a loading indicator in the UI)
+    await stationDataStore.fetchTableData({
+      stationId,
+      duration: selectedDuration.value,
+      skip: 0,
+      take: 3600, // Adjust this number based on your needs
+      fromDate: fromDate.value,
+      toDate: toDate.value
+    });
+
+    // Get the data from the store
+    const allData = storeData.value?.data;
+    if (!allData) {
+      console.error('No data available for export');
+      return;
+    }
+
+    // Format the data with proper date/time
+    const formattedData = allData.map(item => ({
+      ...item,
+      dateTime: `${new Date(item.date).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      })}`,
+      discharge: item.discharge || "-",
+      pressure: item.pressure || "-",
+      temperature: item.temperature || 0,
+      cl: item.cl || 0,
+      turbidity: item.turbidity || 0,
+      tds: item.electricConductivity ? (item.electricConductivity * 0.65).toFixed(2) : 0,
+      waterLevel: item.waterLevel || 0,
+    }));
+
+    // Convert to CSV format
+    const csv = Papa.unparse({
+      fields: columns.value.map(col => col.header),
+      data: formattedData.map(row => 
+        columns.value.map(col => row[col.field])
+      )
+    });
+
+    // Create blob and download link
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `station_${route.params.id}_data_${new Date().toISOString()}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('Error exporting data:', error);
+    // You might want to show an error message to the user here
+  }
+};
 </script>
 <style>
 .p-datepicker-input {
