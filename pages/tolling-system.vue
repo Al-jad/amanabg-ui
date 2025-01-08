@@ -1,17 +1,17 @@
 <template>
-  <div class="container mx-auto px-4 py-4 sm:py-6 md:py-8">
-    <h1 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Water Discharge Tolling System</h1>
+  <div class="container px-4 py-4 mx-auto sm:py-6 md:py-8">
+    <h1 class="mb-4 text-2xl font-bold sm:text-3xl sm:mb-6">Water Discharge Tolling System</h1>
     
     <!-- Date range selection and submit button -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4 sm:mb-6">
+    <div class="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 lg:grid-cols-3 sm:mb-6">
       <!-- From date picker -->
       <div class="w-full">
-        <label for="fromDate" class="block text-sm font-medium text-gray-700 mb-1">From</label>
+        <label for="fromDate" class="block mb-1 text-sm font-medium text-gray-700">From</label>
         <DatePicker v-model="fromDate" dateFormat="dd/mm/yy" class="w-full" />
       </div>
       <!-- To date picker -->
       <div class="w-full">
-        <label for="toDate" class="block text-sm font-medium text-gray-700 mb-1">To</label>
+        <label for="toDate" class="block mb-1 text-sm font-medium text-gray-700">To</label>
         <DatePicker v-model="toDate" dateFormat="dd/mm/yy" class="w-full" />
       </div>
       <!-- Submit button -->
@@ -38,7 +38,7 @@
         </Column>
         <!-- Empty state template -->
         <template #empty>
-          <div class="m-0 bg-DarkBlue p-4 text-center text-white">No data available</div>
+          <div class="p-4 m-0 text-center text-white bg-DarkBlue">No data available</div>
         </template>
         <!-- Custom paginator start template -->
         <template #paginatorstart>
@@ -49,7 +49,7 @@
       </DataTable>
     </div>
     <!-- Fallback message when no data is available -->
-    <div v-else class="text-center py-4">No data available</div>
+    <div v-else class="py-4 text-center">No data available</div>
   </div>
 </template>
 

@@ -55,7 +55,7 @@
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center gap-2">
                 <Icon
-                  name="fluent:water-16-filled"
+                  name="fluent:pipeline-32-filled"
                   class="text-xl text-blue-500"
                 />
                 <h3 class="font-semibold text-gray-700">
@@ -132,7 +132,7 @@
           >
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center gap-2">
-                <Icon name="mdi:tank" class="text-xl text-blue-500" />
+                <Icon name="material-symbols:water-damage-rounded" class="text-xl text-blue-500" />
                 <h3 class="font-semibold text-gray-700">
                   {{ item.station.name }}
                 </h3>
