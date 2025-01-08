@@ -141,10 +141,12 @@ const columns = [
   { header: "ID", sortable: false, field: "stationId" },
   { header: "Project Name", sortable: false, field: "stationName" },
   { header: "Date Time", sortable: true, field: "timeStamp" },
-  { header: "Q *", sortable: true, field: "discharge", unit: "m³/min" },
-  { header: "Q *", sortable: true, field: "totalVolumePerHour", unit: "m³/h" },
-  { header: "Q *", sortable: true, field: "totalVolumePerDay", unit: "m³/d" },
-  { header: "P *", sortable: true, field: "pressure", unit: "Bar" },
+  { header: "Q *", sortable: true, field: "dischargeInMinute", unit: "m³/min" },
+  { header: "Q *", sortable: true, field: "dischargeInHour", unit: "m³/h" },
+  { header: "Q *", sortable: true, field: "dischargeInDay", unit: "m³/d" },
+  { header: "P *", sortable: true, field: "pressure", unit: "m" },
+  { header: "Water Level", sortable: true, field: "waterLevel", unit: "m" },
+  { header: "Water Quality", sortable: true, field: "waterQuality", unit: "m" },
   { header: "Temp", sortable: true, field: "temperature", unit: "C"},
   { header: "Cl⁺ *", sortable: true, field: "cl", unit: "mg/L" },
   { header: "Turb *", sortable: true, field: "turbidity", unit: "NTU" },
@@ -173,7 +175,9 @@ const filteredPipesData = computed(() => {
 const formattedFilteredPipesData = computed(() => {
   return filteredPipesData.value.map((item) => {
     const date = new Date(item?.timeStamp);
-    const tds = (item?.electricConductivity * 0.65).toFixed(2);
+    const tds = item?.electricConductivity != null 
+      ? (item.electricConductivity * 0.65).toFixed(2) 
+      : '0.00';
     return {
       ...item,
       stationName: item?.station?.name,

@@ -251,7 +251,7 @@ const columns = computed(() => {
           : selectedDuration.value === 1
             ? "m³/h"
             : "m³/d",
-      defaultValue: "-",
+      defaultValue: 0,
     },
     {
       header: "Level",
@@ -265,35 +265,35 @@ const columns = computed(() => {
       sortable: true,
       field: "pressure",
       unit: "m",
-      defaultValue: "-",
+      defaultValue: 0,
     },
     {
       header: "Temp",
       sortable: true,
       field: "temperature",
       unit: "C",
-      defaultValue: "-",
+      defaultValue: 0,
     },
     {
       header: "Cl⁺",
       sortable: true,
       field: "cl",
       unit: "mg/L",
-      defaultValue: "-",
+      defaultValue: 0,
     },
     {
       header: "Turb",
       sortable: true,
       field: "turbidity",
       unit: "NTU",
-      defaultValue: "-",
+      defaultValue: 0,
     },
     {
       header: "TDS",
       sortable: true,
       field: "tds",
       unit: "ppm",
-      defaultValue: "-",
+      defaultValue: 0,
     },
   ];
   return baseColumns.map((column) => ({
@@ -355,13 +355,13 @@ const filteredData = computed(() => {
     timeStamp: new Date(item.date),
     discharge: item.discharge || "-",
     pressure: item.pressure || "-",
-    temperature: item.temperature || "-",
-    cl: item.cl || "-",
-    turbidity: item.turbidity || "-",
+    temperature: item.temperature || 0,
+    cl: item.cl || 0,
+    turbidity: item.turbidity || 0,
     tds: item.electricConductivity
       ? (item.electricConductivity * 0.65).toFixed(2)
-      : "-",
-    waterLevel: item.waterLevel || "-",
+      : 0,
+    waterLevel: item.waterLevel || 0,
   }));
 });
 const stationName = ref("N/A");
