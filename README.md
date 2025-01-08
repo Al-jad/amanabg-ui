@@ -1,75 +1,35 @@
-# Nuxt 3 Minimal Starter
+# Baghdad Water Monitoring System
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A comprehensive water monitoring system built with Nuxt 3 for Baghdad Mayoralty. This system provides real-time monitoring and management of drinking water projects in Baghdad, offering data visualization for water tanks, pipes, pumping stations, and other critical infrastructure.
 
-## Setup
+## Features
 
-Make sure to install the dependencies:
+- Real-time water quality monitoring
+- Interactive maps with station locations
+- Comprehensive data visualization
+- Mobile-responsive design
+- Multi-parameter monitoring system
+- Historical data analysis
 
-```bash
-# npm
-npm install
+## Technologies
 
-# pnpm
-pnpm install
+- Nuxt 3
+- Vue.js
+- TailwindCSS
+- PrimeVue
+- ECharts
+- Leaflet Maps
+- SignalR for real-time updates
 
-# yarn
-yarn install
+## Project Structure
 
-# bun
-bun install
-```
+- `assets/` - Contains CSS and images
+- `components/` - Vue components
+- `layouts/` - Page layouts
+- `pages/` - Application routes
+- `public/` - Static files
+- `stores/` - Pinia stores
 
-## Development Server
+## License
 
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+This project is proprietary software owned by Al-Fakhar Co.
