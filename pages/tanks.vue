@@ -1,22 +1,22 @@
 <template>
   <!-- Main container with responsive padding -->
-  <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
-    <div class="bg-white p-4 shadow sm:rounded-lg">
+  <div class="container px-4 py-8 mx-auto sm:px-4 lg:px-8">
+    <div class="p-4 bg-white shadow sm:rounded-lg">
       <!-- Header section with back button, title, and view selector -->
-      <div class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between">
+      <div class="flex flex-col mb-8 sm:flex-col md:flex-row md:items-center md:justify-between">
         <!-- Back button and title -->
-        <div class="mb-4 flex text-nowrap md:mb-0">
+        <div class="flex mb-4 text-nowrap md:mb-0">
           <div class="flex flex-col items-start gap-4 mb-8">
-            <NuxtLink to="/" class="text-DarkBlue hover:text-DarkBlue/80 transition-colors duration-300 flex items-center">
+            <NuxtLink to="/" class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80">
               <Icon name="mdi:arrow-left" class="mr-2" />
               Back
             </NuxtLink>
-            <Icon name="mdi:water-tank" class="mr-2 text-2xl sm:text-xl text-blue-500" />
-            <h1 class="text-xl sm:text-lg font-bold text-black">Water Tanks Monitoring</h1>
+            <Icon name="mdi:water-tank" class="mr-2 text-2xl text-blue-500 sm:text-xl" />
+            <h1 class="text-xl font-bold text-black sm:text-lg">Water Tanks Monitoring</h1>
           </div>
         </div>
         <!-- View selector (Table/Map) -->
-        <div class="flex sm:overflow-hidden justify-center">
+        <div class="flex justify-center sm:overflow-hidden">
           <SelectButton v-model="selectedView" :options="viewOptions" @change="handleViewChange">
             <template #option="slotProps">
               <div class="flex items-center">
@@ -29,7 +29,7 @@
       </div>
 
       <!-- City filter dropdown -->
-      <div class="mb-4 flex items-center gap-4">
+      <div class="flex items-center gap-4 mb-4">
         <h1>Filter by City:</h1>
         <Select
           v-model="selectedCity"
@@ -50,6 +50,7 @@
           :columns="columns"
           :value="formattedFilteredTanksData"
           @row-click="onRowClick"
+          :current-page-report="false"
         >
           <template #body="slotProps">
             <Row v-for="col in columns" :key="col.field">

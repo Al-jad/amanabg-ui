@@ -7,7 +7,7 @@
     
     <main class="container py-4 sm:mb-0 sm:pb-0">
       <!-- Monitoring Center section -->
-      <div class="container mb-12 sm:mb-2">
+      <div class="container px-4 mx-auto mb-12 sm:mb-2">
         <h1 class="text-left text-2xl font-extrabold sm:mx-[10%] sm:text-base">
           Monitoring Center 
         </h1>

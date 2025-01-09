@@ -43,13 +43,16 @@
         </div>
       </div>
       <div
-        class="grid grid-cols-1 gap-4 mb-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+        class="grid grid-cols-1 gap-4 mb-12 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3"
       >
         <template v-for="item in filteredPipesData" :key="item.stationId">
           <!-- Station Card -->
           <div
             v-if="!item.station.name.toLowerCase().includes('tank')"
-            class="p-4 transition-shadow bg-white border rounded-lg shadow-sm cursor-pointer hover:shadow-md"
+            :class="[
+              'p-4 transition-shadow bg-white border rounded-lg shadow-sm cursor-pointer hover:shadow-md',
+              new Date(item.timeStamp) > new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) ? 'card-active' : ''
+            ]"
             @click="onCardClick(item)"
           >
             <div class="flex items-center justify-between mb-4">
@@ -69,7 +72,7 @@
                       'h-2 w-2 rounded-full',
                       new Date(item.timeStamp) >
                       new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-                        ? 'bg-green-500'
+                        ? 'bg-green-500 animate-live-pulse'
                         : 'bg-red-500',
                     ]"
                   ></div>
@@ -93,7 +96,7 @@
                 <Icon
                   name="mdi:information"
                   class="text-gray-400 cursor-pointer hover:text-gray-600"
-                  :title="`Last updated: ${new Date(item.timeStamp).toLocaleString()}`"
+                  :title="`Last updated: ${new Date(item.timeStamp).toLocaleString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric', year: 'numeric', month: 'numeric', day: 'numeric' })}`"
                 />
               </div>
             </div>
@@ -144,7 +147,7 @@
                       'h-2 w-2 rounded-full',
                       new Date(item.timeStamp) >
                       new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-                        ? 'bg-green-500'
+                        ? 'bg-green-500 animate-live-pulse'
                         : 'bg-red-500',
                     ]"
                   ></div>
@@ -289,7 +292,6 @@ const columns = [
     sortable: false,
     field: "status",
   },
-  { header: "ID", sortable: false, field: "stationId" },
   { header: "Project Name", sortable: false, field: "stationName" },
   { header: "Date Time", sortable: true, field: "timeStamp" },
   { header: "Q *", sortable: true, field: "dischargeInMinute", unit: "m³/min" },
@@ -433,6 +435,12 @@ watch(
       lastUpdated.value = new Date().toLocaleString();
       if (stationStore.connection && stationStore.connection.state === 1) {
         dataSource.value = "WebSocket";
+        document.querySelectorAll('.rounded-lg').forEach(card => {
+          card.classList.add('highlight-update');
+          setTimeout(() => {
+            card.classList.remove('highlight-update');
+          }, 1000);
+        });
       }
       loading.value = false;
     }
@@ -473,6 +481,71 @@ const onCardClick = (item) => {
 </script>
 
 <style>
+.highlight-update {
+  animation: highlightFade 1.5s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add ripple effect on update */
+.highlight-update::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+  transform: translate(-50%, -50%) scale(0);
+  animation: rippleEffect 1.5s ease-out;
+}
+
+/* Add subtle glow effect for active cards */
+.card-active {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Enhanced live pulse animation */
+.animate-live-pulse {
+  animation: enhancedLivePulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+}
+
+@keyframes highlightFade {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes rippleEffect {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes enhancedLivePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
 /* Custom styles for PrimeVue components */
 .p-togglebutton {
   @apply !bg-DarkBlue !text-white;
@@ -485,5 +558,18 @@ const onCardClick = (item) => {
 }
 .p-select {
   @apply !text-white;
+}
+
+@keyframes livePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-live-pulse {
+  animation: livePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 </style>
