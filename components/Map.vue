@@ -21,23 +21,26 @@
           :lat-lng="[station.lat, station.lng]"
         >
           <l-popup>
-            <div class="h-48 !w-52 text-black sm:h-48 sm:w-44">
-              <div class="col-span-2 mb-2 flex items-center justify-evenly">
+            <div 
+              class="h-48 !w-52 text-black sm:h-48 sm:w-44 cursor-pointer hover:bg-gray-100"
+              @click="handleClick(station)"
+            >
+              <div class="flex items-center col-span-2 mb-2 justify-evenly">
                 <h1 class="text-2xl sm:!text-xl">
                   {{ station.name }}
                 </h1>
-                <i class="pi pi-external-link -mt-2 text-DarkBlue"></i>
+                <i class="-mt-2 pi pi-external-link text-DarkBlue"></i>
               </div>
-              <span class="-my-1 p-0 text-xl sm:text-base">
+              <span class="p-0 -my-1 text-xl sm:text-base">
                 {{ formatDate(station.timeStamp) }}
               </span>
               <br />
-              <span class="-my-4 p-0 text-xl sm:text-base">
+              <span class="p-0 -my-4 text-xl sm:text-base">
                 ({{ formatTime(station.timeStamp) }})
               </span>
               <br />
-              <span class="sm p-0 text-xl sm:text-base">
-                Q (m³/min): {{ formatDischarge(station.discharge) }}
+              <span class="p-0 text-xl sm sm:text-base">
+                Q (m³/min): {{ formatDischarge(station.dischargeInMinute) }}
               </span>
             </div>
           </l-popup>
@@ -85,7 +88,7 @@ const filteredStations = computed(() => {
       lat: parseFloat(station?.station?.lat ?? station?.lat),
       lng: parseFloat(station?.station?.lng ?? station?.lng),
       name: station?.station?.name || station?.name || 'Unnamed Station',
-      discharge: station?.discharge,
+      dischargeInMinute: station?.dischargeInMinute,
       timeStamp: station?.timeStamp || Date.now(),
     }));
 });

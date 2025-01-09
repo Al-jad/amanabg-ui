@@ -274,7 +274,7 @@ const onRowClick = (event) => {
 const headers = [
   {
     text: "Station Info",
-    colspan: 3,
+    colspan: 2,
     class:
       "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
   },
