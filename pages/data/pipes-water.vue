@@ -330,6 +330,7 @@ const formattedFilteredPipesData = computed(() => {
       ...item,
       stationName: item?.station?.name,
       stationCity: item?.station?.city,
+      status: new Date(item?.timeStamp) > new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) ? 'ON' : 'OFF',
       timeStamp: date.toLocaleString("en-GB", {
         day: "2-digit",
         month: "2-digit",
