@@ -48,7 +48,7 @@
         <template v-for="item in filteredPipesData" :key="item.stationId">
           <!-- Station Card -->
           <div
-            v-if="!item.station.name.toLowerCase().includes('tank')"
+            v-if="item.station.stationType === 0"
             :class="[
               'p-4 transition-shadow bg-white border rounded-lg shadow-sm cursor-pointer hover:shadow-md',
               new Date(item.timeStamp) > new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) ? 'card-active' : ''
@@ -102,7 +102,7 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="p-3 rounded bg-gray-50">
-                <p class="mb-1 text-xs font-medium text-gray-500">Q (m³/min)</p>
+                <p class="mb-1 text-xs font-medium text-gray-500">Discharge (m³/min)</p>
                 <p class="text-lg font-semibold text-DarkBlue">
                   {{ item.dischargeInMinute 
                     ? Number(item.dischargeInMinute).toLocaleString('en-US', { 
@@ -114,7 +114,7 @@
                 </p>
               </div>
               <div class="p-3 rounded bg-gray-50">
-                <p class="mb-1 text-xs font-medium text-gray-500">P (m)</p>
+                <p class="mb-1 text-xs font-medium text-gray-500">Pressure (m)</p>
                 <p class="text-lg font-semibold text-DarkBlue">
                   {{ item.pressure 
                     ? Number(item.pressure).toLocaleString('en-US', { 
@@ -176,7 +176,7 @@
               </div>
             </div>
             <div class="p-3 rounded bg-gray-50">
-              <p class="mb-1 text-xs font-medium text-gray-500">L (m)</p>
+              <p class="mb-1 text-xs font-medium text-gray-500">Water Level (m)</p>
               <p class="text-lg font-semibold text-DarkBlue">
                 {{ item.waterLevel 
                   ? Number(item.waterLevel).toLocaleString('en-US', { 
@@ -261,12 +261,13 @@ const onRowClick = (event) => {
 
   const {
     stationId: stationId,
-    station: { city: stationCity, name: stationName },
+    station: { city: stationCity, name: stationName, stationType },
   } = data;
 
   nextTick(() => {
     localStorage.setItem("stationCity", stationCity);
     localStorage.setItem("stationName", stationName);
+    localStorage.setItem("stationType", stationType.toString());
     router.push({ path: `/data/details/${parseInt(stationId, 10)}` });
   });
 };
@@ -291,6 +292,13 @@ const columns = [
     header: "Status",
     sortable: false,
     field: "status",
+    body: (rowData) => {
+      const isActive = new Date(rowData.originalTimeStamp) > new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+      return {
+        class: isActive ? 'text-green-600' : 'text-red-600',
+        content: isActive ? 'ON' : 'OFF'
+      };
+    }
   },
   { header: "Project Name", sortable: false, field: "stationName" },
   { header: "Date Time", sortable: true, field: "timeStamp" },
@@ -330,7 +338,7 @@ const formattedFilteredPipesData = computed(() => {
       ...item,
       stationName: item?.station?.name,
       stationCity: item?.station?.city,
-      status: new Date(item?.timeStamp) > new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) ? 'ON' : 'OFF',
+      originalTimeStamp: item?.timeStamp,
       timeStamp: date.toLocaleString("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -470,12 +478,13 @@ const onCardClick = (item) => {
 
   const {
     stationId,
-    station: { city: stationCity, name: stationName },
+    station: { city: stationCity, name: stationName, stationType },
   } = item;
 
   nextTick(() => {
     localStorage.setItem("stationCity", stationCity);
     localStorage.setItem("stationName", stationName);
+    localStorage.setItem("stationType", stationType.toString());
     router.push({ path: `/data/details/${parseInt(stationId, 10)}` });
   });
 };

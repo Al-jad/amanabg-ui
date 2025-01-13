@@ -72,18 +72,65 @@ const props = defineProps({
   },
   selectedParam: {
     type: String,
-    default: "q1Hour",
+    default: "discharge",
   },
   units: {
     type: Object,
     required: true,
   },
 });
-const selectedParam = ref(props.selectedParam);
+
+const emit = defineEmits(['update:selectedParam']);
+
+// Initialize selectedParam based on stationType
+const getDefaultParam = () => {
+  const stationType = parseInt(localStorage.getItem("stationType") || "0");
+  return stationType === 1 ? "waterLevel" : "discharge";
+};
+
+const selectedParam = ref(getDefaultParam());
+
+// Emit initial value
+emit('update:selectedParam', selectedParam.value);
+
 const chartReady = ref(false);
 const dataLoaded = ref(false);
+
+// Watch for stationType changes
+watch(() => localStorage.getItem("stationType"), (newType) => {
+  const stationType = parseInt(newType || "0");
+  const newParam = stationType === 1 ? "waterLevel" : "discharge";
+  selectedParam.value = newParam;
+  emit('update:selectedParam', newParam);
+}, { immediate: true });
+
+// Watch for local selectedParam changes
+watch(selectedParam, (newValue) => {
+  emit('update:selectedParam', newValue);
+}, { immediate: true });
+
+// Watch for prop changes
+watch(() => props.selectedParam, (newValue) => {
+  if (newValue !== selectedParam.value) {
+    selectedParam.value = newValue;
+  }
+});
+
 const availableParams = computed(() => {
-  return Object.entries(props.paramNames).map(([key, value]) => ({
+  const stationType = parseInt(localStorage.getItem("stationType") || "0");
+  
+  // Filter out parameters based on station type
+  const filteredParams = Object.entries(props.paramNames).filter(([key]) => {
+    if (stationType === 0) {
+      // For stations: show discharge, pressure, temp, cl, turbidity, tds
+      return ['discharge', 'pressure', 'temp', 'cl', 'turbidity', 'tds'].includes(key);
+    } else {
+      // For tanks: show only waterLevel, temp, pressure
+      return ['waterLevel', 'temp', 'pressure'].includes(key);
+    }
+  });
+
+  return filteredParams.map(([key, value]) => ({
     label: value.full,
     value: key,
   }));
@@ -260,16 +307,6 @@ watch(
       if (!selectedParam.value || !newValue[selectedParam.value]) {
         selectedParam.value = Object.keys(newValue)[0];
       }
-    }
-  },
-  { immediate: true },
-);
-watch(
-  () => props.selectedParam,
-  (newValue) => {
-    if (newValue && props.paramNames[newValue]) {
-      selectedParam.value = newValue;
-      updateChartOption();
     }
   },
   { immediate: true },

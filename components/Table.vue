@@ -71,10 +71,10 @@
               v-if="column.slot"
             />
             <template v-else-if="column.field === 'status'">
-              <div class="status-cell" :class="getStatusClass(slotProps.data[column.field], slotProps.data.timeStamp)">
+              <div class="status-cell" :class="column.body ? column.body(slotProps.data).class : ''">
                 <div class="flex items-center justify-center gap-2">
                   <div class="w-2 h-2 rounded-full status-indicator"></div>
-                  {{ getDisplayStatus(slotProps.data[column.field], slotProps.data.timeStamp) }}
+                  {{ column.body ? column.body(slotProps.data).content : slotProps.data[column.field] }}
                 </div>
               </div>
             </template>
@@ -162,27 +162,6 @@ const currentPageReport = computed(() => {
   return `Showing ${start} to ${end} of ${props.totalRecords} entries`;
 });
 
-const isDataFresh = (timestamp) => {
-  if (!timestamp) return false;
-  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-  const dataTime = new Date(timestamp);
-  return dataTime > thirtyMinutesAgo;
-};
-
-const getDisplayStatus = (status, timestamp) => {
-  if (!isDataFresh(timestamp)) {
-    return 'OFF';
-  }
-  return status || 'ON';
-};
-
-const getStatusClass = (status, timestamp) => {
-  if (!isDataFresh(timestamp)) {
-    return 'status-off';
-  }
-  return status === 'OFF' ? 'status-off' : 'status-on';
-};
-
 const currentRows = ref(props.rows);
 const visiblePages = computed(() => {
   const currentPage = Math.floor(props.first / props.rows) + 1;
@@ -245,19 +224,11 @@ const onRowsChange = () => {
   @apply text-nowrap px-4 rounded-lg py-2 !text-center text-xl;
 }
 
-.status-on {
-  @apply bg-gradient-to-br from-green-50 to-green-100 text-green-800;
-}
-
-.status-on .status-indicator {
+.text-green-600 .status-indicator {
   @apply h-3 w-3 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-sm shadow-green-500/50;
 }
 
-.status-off {
-  @apply bg-gradient-to-br from-red-50 to-red-100 text-red-800;
-}
-
-.status-off .status-indicator {
+.text-red-600 .status-indicator {
   @apply h-3 w-3 rounded-full bg-gradient-to-br from-red-400 to-red-600 shadow-sm shadow-red-500/50;
 }
 

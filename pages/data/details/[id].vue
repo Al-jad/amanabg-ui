@@ -72,24 +72,22 @@
             </h1>
             <div class="flex items-center gap-2 sm:flex-col sm:gap-4">
               <div class="flex flex-row items-center gap-2">
-                <div class="flex flex-row items-center gap-2">
-                  <label for="from">From</label>
-                  <DatePicker
-                    v-model="fromDate"
-                    dateFormat="dd/mm/yy"
-                    class="h-8 sm:h-10"
-                    @date-select="handleFromDateChange"
-                  />
-                </div>
-                <div class="flex flex-row items-center gap-2">
-                  <label for="to">To</label>
-                  <DatePicker
-                    v-model="toDate"
-                    dateFormat="dd/mm/yy"
-                    class="h-8 sm:h-10"
-                    @date-select="handleToDateChange"
-                  />
-                </div>
+                <label for="from">From</label>
+                <DatePicker
+                  v-model="fromDate"
+                  dateFormat="dd/mm/yy"
+                  class="h-8 sm:h-10"
+                  @date-select="handleFromDateChange"
+                />
+              </div>
+              <div class="flex flex-row items-center gap-2">
+                <label for="to">To</label>
+                <DatePicker
+                  v-model="toDate"
+                  dateFormat="dd/mm/yy"
+                  class="h-8 sm:h-10"
+                  @date-select="handleToDateChange"
+                />
               </div>
             </div>
           </div>
@@ -171,7 +169,7 @@
         :includeTDS="true"
         :paramNames="paramNames"
         :units="units"
-        :selectedParam="selectedParam"
+        v-model:selectedParam="selectedParam"
       />
     </div>
   </div>
@@ -247,8 +245,13 @@ const paramNames = {
   },
 };
 const columns = computed(() => {
+  const stationType = parseInt(localStorage.getItem("stationType") || "0");
+  
   const baseColumns = [
     { header: "DateTime", sortable: true, field: "dateTime" },
+  ];
+
+  const stationColumns = [
     {
       header:
         selectedDuration.value === 0
@@ -266,6 +269,9 @@ const columns = computed(() => {
             : "m³/d",
       defaultValue: 0,
     },
+  ];
+
+  const tankColumns = [
     {
       header: "Level",
       sortable: true,
@@ -274,19 +280,15 @@ const columns = computed(() => {
       defaultValue: 0,
     },
     {
-      header: "P",
+      header: "Volume", 
       sortable: true,
-      field: "pressure",
-      unit: "m",
+      field: "currentVolume",
+      unit: "m³",
       defaultValue: 0,
-    },
-    {
-      header: "Temp",
-      sortable: true,
-      field: "temperature",
-      unit: "C",
-      defaultValue: 0,
-    },
+    }
+  ];
+
+  const waterQualityColumns = [
     {
       header: "Cl⁺",
       sortable: true,
@@ -309,7 +311,33 @@ const columns = computed(() => {
       defaultValue: 0,
     },
   ];
-  return baseColumns.map((column) => ({
+
+  const commonColumns = [
+    {
+      header: "Temp",
+      sortable: true,
+      field: "temperature",
+      unit: "C",
+      defaultValue: 0,
+    },
+    {
+      header: "P",
+      sortable: true,
+      field: "pressure",
+      unit: "m",
+      defaultValue: 0,
+    },
+  ];
+
+  const finalColumns = [
+    ...baseColumns,
+    ...(stationType === 0 ? stationColumns : []),
+    ...(stationType === 1 ? tankColumns : []),
+    ...commonColumns,
+    ...(stationType === 0 ? waterQualityColumns : []),
+  ];
+
+  return finalColumns.map((column) => ({
     ...column,
     class:
       "!bg-DarkBlue !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
@@ -384,6 +412,7 @@ const filteredData = computed(() => {
       ? (item.electricConductivity * 0.65).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       : "0.00",
     waterLevel: item.waterLevel ? Number(item.waterLevel).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00",
+    currentVolume: item.currentVolume ? Number(item.currentVolume).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00",
   }));
 });
 const stationName = ref("N/A");
