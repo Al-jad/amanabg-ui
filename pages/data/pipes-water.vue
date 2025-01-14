@@ -51,7 +51,7 @@
             v-if="item.station.stationType === 0"
             :class="[
               'p-4 transition-shadow bg-white border rounded-lg shadow-sm cursor-pointer hover:shadow-md',
-              new Date(item.timeStamp) > new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) ? 'card-active' : ''
+              new Date(item.timeStamp) > new Date(Date.now() - 10 * 60 * 1000) ? 'card-active' : ''
             ]"
             @click="onCardClick(item)"
           >
@@ -71,7 +71,7 @@
                     :class="[
                       'h-2 w-2 rounded-full',
                       new Date(item.timeStamp) >
-                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                      new Date(Date.now() - 10 * 60 * 1000)
                         ? 'bg-green-500 animate-live-pulse'
                         : 'bg-red-500',
                     ]"
@@ -80,14 +80,14 @@
                     class="text-xs"
                     :class="[
                       new Date(item.timeStamp) >
-                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                      new Date(Date.now() - 10 * 60 * 1000)
                         ? 'text-green-600'
                         : 'text-red-600',
                     ]"
                   >
                     {{
                       new Date(item.timeStamp) >
-                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                      new Date(Date.now() - 10 * 60 * 1000)
                         ? "Active"
                         : "Inactive"
                     }}
@@ -146,7 +146,7 @@
                     :class="[
                       'h-2 w-2 rounded-full',
                       new Date(item.timeStamp) >
-                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                      new Date(Date.now() - 10 * 60 * 1000)
                         ? 'bg-green-500 animate-live-pulse'
                         : 'bg-red-500',
                     ]"
@@ -155,14 +155,14 @@
                     class="text-xs"
                     :class="[
                       new Date(item.timeStamp) >
-                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                      new Date(Date.now() - 10 * 60 * 1000)
                         ? 'text-green-600'
                         : 'text-red-600',
                     ]"
                   >
                     {{
                       new Date(item.timeStamp) >
-                      new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+                      new Date(Date.now() - 10 * 60 * 1000)
                         ? "Active"
                         : "Inactive"
                     }}
@@ -293,7 +293,7 @@ const columns = [
     sortable: false,
     field: "status",
     body: (rowData) => {
-      const isActive = new Date(rowData.originalTimeStamp) > new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+      const isActive = new Date(rowData.originalTimeStamp) > new Date(Date.now() - 10 * 60 * 1000);
       return {
         class: isActive ? 'text-green-600' : 'text-red-600',
         content: isActive ? 'ON' : 'OFF'

@@ -28,19 +28,6 @@
         </div>
       </div>
 
-      <!-- City filter dropdown -->
-      <div class="flex items-center gap-4 mb-4">
-        <h1>Filter by City:</h1>
-        <Select
-          v-model="selectedCity"
-          :options="citiesWithAll"
-          placeholder="Select a city"
-          aria-labelledby="City selection"
-          @change="filterByCity"
-          class="!bg-DarkBlue !text-white"
-        />
-      </div>
-
       <!-- Table view -->
       <div v-if="selectedView === 'Table'">
         <!-- Render table if data is available -->
