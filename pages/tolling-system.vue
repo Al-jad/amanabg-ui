@@ -1,5 +1,9 @@
 <template>
   <div class="container px-4 py-4 mx-auto sm:py-6 md:py-8">
+      <NuxtLink to="/" class="flex items-center mb-4 transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80">
+        <Icon name="mdi:arrow-left" class="mr-2" />
+        Back
+      </NuxtLink>
     <h1 class="mb-4 text-2xl font-bold sm:text-3xl sm:mb-6">Water Discharge Tolling System</h1>
     
     <!-- Date range selection and submit button -->
@@ -89,20 +93,20 @@ const fetchTollingData = async () => {
   }
 
   try {
-    // Fetch daily data from the store
     await stationDataDayStore.fetchDailyData({
       startDate: fromDate.value,
       endDate: toDate.value
     });
 
-    // Process and format the data for display
     if (stationDataDayStore.dailyData && stationDataDayStore.dailyData.length > 0) {
-      tollingData.value = stationDataDayStore.dailyData.map(station => ({
-        stationName: station.stationName,
-        discharge: formatNumber(station.dailyDischarge),
-        price: formatNumber(500) + " IQD",
-        total: formatNumber(station.dailyDischarge * 500) + " IQD"
-      }));
+      tollingData.value = stationDataDayStore.dailyData
+        .filter(station => !station.stationName.toLowerCase().includes('tank')) // Filter out tanks
+        .map(station => ({
+          stationName: station.stationName,
+          discharge: formatNumber(station.dailyDischarge),
+          price: formatNumber(500) + " IQD",
+          total: formatNumber(station.dailyDischarge * 500) + " IQD"
+        }));
     }
   } catch (error) {
     console.error('Error fetching tolling data:', error);
