@@ -148,8 +148,9 @@
       <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
         <div class="mb-4">
           <Button
-            label="Export to CSV"
-            class="!border-none !bg-DarkBlue !px-4 !py-2 !text-white"
+            :label="isExporting ? 'Exporting...' : 'Export to CSV'"
+            :disabled="isExporting"
+            class="!border-none !bg-DarkBlue !px-4 !py-2 !text-white disabled:!opacity-50"
             @click="exportToCSV"
           />
         </div>
@@ -531,94 +532,121 @@
       waterLevel: item.waterLevel || 0,
     }));
   });
-  const exportToCSV = () => {
-    const data = storeAllData.value?.data;
-    if (!data || data.length === 0) return;
+  const isExporting = ref(false);
 
-    // Process the complete dataset with the same transformations as filteredData
-    const processedData = data.map((item) => ({
-      dateTime: `${new Date(item.date).toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      })}\n${new Date(item.date).toLocaleString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      })}`,
-      discharge: item.discharge
-        ? Number(item.discharge).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '-',
-      pressure: item.pressure
-        ? Number(item.pressure).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '-',
-      temperature: item.temperature
-        ? Number(item.temperature).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      cl: item.cl
-        ? Number(item.cl).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      turbidity: item.turbidity
-        ? Number(item.turbidity).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      tds: item.electricConductivity
-        ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      waterLevel: item.waterLevel
-        ? Number(item.waterLevel).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      currentVolume: item.currentVolume
-        ? Number(item.currentVolume).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-    }));
+  const formatDateTime = (date) => {
+    try {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) throw new Error('Invalid date');
+      return {
+        date: d.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }),
+        time: d.toLocaleString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        }),
+      };
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return { date: 'Invalid Date', time: 'Invalid Time' };
+    }
+  };
 
-    // Convert to CSV format using the processed data
-    const csv = Papa.unparse({
-      fields: columns.value.map((col) => col.header),
-      data: processedData.map((row) =>
-        columns.value.map((col) => row[col.field])
-      ),
-    });
+  const exportToCSV = async () => {
+    if (isExporting.value) return;
+    isExporting.value = true;
 
-    // Create blob and download link
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
+    try {
+      const data = storeAllData.value?.data;
+      if (!data || data.length === 0) return;
 
-    link.setAttribute('href', url);
-    link.setAttribute(
-      'download',
-      `station_${route.params.id}_data_${new Date().toISOString()}.csv`
-    );
-    link.style.visibility = 'hidden';
+      // Process the complete dataset with the same transformations as filteredData
+      const processedData = data.map((item) => {
+        const dateTime = formatDateTime(item.date);
+        return {
+          dateTime: `${dateTime.date}\n${dateTime.time}`,
+          discharge: item.discharge
+            ? Number(item.discharge).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          pressure: item.pressure
+            ? Number(item.pressure).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          temperature: item.temperature
+            ? Number(item.temperature).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          cl: item.cl
+            ? Number(item.cl).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          turbidity: item.turbidity
+            ? Number(item.turbidity).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          tds: item.electricConductivity
+            ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          waterLevel: item.waterLevel
+            ? Number(item.waterLevel).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          currentVolume: item.currentVolume
+            ? Number(item.currentVolume).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+        };
+      });
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      // Convert to CSV format using the processed data
+      const csv = Papa.unparse({
+        fields: columns.value.map((col) => col.header),
+        data: processedData.map((row) =>
+          columns.value.map((col) => row[col.field])
+        ),
+      });
+
+      // Create blob and download link
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute(
+        'download',
+        `${stationName.value.replace(/[^a-zA-Z0-9-_]/g, '_')}_${new Date(fromDate.value).toISOString().split('T')[0]}_to_${new Date(toDate.value).toISOString().split('T')[0]}.csv`
+      );
+      link.style.visibility = 'hidden';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // Clean up the URL object
+    } finally {
+      isExporting.value = false;
+    }
   };
 </script>
 <style>

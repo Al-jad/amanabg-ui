@@ -1,8 +1,9 @@
 <template>
-  <div class="container px-4 py-4 mx-auto sm:py-6 md:py-8">
+  <div class="container mx-auto px-4 py-4 sm:py-6 md:py-8">
     <NuxtLink
       to="/"
-      class="flex items-center mb-4 transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80">
+      class="mb-4 flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
+    >
       <Icon
         name="mdi:arrow-left"
         class="mr-2"
@@ -15,13 +16,13 @@
 
     <!-- Date range selection and submit button -->
     <div
-      class="grid grid-cols-1 gap-4 mb-4 sm:mb-6 sm:grid-cols-2 lg:grid-cols-3"
+      class="mb-4 grid grid-cols-1 gap-4 sm:mb-6 sm:grid-cols-2 lg:grid-cols-3"
     >
       <!-- From date picker -->
       <div class="w-full">
         <label
           for="fromDate"
-          class="block mb-1 text-sm font-medium text-gray-700"
+          class="mb-1 block text-sm font-medium text-gray-700"
         >
           From
         </label>
@@ -29,13 +30,14 @@
           v-model="fromDate"
           dateFormat="dd/mm/yy"
           class="w-full"
-        />hello worlds
+        />
+        hello worlds
       </div>
       <!-- To date picker -->
       <div class="w-full">
         <label
           for="toDate"
-          class="block mb-1 text-sm font-medium text-gray-700"
+          class="mb-1 block text-sm font-medium text-gray-700"
         >
           To
         </label>
@@ -46,7 +48,7 @@
         />
       </div>
       <!-- Submit button -->
-      <div class="flex items-end w-full">
+      <div class="flex w-full items-end">
         <Button
           @click="fetchTollingData"
           label="Submit"
@@ -83,7 +85,7 @@
         </Column>
         <!-- Empty state template -->
         <template #empty>
-          <div class="p-4 m-0 text-center text-white bg-DarkBlue">
+          <div class="m-0 bg-DarkBlue p-4 text-center text-white">
             No data available
           </div>
         </template>
@@ -106,70 +108,110 @@
 </template>
 
 <script setup>
+  // Memoize the initial dates to prevent unnecessary recalculations
+  const initialFromDate = new Date();
+  initialFromDate.setMonth(initialFromDate.getMonth() - 1);
+  initialFromDate.setHours(0, 0, 0, 0);
+
+  const initialToDate = new Date();
+  initialToDate.setHours(23, 59, 59, 999);
+
   // Initial date range (last month to today)
-  const fromDate = ref(
-    new Date(new Date().setMonth(new Date().getMonth() - 1)),
-  );
-  const toDate = ref(new Date());
+  const fromDate = ref(initialFromDate);
+  const toDate = ref(initialToDate);
 
   // Reactive reference for tolling data
   const tollingData = ref([]);
 
-  // Column definitions for the data table
-  const columns = [
-    { field: "stationName", header: "Station Name", sortable: true },
-    { field: "discharge", header: "Volume (m³)", sortable: true },
-    { field: "price", header: "Price per m³ (IQD)", sortable: true },
-    { field: "total", header: "Total (IQD)", sortable: true },
-  ].map((column) => ({
-    ...column,
-    class:
-      "!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-2",
-  }));
+  // Memoize columns to prevent recreation on each render
+  const columns = computed(() =>
+    [
+      { field: 'stationName', header: 'Station Name', sortable: true },
+      { field: 'discharge', header: 'Volume (m³)', sortable: true },
+      { field: 'price', header: 'Price per m³ (IQD)', sortable: true },
+      { field: 'total', header: 'Total (IQD)', sortable: true },
+    ].map((column) => ({
+      ...column,
+      class:
+        '!bg-DarkBlue sm:!text-sm !outline !outline-1 !outline-white !text-white font-semibold py-2',
+    }))
+  );
 
   // Store for fetching station data
   const stationDataDayStore = useStationDataDayStore();
 
-  // Helper function to format numbers with commas
+  // Memoize the formatter function
   const formatNumber = (number) => {
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (typeof number !== 'number') return '0';
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
-  // Function to fetch and process tolling data
+  // Function to fetch and process tolling data with debouncing
+  let fetchTimeout;
   const fetchTollingData = async () => {
     if (!fromDate.value || !toDate.value) {
-      console.error("Please select both start and end dates");
+      console.error('Please select both start and end dates');
       return;
     }
 
-    try {
-      await stationDataDayStore.fetchDailyData({
-        startDate: fromDate.value,
-        endDate: toDate.value,
-      });
+    // Clear any pending fetch
+    clearTimeout(fetchTimeout);
 
-      if (
-        stationDataDayStore.dailyData &&
-        stationDataDayStore.dailyData.length > 0
-      ) {
-        tollingData.value = stationDataDayStore.dailyData
-          .filter(
-            (station) => !station.stationName.toLowerCase().includes("tank"),
-          ) // Filter out tanks
-          .map((station) => ({
-            stationName: station.stationName,
-            discharge: formatNumber(station.dailyDischarge),
-            price: formatNumber(500) + " IQD",
-            total: formatNumber(station.dailyDischarge * 500) + " IQD",
-          }));
+    // Debounce the fetch operation
+    fetchTimeout = setTimeout(async () => {
+      try {
+        await stationDataDayStore.fetchDailyData({
+          startDate: fromDate.value,
+          endDate: toDate.value,
+        });
+
+        if (
+          stationDataDayStore.dailyData &&
+          stationDataDayStore.dailyData.length > 0
+        ) {
+          // Process data in chunks to avoid blocking the main thread
+          const chunkSize = 100;
+          const data = stationDataDayStore.dailyData.filter(
+            (station) => !station.stationName.toLowerCase().includes('tank')
+          );
+
+          const processChunk = (startIndex) => {
+            const chunk = data.slice(startIndex, startIndex + chunkSize);
+            if (chunk.length === 0) return;
+
+            const processedChunk = chunk.map((station) => ({
+              stationName: station.stationName,
+              discharge: formatNumber(station.dailyDischarge),
+              price: formatNumber(500) + ' IQD',
+              total: formatNumber(station.dailyDischarge * 500) + ' IQD',
+            }));
+
+            tollingData.value = tollingData.value.concat(processedChunk);
+
+            if (startIndex + chunkSize < data.length) {
+              requestAnimationFrame(() => processChunk(startIndex + chunkSize));
+            }
+          };
+
+          // Start processing with empty array
+          tollingData.value = [];
+          processChunk(0);
+        }
+      } catch (error) {
+        console.error('Error fetching tolling data:', error);
       }
-    } catch (error) {
-      console.error("Error fetching tolling data:", error);
-    }
+    }, 300); // 300ms debounce
   };
 
   // Fetch data on component mount
-  onMounted(fetchTollingData);
+  onMounted(() => {
+    fetchTollingData();
+
+    // Cleanup on unmount
+    onUnmounted(() => {
+      clearTimeout(fetchTimeout);
+    });
+  });
 </script>
 
 <style>
