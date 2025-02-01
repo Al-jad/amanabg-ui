@@ -1,44 +1,44 @@
 <template>
-  <div class="container px-4 py-8 mx-auto">
+  <div class="container mx-auto px-4 py-8">
     <div v-if="dataLoading">
       <!-- Skeleton Loading State -->
       <div class="flex flex-col gap-8">
         <!-- Back Button Skeleton -->
-        <div class="w-32 h-6 bg-gray-200 rounded animate-pulse"></div>
+        <div class="h-6 w-32 animate-pulse rounded bg-gray-200"></div>
 
         <!-- Header Section Skeleton -->
         <div class="flex flex-col gap-4">
           <div class="flex justify-between sm:flex-col sm:gap-4">
             <!-- Station Name Skeleton -->
-            <div class="w-64 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div class="h-8 w-64 animate-pulse rounded bg-gray-200"></div>
 
             <!-- Date Picker Skeleton -->
             <div class="flex items-center gap-4 sm:flex-col">
               <div class="flex gap-2">
-                <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
-                <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
+                <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
               </div>
-              <div class="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+              <div class="h-8 w-20 animate-pulse rounded bg-gray-200"></div>
             </div>
           </div>
 
           <!-- Duration Buttons Skeleton -->
           <div class="flex gap-2">
-            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
-            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
-            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
+            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
+            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
           </div>
         </div>
 
         <!-- Table Skeleton -->
-        <div class="p-4 bg-white rounded-lg shadow-lg">
+        <div class="rounded-lg bg-white p-4 shadow-lg">
           <div class="flex flex-col gap-4">
             <!-- Table Header Skeleton -->
             <div class="grid grid-cols-8 gap-4">
               <div
                 v-for="i in 8"
                 :key="`header-${i}`"
-                class="h-10 bg-gray-200 rounded animate-pulse"
+                class="h-10 animate-pulse rounded bg-gray-200"
               ></div>
             </div>
             <!-- Table Rows Skeleton -->
@@ -50,7 +50,7 @@
               <div
                 v-for="col in 8"
                 :key="`cell-${row}-${col}`"
-                class="h-8 bg-gray-200 rounded animate-pulse"
+                class="h-8 animate-pulse rounded bg-gray-200"
               ></div>
             </div>
           </div>
@@ -67,10 +67,10 @@
       <p class="text-lg font-semibold">{{ dataError }}</p>
     </div>
     <div v-else-if="filteredData && filteredData.length > 0">
-      <div class="flex flex-col items-start gap-4 mb-8">
+      <div class="mb-8 flex flex-col items-start gap-4">
         <NuxtLink
           to="/data/pipes-water"
-          class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80"
+          class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
         >
           <Icon
             name="mdi:arrow-left"
@@ -80,13 +80,13 @@
         </NuxtLink>
 
         <div
-          class="flex flex-col items-start justify-between w-full gap-4 p-6 py-2 sm:p-4 sm:py-1"
+          class="flex w-full flex-col items-start justify-between gap-4 p-6 py-2 sm:p-4 sm:py-1"
         >
           <div
-            class="flex items-center justify-between w-full sm:flex-col sm:items-stretch sm:gap-4"
+            class="flex w-full items-center justify-between sm:flex-col sm:items-stretch sm:gap-4"
           >
             <h1 class="text-xl font-bold text-gray-800 sm:text-left">
-              {{ stationName || "Station name not found" }}
+              {{ stationName || 'Station name not found' }}
             </h1>
             <div class="flex items-center gap-2 sm:flex-col sm:gap-4">
               <div class="flex flex-row items-center gap-2">
@@ -145,7 +145,7 @@
           </div>
         </div>
       </div>
-      <div class="p-4 bg-white rounded-lg shadow-lg sm:p-4">
+      <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
         <div class="mb-4">
           <Button
             label="Export to CSV"
@@ -177,7 +177,7 @@
                 :key="col.field"
                 class="p-3"
               >
-                <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div class="h-4 animate-pulse rounded bg-gray-200"></div>
               </td>
             </tr>
           </template>
@@ -203,8 +203,8 @@
   </div>
 </template>
 <script setup>
-  import { useStationDetailsDataStore } from "~/stores/stationDetailsData";
-  import Papa from "papaparse";
+  import Papa from 'papaparse';
+  import { useStationDetailsDataStore } from '~/stores/stationDetailsData';
   const route = useRoute();
   const stationDataStore = useStationDetailsDataStore();
   const {
@@ -244,115 +244,115 @@
 
   const paramNames = {
     discharge: {
-      short: "Q",
-      full: "Discharge",
+      short: 'Q',
+      full: 'Discharge',
     },
     waterLevel: {
-      short: "WL",
-      full: "Water Level",
+      short: 'WL',
+      full: 'Water Level',
     },
     pressure: {
-      short: "P",
-      full: "Pressure",
+      short: 'P',
+      full: 'Pressure',
     },
     turbidity: {
-      short: "Turb.",
-      full: "Turbidity",
+      short: 'Turb.',
+      full: 'Turbidity',
     },
     cl: {
-      short: "Cl",
-      full: "Chlorine",
+      short: 'Cl',
+      full: 'Chlorine',
     },
     tds: {
-      short: "TDS",
-      full: "Total Dissolved Solids",
+      short: 'TDS',
+      full: 'Total Dissolved Solids',
     },
     temp: {
-      short: "Temp",
-      full: "Temperature",
+      short: 'Temp',
+      full: 'Temperature',
     },
   };
   const columns = computed(() => {
-    const stationType = parseInt(localStorage.getItem("stationType") || "0");
+    const stationType = parseInt(localStorage.getItem('stationType') || '0');
 
     const baseColumns = [
-      { header: "DateTime", sortable: true, field: "dateTime" },
+      { header: 'DateTime', sortable: true, field: 'dateTime' },
     ];
 
     const stationColumns = [
       {
         header:
           selectedDuration.value === 0
-            ? "Q"
+            ? 'Q'
             : selectedDuration.value === 1
-              ? "Q"
-              : "Q",
+              ? 'Q'
+              : 'Q',
         sortable: true,
-        field: "discharge",
+        field: 'discharge',
         unit:
           selectedDuration.value === 0
-            ? "m³/min"
+            ? 'm³/min'
             : selectedDuration.value === 1
-              ? "m³/h"
-              : "m³/d",
+              ? 'm³/h'
+              : 'm³/d',
         defaultValue: 0,
       },
     ];
 
     const tankColumns = [
       {
-        header: "Level",
+        header: 'Level',
         sortable: true,
-        field: "waterLevel",
-        unit: "m",
+        field: 'waterLevel',
+        unit: 'm',
         defaultValue: 0,
       },
       {
-        header: "Volume",
+        header: 'Volume',
         sortable: true,
-        field: "currentVolume",
-        unit: "m³",
+        field: 'currentVolume',
+        unit: 'm³',
         defaultValue: 0,
       },
     ];
 
     const waterQualityColumns = [
       {
-        header: "Cl⁺",
+        header: 'Cl⁺',
         sortable: true,
-        field: "cl",
-        unit: "mg/L",
+        field: 'cl',
+        unit: 'mg/L',
         defaultValue: 0,
       },
       {
-        header: "Turb",
+        header: 'Turb',
         sortable: true,
-        field: "turbidity",
-        unit: "NTU",
+        field: 'turbidity',
+        unit: 'NTU',
         defaultValue: 0,
       },
       {
-        header: "TDS",
+        header: 'TDS',
         sortable: true,
-        field: "tds",
-        unit: "ppm",
+        field: 'tds',
+        unit: 'ppm',
         defaultValue: 0,
       },
     ];
 
     const commonColumns = [
       {
-        header: "Temp",
+        header: 'Temp',
         sortable: true,
-        field: "temperature",
-        unit: "C",
+        field: 'temperature',
+        unit: 'C',
         defaultValue: 0,
       },
       {
-        header: "P",
+        header: 'P',
         sortable: true,
-        field: "pressure",
-        unit: "m",
+        field: 'pressure',
+        unit: 'm',
         defaultValue: 0,
       },
     ];
@@ -368,13 +368,13 @@
     return finalColumns.map((column) => ({
       ...column,
       class:
-        "!bg-DarkBlue !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2",
+        '!bg-DarkBlue !outline !outline-1 !outline-white !text-white font-semibold py-1 sm:py-2',
     }));
   });
   const fetchData = async () => {
     const stationId = parseInt(route.params.id, 10);
     if (isNaN(stationId)) {
-      console.error("Invalid station ID");
+      console.error('Invalid station ID');
       return;
     }
 
@@ -406,13 +406,13 @@
     fetchData();
   };
   const units = {
-    q: "m³/min",
-    pressure: "Bar",
-    turbidity: "NTU",
-    cl: "mg/L",
-    tds: "ppm",
-    temp: "C",
-    waterLevel: "m",
+    q: 'm³/min',
+    pressure: 'Bar',
+    turbidity: 'NTU',
+    cl: 'mg/L',
+    tds: 'ppm',
+    temp: 'C',
+    waterLevel: 'm',
   };
   const filteredData = computed(() => {
     const data = storeData.value?.data || [];
@@ -421,77 +421,77 @@
 
     return data.map((item) => ({
       ...item,
-      dateTime: `${new Date(item.date).toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })}\n${new Date(item.date).toLocaleString("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
+      dateTime: `${new Date(item.date).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })}\n${new Date(item.date).toLocaleString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
         hour12: true,
       })}`,
       timeStamp: new Date(item.date),
       discharge: item.discharge
-        ? Number(item.discharge).toLocaleString("en-US", {
+        ? Number(item.discharge).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : "-",
+        : '-',
       pressure: item.pressure
-        ? Number(item.pressure).toLocaleString("en-US", {
+        ? Number(item.pressure).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : "-",
+        : '-',
       temperature: item.temperature
-        ? Number(item.temperature).toLocaleString("en-US", {
+        ? Number(item.temperature).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : "0.00",
+        : '0.00',
       cl: item.cl
-        ? Number(item.cl).toLocaleString("en-US", {
+        ? Number(item.cl).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : "0.00",
+        : '0.00',
       turbidity: item.turbidity
-        ? Number(item.turbidity).toLocaleString("en-US", {
+        ? Number(item.turbidity).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : "0.00",
+        : '0.00',
       tds: item.electricConductivity
-        ? (item.electricConductivity * 0.65).toLocaleString("en-US", {
+        ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : "0.00",
+        : '0.00',
       waterLevel: item.waterLevel
-        ? Number(item.waterLevel).toLocaleString("en-US", {
+        ? Number(item.waterLevel).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : "0.00",
+        : '0.00',
       currentVolume: item.currentVolume
-        ? Number(item.currentVolume).toLocaleString("en-US", {
+        ? Number(item.currentVolume).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })
-        : "0.00",
+        : '0.00',
     }));
   });
-  const stationName = ref("N/A");
-  const stationCity = ref("N/A");
+  const stationName = ref('N/A');
+  const stationCity = ref('N/A');
   onMounted(() => {
     fetchData();
     if (process.client) {
-      stationName.value = window.localStorage.getItem("stationName") || "N/A";
-      stationCity.value = window.localStorage.getItem("stationCity") || "N/A";
+      stationName.value = window.localStorage.getItem('stationName') || 'N/A';
+      stationCity.value = window.localStorage.getItem('stationCity') || 'N/A';
     }
   });
 
-  const selectedParam = ref("discharge");
+  const selectedParam = ref('discharge');
   const selectedDuration = ref(1);
   const handleDurationChange = async (duration) => {
     selectedDuration.value = duration;
@@ -531,81 +531,94 @@
       waterLevel: item.waterLevel || 0,
     }));
   });
-  const exportToCSV = async () => {
-    if (!filteredData.value || filteredData.value.length === 0) return;
+  const exportToCSV = () => {
+    const data = storeAllData.value?.data;
+    if (!data || data.length === 0) return;
 
-    // Fetch all data for the selected date range
-    const stationId = parseInt(route.params.id, 10);
-    if (isNaN(stationId)) return;
+    // Process the complete dataset with the same transformations as filteredData
+    const processedData = data.map((item) => ({
+      dateTime: `${new Date(item.date).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })}\n${new Date(item.date).toLocaleString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      })}`,
+      discharge: item.discharge
+        ? Number(item.discharge).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '-',
+      pressure: item.pressure
+        ? Number(item.pressure).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '-',
+      temperature: item.temperature
+        ? Number(item.temperature).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '0.00',
+      cl: item.cl
+        ? Number(item.cl).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '0.00',
+      turbidity: item.turbidity
+        ? Number(item.turbidity).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '0.00',
+      tds: item.electricConductivity
+        ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '0.00',
+      waterLevel: item.waterLevel
+        ? Number(item.waterLevel).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '0.00',
+      currentVolume: item.currentVolume
+        ? Number(item.currentVolume).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '0.00',
+    }));
 
-    try {
-      // Show loading state (you might want to add a loading indicator in the UI)
-      await stationDataStore.fetchTableData({
-        stationId,
-        duration: selectedDuration.value,
-        skip: 0,
-        take: 3600, // Adjust this number based on your needs
-        fromDate: fromDate.value,
-        toDate: toDate.value,
-      });
+    // Convert to CSV format using the processed data
+    const csv = Papa.unparse({
+      fields: columns.value.map((col) => col.header),
+      data: processedData.map((row) =>
+        columns.value.map((col) => row[col.field])
+      ),
+    });
 
-      // Get the data from the store
-      const allData = storeData.value?.data;
-      if (!allData) {
-        console.error("No data available for export");
-        return;
-      }
+    // Create blob and download link
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
 
-      // Format the data with proper date/time
-      const formattedData = allData.map((item) => ({
-        ...item,
-        dateTime: `${new Date(item.date).toLocaleString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })}`,
-        discharge: item.discharge || "-",
-        pressure: item.pressure || "-",
-        temperature: item.temperature || 0,
-        cl: item.cl || 0,
-        turbidity: item.turbidity || 0,
-        tds: item.electricConductivity
-          ? (item.electricConductivity * 0.65).toFixed(2)
-          : 0,
-        waterLevel: item.waterLevel || 0,
-      }));
+    link.setAttribute('href', url);
+    link.setAttribute(
+      'download',
+      `station_${route.params.id}_data_${new Date().toISOString()}.csv`
+    );
+    link.style.visibility = 'hidden';
 
-      // Convert to CSV format
-      const csv = Papa.unparse({
-        fields: columns.value.map((col) => col.header),
-        data: formattedData.map((row) =>
-          columns.value.map((col) => row[col.field]),
-        ),
-      });
-
-      // Create blob and download link
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-
-      link.setAttribute("href", url);
-      link.setAttribute(
-        "download",
-        `station_${route.params.id}_data_${new Date().toISOString()}.csv`,
-      );
-      link.style.visibility = "hidden";
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error exporting data:", error);
-      // You might want to show an error message to the user here
-    }
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 </script>
 <style>
