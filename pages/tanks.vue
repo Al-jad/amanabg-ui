@@ -1,29 +1,52 @@
 <template>
   <div class="container px-4 py-8 mx-auto sm:px-4 lg:px-8">
     <div class="p-4 bg-white shadow sm:rounded-lg">
-      <div class="flex flex-col mb-8 sm:flex-col md:flex-row md:items-center md:justify-between">
+      <div
+        class="flex flex-col mb-8 sm:flex-col md:flex-row md:items-center md:justify-between"
+      >
         <div class="flex mb-4 text-nowrap md:mb-0">
           <div class="flex flex-col items-start gap-4 mb-8">
-            <NuxtLink to="/" class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80">
-              <Icon name="mdi:arrow-left" class="mr-2" />
+            <NuxtLink
+              to="/"
+              class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80"
+            >
+              <Icon
+                name="mdi:arrow-left"
+                class="mr-2"
+              />
               Back
             </NuxtLink>
-            <Icon name="mdi:water-tank" class="mr-2 text-2xl text-blue-500 sm:text-xl" />
-            <h1 class="text-xl font-bold text-black sm:text-lg">Water Tanks Monitoring</h1>
+            <Icon
+              name="mdi:water-tank"
+              class="mr-2 text-2xl text-blue-500 sm:text-xl"
+            />
+            <h1 class="text-xl font-bold text-black sm:text-lg">
+              Water Tanks Monitoring
+            </h1>
           </div>
         </div>
         <div class="flex justify-center sm:overflow-hidden">
-          <SelectButton v-model="selectedView" :options="viewOptions" @change="handleViewChange">
+          <SelectButton
+            v-model="selectedView"
+            :options="viewOptions"
+            @change="handleViewChange"
+          >
             <template #option="slotProps">
               <div class="flex items-center">
-                <Icon :name="slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'" class="mr-2" />
+                <Icon
+                  :name="slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'"
+                  class="mr-2"
+                />
                 {{ slotProps.option }}
               </div>
             </template>
           </SelectButton>
         </div>
       </div>
-      <div v-if="selectedView === 'Table'" class="mb-12">
+      <div
+        v-if="selectedView === 'Table'"
+        class="mb-12"
+      >
         <Table
           v-if="!loading && filteredTanksData.length > 0"
           :headers="headers"
@@ -33,11 +56,16 @@
           :current-page-report="false"
         >
           <template #body="slotProps">
-            <Row v-for="col in columns" :key="col.field">
+            <Row
+              v-for="col in columns"
+              :key="col.field"
+            >
               <template v-if="col.field === 'level'">
                 <span :class="getTankLevelColor(slotProps.data[col.field])">
                   {{ slotProps.data[col.field] }}
-                  <span v-html="getTankLevelArrow(slotProps.data[col.field])"></span>
+                  <span
+                    v-html="getTankLevelArrow(slotProps.data[col.field])"
+                  ></span>
                 </span>
               </template>
               <template v-else>
@@ -46,11 +74,17 @@
             </Row>
           </template>
         </Table>
-        <div v-else-if="loading" class="flex items-center justify-center">
+        <div
+          v-else-if="loading"
+          class="flex items-center justify-center"
+        >
           <p class="text-gray-500">Loading data...</p>
           <span class="ml-2 animate-spin">&#8987;</span>
         </div>
-        <div v-else class="flex items-center justify-center">
+        <div
+          v-else
+          class="flex items-center justify-center"
+        >
           <p class="text-gray-500">No data available</p>
         </div>
       </div>
@@ -67,113 +101,115 @@
   </div>
 </template>
 <script setup>
-const router = useRouter();
-const { $axios } = useNuxtApp();
-const viewOptions = ref(['Table', 'Map']);
-const selectedView = ref('Table');
-const onRowClick = (event) => {
-  const { data } = event;
-  if (!data?.tankId) {
-    console.error("Invalid event or missing required tank data");
-    return;
-  }
+  const router = useRouter();
+  const { $axios } = useNuxtApp();
+  const viewOptions = ref(['Table', 'Map']);
+  const selectedView = ref('Table');
+  const onRowClick = (event) => {
+    const { data } = event;
+    if (!data?.tankId) {
+      console.error('Invalid event or missing required tank data');
+      return;
+    }
 
-  nextTick(() => {
-    // Store additional data needed for the details page
-    localStorage.setItem("stationName", data.tankName);
-    localStorage.setItem("stationType", "1"); // 1 for tanks
-    
-    // Navigate to the details page
-    router.push({ 
-      path: `/data/details/${data.tankId}`
+    nextTick(() => {
+      // Store additional data needed for the details page
+      localStorage.setItem('stationName', data.tankName);
+      localStorage.setItem('stationType', '1'); // 1 for tanks
+
+      // Navigate to the details page
+      router.push({
+        path: `/data/details/${data.tankId}`,
+      });
+    });
+  };
+  const headers = [
+    {
+      text: 'Tank Info',
+      colspan: 2,
+      class:
+        '!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white',
+    },
+    {
+      text: 'Last Measurement',
+      colspan: 6,
+      class:
+        '!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white',
+    },
+  ];
+  const columns = [
+    { header: 'ID', sortable: true, field: 'tankId' },
+    { header: 'Name', sortable: true, field: 'tankName' },
+    { header: 'Date & Time', sortable: true, field: 'date' },
+    { header: 'Level (m)', sortable: true, field: 'level' },
+    { header: 'Volume (m³)', sortable: true, field: 'currentVolume' },
+  ].map((column) => ({
+    ...column,
+    class: '!bg-DarkBlue !outline !outline-1 !outline-white !text-white',
+  }));
+  const tanksData = ref([]);
+  const loading = ref(true);
+  const fetchTanksData = async () => {
+    try {
+      loading.value = true;
+      const response = await $axios.get('/Pipes/latest_data');
+      tanksData.value = response.data
+        .filter((item) => item.station?.stationType === 1)
+        .map((item) => ({
+          tankId: item.stationId,
+          tank: {
+            name: item.station.name,
+          },
+          timeStamp: item.timeStamp,
+          level: item.waterLevel?.toFixed(2) || 0,
+          currentVolume: item.currentVolume?.toFixed(2) || 0,
+        }));
+    } catch (error) {
+      console.error('Error fetching tanks data:', error);
+    } finally {
+      loading.value = false;
+    }
+  };
+  onMounted(() => {
+    fetchTanksData();
+  });
+  const filteredTanksData = computed(() => {
+    return tanksData.value || [];
+  });
+  const formattedFilteredTanksData = computed(() => {
+    return filteredTanksData.value.map((item) => {
+      const date = new Date(item.timeStamp);
+      return {
+        ...item,
+        tankName: item.tank.name,
+        date: date.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        }),
+      };
     });
   });
-};
-const headers = [
-  {
-    text: "Tank Info",
-    colspan: 2,
-    class: "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
-  },
-  {
-    text: "Last Measurement",
-    colspan: 6,
-    class: "!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white",
-  },
-];
-const columns = [
-  { header: "ID", sortable: true, field: "tankId" },
-  { header: "Name", sortable: true, field: "tankName" },
-  { header: "Date & Time", sortable: true, field: "date" },
-  { header: "Level (m)", sortable: true, field: "level" },
-  { header: "Volume (m³)", sortable: true, field: "currentVolume" },
-].map(column => ({
-  ...column,
-  class: "!bg-DarkBlue !outline !outline-1 !outline-white !text-white",
-}));
-const tanksData = ref([]);
-const loading = ref(true);
-const fetchTanksData = async () => {
-  try {
-    loading.value = true;
-    const response = await $axios.get('/Pipes/latest_data');
-    tanksData.value = response.data
-      .filter(item => item.station?.stationType === 1)
-      .map(item => ({
-        tankId: item.stationId,
-        tank: {
-          name: item.station.name,
-        },
-        timeStamp: item.timeStamp,
-        level: item.waterLevel?.toFixed(2) || 0,
-        currentVolume: item.currentVolume?.toFixed(2) || 0,
-      }));
-  } catch (error) {
-    console.error('Error fetching tanks data:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-onMounted(() => {
-  fetchTanksData();
-});
-const filteredTanksData = computed(() => {
-  return tanksData.value || [];
-});
-const formattedFilteredTanksData = computed(() => {
-  return filteredTanksData.value.map(item => {
-    const date = new Date(item.timeStamp);
-    return {
-      ...item,
-      tankName: item.tank.name,
-      date: date.toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      })
-    };
+  const filteredMapStations = computed(() => {
+    return filteredTanksData.value.filter(
+      (tank) => tank.tank && tank.tank.lat && tank.tank.lng
+    );
   });
-});
-const filteredMapStations = computed(() => {
-  return filteredTanksData.value.filter(
-    (tank) => tank.tank && tank.tank.lat && tank.tank.lng
-  );
-});
 </script>
 <style>
-.p-togglebutton {
-  @apply !bg-DarkBlue !text-white;
-}
-.p-togglebutton-checked::before {
-  @apply !bg-DarkBlue !text-white;
-}
-.p-togglebutton-checked {
-  @apply !bg-DarkBlue/70 !text-white;
-}
-.p-select {
-  @apply !text-white;
-}
+  .p-togglebutton {
+    @apply !bg-DarkBlue !text-white;
+  }
+  .p-togglebutton-checked::before {
+    @apply !bg-DarkBlue !text-white;
+  }
+  .p-togglebutton-checked {
+    @apply !bg-DarkBlue/70 !text-white;
+  }
+  .p-select {
+    @apply !text-white;
+  }
 </style>

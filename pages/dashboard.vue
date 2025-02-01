@@ -11,9 +11,9 @@
           </h2>
           <div class="grid gap-6 md:grid-cols-3">
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700"
-                >Select Station</label
-              >
+              <label class="block text-sm font-medium text-gray-700">
+                Select Station
+              </label>
               <Select
                 v-model="stationData.selectedStation"
                 :options="stationOptions"
@@ -40,9 +40,9 @@
               />
             </div>
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700"
-                >Base Area</label
-              >
+              <label class="block text-sm font-medium text-gray-700">
+                Base Area
+              </label>
               <InputNumber
                 v-model="stationData.baseArea"
                 class="w-full !p-0"
@@ -51,9 +51,9 @@
               />
             </div>
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700"
-                >Max Height</label
-              >
+              <label class="block text-sm font-medium text-gray-700">
+                Max Height
+              </label>
               <InputNumber
                 v-model="stationData.maxHeight"
                 class="w-full !p-0"
@@ -62,7 +62,9 @@
               />
             </div>
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">Current Volume</label>
+              <label class="block text-sm font-medium text-gray-700">
+                Current Volume
+              </label>
               <div class="text-lg font-semibold">
                 {{ formatNumber(currentVolume) }} L
               </div>
@@ -83,51 +85,53 @@
   </main>
 </template>
 <script setup>
-import { useTanksStore } from '~/stores/tanks'
+  import { useTanksStore } from "~/stores/tanks";
 
-const tanksStore = useTanksStore()
-const stationOptions = computed(() => tanksStore.tankOptions)
-const stationData = ref({
-  selectedStation: null,
-  baseArea: null,
-  maxHeight: null,
-});
+  const tanksStore = useTanksStore();
+  const stationOptions = computed(() => tanksStore.tankOptions);
+  const stationData = ref({
+    selectedStation: null,
+    baseArea: null,
+    maxHeight: null,
+  });
 
-const onStationSelect = () => {
-  const selectedTank = tanksStore.getTankById(stationData.value.selectedStation)
-  if (selectedTank) {
-    stationData.value.baseArea = selectedTank.baseArea
-    stationData.value.maxHeight = selectedTank.tankHeight
-  }
-}
+  const onStationSelect = () => {
+    const selectedTank = tanksStore.getTankById(
+      stationData.value.selectedStation,
+    );
+    if (selectedTank) {
+      stationData.value.baseArea = selectedTank.baseArea;
+      stationData.value.maxHeight = selectedTank.tankHeight;
+    }
+  };
 
-const saveStationData = async () => {
-  try {
-    await tanksStore.updateTankData({
-      id: stationData.value.selectedStation,
-      baseArea: stationData.value.baseArea,
-      maxHeight: stationData.value.maxHeight
-    })
-  } catch (error) {
-    console.error('Failed to save station data:', error)
-  }
-};
+  const saveStationData = async () => {
+    try {
+      await tanksStore.updateTankData({
+        id: stationData.value.selectedStation,
+        baseArea: stationData.value.baseArea,
+        maxHeight: stationData.value.maxHeight,
+      });
+    } catch (error) {
+      console.error("Failed to save station data:", error);
+    }
+  };
 
-const currentVolume = ref(0)
+  const currentVolume = ref(0);
 
-const formatNumber = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(value)
-}
+  const formatNumber = (value) => {
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
 
-onMounted(() => {
-  tanksStore.fetchTanks()
-})
+  onMounted(() => {
+    tanksStore.fetchTanks();
+  });
 </script>
 <style>
-.p-inputnumber .p-inputtext {
-  @apply !border-DarkBlue !bg-white !text-black focus:!ring-DarkBlue;
-}
+  .p-inputnumber .p-inputtext {
+    @apply !border-DarkBlue !bg-white !text-black focus:!ring-DarkBlue;
+  }
 </style>

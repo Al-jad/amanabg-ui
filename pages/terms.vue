@@ -1,8 +1,8 @@
 <template>
   <!-- Main container with responsive padding and background -->
-  <div class="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="min-h-screen px-4 py-8 bg-gray-100 sm:px-6 lg:px-8">
     <!-- Content container with max width, background, and shadow -->
-    <div class="mx-auto max-w-4xl bg-white p-8 shadow sm:rounded-lg">
+    <div class="max-w-4xl p-8 mx-auto bg-white shadow sm:rounded-lg">
       <!-- Page title -->
       <h1 class="mb-6 text-3xl font-bold text-gray-900">Terms of Service</h1>
 
@@ -15,11 +15,12 @@
           1. Introduction
         </h2>
         <p class="text-gray-700">
-          Welcome to <strong>(env.alfakharco.com)</strong>. These Terms of
-          Service govern your access to and use of our website and services. By
-          accessing or using our services, you agree to comply with and be bound
-          by these Terms. If you do not agree to these Terms, please do not use
-          our site.
+          Welcome to
+          <strong>(env.alfakharco.com)</strong>
+          . These Terms of Service govern your access to and use of our website
+          and services. By accessing or using our services, you agree to comply
+          with and be bound by these Terms. If you do not agree to these Terms,
+          please do not use our site.
         </p>
       </section>
 
@@ -132,8 +133,11 @@
         <p class="text-gray-700">
           If you have any questions about these Terms, please
           <!-- Router link to the contact page -->
-          <router-link to="/contact" class="inline text-gray-700 underline">
-            <span> contact us </span>
+          <router-link
+            to="/contact"
+            class="inline text-gray-700 underline"
+          >
+            <span>contact us</span>
           </router-link>
           .
         </p>
