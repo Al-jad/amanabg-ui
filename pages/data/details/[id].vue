@@ -208,40 +208,49 @@
   import { useStationDetailsDataStore } from '~/stores/stationDetailsData';
   const route = useRoute();
   const stationDataStore = useStationDetailsDataStore();
+
+  // Date utility functions
+  const dateUtils = {
+    startOfDay: (date) => {
+      const newDate = new Date(date);
+      newDate.setHours(0, 0, 0, 0);
+      return newDate;
+    },
+
+    endOfDay: (date) => {
+      const newDate = new Date(date);
+      newDate.setHours(23, 59, 59, 999);
+      return newDate;
+    },
+  };
+
   const {
     data: storeData,
     allData: storeAllData,
     loading: dataLoading,
     error: dataError,
     pagination,
+    selectedDuration: persistedDuration,
+    dateRange: persistedDateRange,
   } = storeToRefs(stationDataStore);
-  const startOfDay = (date) => {
-    const newDate = new Date(date);
-    newDate.setHours(0, 0, 0, 0);
-    return newDate;
-  };
-  const endOfDay = (date) => {
-    const newDate = new Date(date);
-    newDate.setHours(23, 59, 59, 999);
-    return newDate;
-  };
-  const subtractMonths = (date, months) => {
-    const newDate = new Date(date);
-    newDate.setMonth(newDate.getMonth() - months);
-    return newDate;
-  };
-  const subtractYears = (date, years) => {
-    const newDate = new Date(date);
-    newDate.setFullYear(newDate.getFullYear() - years);
-    return newDate;
-  };
-  const subtractDays = (date, days) => {
-    const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() - days);
-    return newDate;
-  };
-  const fromDate = ref(startOfDay(subtractDays(new Date(), 2)));
-  const toDate = ref(endOfDay(new Date()));
+
+  // Initialize with persisted values
+  const fromDate = ref(
+    dateUtils.startOfDay(new Date(persistedDateRange.value.fromDate))
+  );
+  const toDate = ref(
+    dateUtils.endOfDay(new Date(persistedDateRange.value.toDate))
+  );
+  const selectedDuration = ref(persistedDuration.value);
+
+  // Cache key for current request
+  const currentRequestKey = computed(() => {
+    const stationId = route.params.id;
+    return `${stationId}-${selectedDuration.value}-${fromDate.value.getTime()}-${toDate.value.getTime()}`;
+  });
+
+  // Track last successful request
+  const lastRequestKey = ref('');
 
   const paramNames = {
     discharge: {
@@ -383,27 +392,29 @@
     const formattedFromDate = fromDate.value.toISOString();
     const formattedToDate = toDate.value.toISOString();
 
-    await Promise.all([
-      stationDataStore.fetchTableData({
-        stationId,
-        duration: selectedDuration.value,
-        skip: 0,
-        take: 10,
-        fromDate: formattedFromDate,
-        toDate: formattedToDate,
-      }),
-    ]);
+    await stationDataStore.fetchTableData({
+      stationId,
+      duration: selectedDuration.value,
+      skip: 0,
+      take: 10,
+      fromDate: formattedFromDate,
+      toDate: formattedToDate,
+    });
   };
   const handleFromDateChange = (event) => {
-    // Ensure we have a valid date object
     const date = event instanceof Date ? event : new Date(event);
-    fromDate.value = startOfDay(date);
+    const newDate = dateUtils.startOfDay(date);
+    if (newDate.getTime() === fromDate.value.getTime()) return; // Prevent unnecessary updates
+    fromDate.value = newDate;
+    stationDataStore.setDateRange(fromDate.value, toDate.value);
     fetchData();
   };
   const handleToDateChange = (event) => {
-    // Ensure we have a valid date object
     const date = event instanceof Date ? event : new Date(event);
-    toDate.value = endOfDay(date);
+    const newDate = dateUtils.endOfDay(date);
+    if (newDate.getTime() === toDate.value.getTime()) return; // Prevent unnecessary updates
+    toDate.value = newDate;
+    stationDataStore.setDateRange(fromDate.value, toDate.value);
     fetchData();
   };
   const units = {
@@ -485,21 +496,30 @@
   const stationName = ref('N/A');
   const stationCity = ref('N/A');
   onMounted(() => {
-    fetchData();
     if (process.client) {
       stationName.value = window.localStorage.getItem('stationName') || 'N/A';
       stationCity.value = window.localStorage.getItem('stationCity') || 'N/A';
+
+      // Only fetch if we don't have cached data
+      const stationId = parseInt(route.params.id, 10);
+      if (
+        !stationDataStore.getCachedData(
+          stationId,
+          selectedDuration.value,
+          fromDate.value,
+          toDate.value
+        )
+      ) {
+        fetchData();
+      }
     }
   });
 
   const selectedParam = ref('discharge');
-  const selectedDuration = ref(1);
   const handleDurationChange = async (duration) => {
+    if (duration === selectedDuration.value) return; // Prevent unnecessary updates
     selectedDuration.value = duration;
-    const stationId = parseInt(route.params.id, 10);
-    if (isNaN(stationId)) return;
-
-    // When duration changes, we need both new table and chart data
+    stationDataStore.setSelectedDuration(duration);
     await fetchData();
   };
   const onPageChange = async (event) => {

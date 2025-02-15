@@ -1,5 +1,5 @@
+import { HttpTransportType, HubConnectionBuilder } from '@microsoft/signalr';
 import { defineStore } from 'pinia';
-import { HubConnectionBuilder, HttpTransportType, LogLevel } from '@microsoft/signalr';
 
 export const useStationStore = defineStore('station', {
   state: () => ({
@@ -9,7 +9,18 @@ export const useStationStore = defineStore('station', {
     isConnecting: false,
     connectionLogs: [],
     connection: null,
+    lastUpdate: null,
   }),
+
+  persist: {
+    paths: ['pipesData', 'lastUpdate'],
+    afterRestore: (ctx) => {
+      // Rehydrate lastUpdate timestamp
+      if (ctx.store.lastUpdate) {
+        ctx.store.lastUpdate = new Date(ctx.store.lastUpdate).getTime();
+      }
+    },
+  },
 
   actions: {
     async connect() {
@@ -19,10 +30,9 @@ export const useStationStore = defineStore('station', {
 
       try {
         this.connection = new HubConnectionBuilder()
-          .withUrl("https://amanaapi.alfakharco.com/datahub", {
-            transport: HttpTransportType.WebSockets
+          .withUrl('https://amanaapi.alfakharco.com/datahub', {
+            transport: HttpTransportType.WebSockets,
           })
-          .configureLogging(LogLevel.Debug)
           .build();
 
         this.connection.onclose(() => {
@@ -30,8 +40,15 @@ export const useStationStore = defineStore('station', {
         });
 
         this.connection.on('ReceiveStationData', (station, latestPipesData) => {
-          this.stationData = station;
-          this.pipesData = station
+          // Only update if data is newer than what we have
+          if (
+            !this.lastUpdate ||
+            new Date(latestPipesData[0]?.timeStamp).getTime() > this.lastUpdate
+          ) {
+            this.stationData = station;
+            this.pipesData = latestPipesData;
+            this.lastUpdate = new Date().getTime();
+          }
         });
 
         await this.connection.start();
@@ -45,9 +62,27 @@ export const useStationStore = defineStore('station', {
       }
     },
 
-    // Add this method to set pipes data
     setPipesData(data) {
-      this.pipesData = Array.isArray(data) ? data : [data];
+      // Only update if data is newer than what we have
+      const newDataTimestamp = Array.isArray(data)
+        ? data[0]?.timeStamp
+        : data?.timeStamp;
+      if (
+        !this.lastUpdate ||
+        (newDataTimestamp &&
+          new Date(newDataTimestamp).getTime() > this.lastUpdate)
+      ) {
+        this.pipesData = Array.isArray(data) ? data : [data];
+        this.lastUpdate = new Date().getTime();
+      }
+    },
+
+    shouldRefreshData() {
+      if (!this.lastUpdate) return true;
+
+      // Refresh if data is older than 1 minute
+      const now = new Date().getTime();
+      return now - this.lastUpdate > 60 * 1000;
     },
   },
 });

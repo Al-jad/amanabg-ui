@@ -1,4 +1,4 @@
-import Aura from "@primevue/themes/aura";
+import Aura from '@primevue/themes/aura';
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     'nuxt3-leaflet',
     '@pinia/nuxt',
     '@nuxt/icon',
+    '@pinia-plugin-persistedstate/nuxt',
   ],
   primevue: {
     options: {
@@ -20,14 +21,11 @@ export default defineNuxtConfig({
   pinia: {
     autoImports: ['defineStore'],
     imports: {
-      dir: ['./stores']
-    }
+      dir: ['./stores'],
+    },
   },
-  css: [
-    '@/assets/css/main.css',
-    'primeicons/primeicons.css',
-  ],
+  css: ['@/assets/css/main.css', 'primeicons/primeicons.css'],
   build: {
-    transpile: ['echarts', 'vue-echarts']
-  }
-})
+    transpile: ['echarts', 'vue-echarts'],
+  },
+});
