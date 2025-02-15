@@ -148,7 +148,7 @@
       <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
         <div class="mb-4">
           <Button
-            :label="isExporting ? 'Exporting...' : 'Export to CSV'"
+            :label="isExporting ? 'Saving...' : 'Save as Excel'"
             :disabled="isExporting"
             class="!border-none !bg-DarkBlue !px-4 !py-2 !text-white disabled:!opacity-50"
             @click="exportToCSV"

@@ -1,122 +1,230 @@
 <template>
-  <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
-    <div class="bg-white p-4 pb-0 shadow sm:rounded-lg">
-      <div
-        class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between"
-      >
-        <div class="mb-4 flex text-nowrap sm:mb-0">
-          <div class="mb-8 flex flex-col items-start gap-4">
+  <div class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div class="rounded-xl bg-white p-6 shadow-lg">
+        <!-- Header Section -->
+        <div
+          class="mb-8 flex flex-col gap-6 sm:flex-col md:flex-row md:items-center md:justify-between"
+        >
+          <!-- Left Side -->
+          <div class="flex flex-col items-start gap-4">
             <NuxtLink
               to="/"
-              class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
+              class="group flex items-center text-DarkBlue transition-all duration-300 hover:translate-x-[-0.25rem]"
             >
               <Icon
                 name="mdi:arrow-left"
-                class="mr-2"
+                class="mr-2 transition-transform duration-300 group-hover:scale-110"
               />
-              Back
+              <span class="font-medium">Back to Dashboard</span>
             </NuxtLink>
-            <div class="flex items-center gap-2">
-              <Icon
-                name="fluent:water-16-filled"
-                class="mr-2 text-2xl text-blue-500"
-              />
-              <h1 class="text-xl font-bold text-black sm:text-lg">
+            <div class="flex items-center gap-3">
+              <div class="rounded-lg bg-blue-50 p-2">
+                <Icon
+                  name="fluent:water-16-filled"
+                  class="text-2xl text-blue-600"
+                />
+              </div>
+              <h1 class="text-2xl font-bold text-gray-900">
                 Discharge Monitoring Stations
               </h1>
             </div>
           </div>
-        </div>
-        <div class="flex justify-center">
-          <SelectButton
-            v-model="selectedView"
-            :options="viewOptions"
-            @change="handleViewChange"
-          >
-            <template #option="slotProps">
-              <div class="flex items-center">
-                <Icon
-                  :name="slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'"
-                  class="mr-2"
-                />
-                {{ slotProps.option }}
-              </div>
-            </template>
-          </SelectButton>
-        </div>
-      </div>
-      <div
-        class="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-3"
-      >
-        <template
-          v-for="item in filteredPipesData"
-          :key="item.stationId"
-        >
-          <!-- Station Card -->
-          <div
-            v-if="item.station.stationType === 0"
-            :class="[
-              'cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md',
-              new Date(item.timeStamp) > new Date(Date.now() - 10 * 60 * 1000)
-                ? 'card-active'
-                : '',
-            ]"
-            @click="onCardClick(item)"
-          >
-            <div class="mb-4 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Icon
-                  name="fluent:pipeline-32-filled"
-                  class="text-xl text-blue-500"
-                />
-                <h3 class="font-semibold text-gray-700">
-                  {{ item.station.name }}
-                </h3>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1">
-                  <div
-                    :class="[
-                      'h-2 w-2 rounded-full',
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'animate-live-pulse bg-green-500'
-                        : 'bg-red-500',
-                    ]"
-                  ></div>
-                  <span
-                    class="text-xs"
-                    :class="[
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'text-green-600'
-                        : 'text-red-600',
-                    ]"
-                  >
-                    {{
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'Active'
-                        : 'Inactive'
-                    }}
-                  </span>
+          <!-- Right Side -->
+          <div class="flex items-center justify-center">
+            <SelectButton
+              v-model="selectedView"
+              :options="viewOptions"
+              :pt="{
+                root: { class: '!shadow-md' },
+                button: { class: '!px-6 !py-2.5' },
+              }"
+              @change="handleViewChange"
+            >
+              <template #option="slotProps">
+                <div class="flex items-center gap-2">
+                  <Icon
+                    :name="
+                      slotProps.option === 'Table' ? 'mdi:table' : 'mdi:map'
+                    "
+                    class="text-lg"
+                  />
+                  {{ slotProps.option }}
                 </div>
-                <Icon
-                  name="mdi:information"
-                  class="cursor-pointer text-gray-400 hover:text-gray-600"
-                  :title="`Last updated: ${new Date(item.timeStamp).toLocaleString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric', year: 'numeric', month: 'numeric', day: 'numeric' })}`"
-                />
+              </template>
+            </SelectButton>
+          </div>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <template
+            v-for="item in filteredPipesData"
+            :key="item.stationId"
+          >
+            <!-- Station Card -->
+            <div
+              v-if="item.station.stationType === 0"
+              :class="[
+                'group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50',
+                new Date(item.timeStamp) > new Date(Date.now() - 10 * 60 * 1000)
+                  ? 'ring-1 ring-blue-100'
+                  : '',
+              ]"
+              @click="onCardClick(item)"
+            >
+              <!-- Card Header -->
+              <div class="mb-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="rounded-lg bg-blue-50 p-2 transition-colors duration-300 group-hover:bg-blue-100"
+                  >
+                    <Icon
+                      name="fluent:pipeline-32-filled"
+                      class="text-xl text-blue-600"
+                    />
+                  </div>
+                  <h3 class="font-semibold text-gray-800">
+                    {{ item.station.name }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div
+                    class="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-1"
+                  >
+                    <div
+                      :class="[
+                        'h-2 w-2 rounded-full',
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'animate-live-pulse bg-green-500'
+                          : 'bg-red-500',
+                      ]"
+                    ></div>
+                    <span
+                      class="text-xs font-medium"
+                      :class="[
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'text-green-700'
+                          : 'text-red-700',
+                      ]"
+                    >
+                      {{
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'Active'
+                          : 'Inactive'
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Content -->
+              <div class="grid grid-cols-2 gap-4">
+                <div
+                  class="rounded-lg bg-gray-50 p-4 transition-colors duration-300 group-hover:bg-blue-50"
+                >
+                  <p class="mb-1 text-xs font-medium text-gray-600">
+                    Discharge (m³/min)
+                  </p>
+                  <p class="text-lg font-semibold text-DarkBlue">
+                    {{
+                      item.dischargeInMinute
+                        ? Number(item.dischargeInMinute).toLocaleString(
+                            'en-US',
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )
+                        : '0.00'
+                    }}
+                  </p>
+                </div>
+                <div
+                  class="rounded-lg bg-gray-50 p-4 transition-colors duration-300 group-hover:bg-blue-50"
+                >
+                  <p class="mb-1 text-xs font-medium text-gray-600">
+                    Pressure (m)
+                  </p>
+                  <p class="text-lg font-semibold text-DarkBlue">
+                    {{
+                      item.pressure
+                        ? Number(item.pressure).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : '0.00'
+                    }}
+                  </p>
+                </div>
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div class="rounded bg-gray-50 p-3">
-                <p class="mb-1 text-xs font-medium text-gray-500">
-                  Discharge (m³/min)
+
+            <!-- Tank Card -->
+            <div
+              v-else
+              class="group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+              @click="onCardClick(item)"
+            >
+              <div class="mb-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="rounded-lg bg-blue-50 p-2 transition-colors duration-300 group-hover:bg-blue-100"
+                  >
+                    <Icon
+                      name="material-symbols:water-damage-rounded"
+                      class="text-xl text-blue-600"
+                    />
+                  </div>
+                  <h3 class="font-semibold text-gray-800">
+                    {{ item.station.name }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  <div
+                    class="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-1"
+                  >
+                    <div
+                      :class="[
+                        'h-2 w-2 rounded-full',
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'animate-live-pulse bg-green-500'
+                          : 'bg-red-500',
+                      ]"
+                    ></div>
+                    <span
+                      class="text-xs font-medium"
+                      :class="[
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'text-green-700'
+                          : 'text-red-700',
+                      ]"
+                    >
+                      {{
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'Active'
+                          : 'Inactive'
+                      }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="rounded-lg bg-gray-50 p-4 transition-colors duration-300 group-hover:bg-blue-50"
+              >
+                <p class="mb-1 text-xs font-medium text-gray-600">
+                  Water Level (m)
                 </p>
                 <p class="text-lg font-semibold text-DarkBlue">
                   {{
-                    item.dischargeInMinute
-                      ? Number(item.dischargeInMinute).toLocaleString('en-US', {
+                    item.waterLevel
+                      ? Number(item.waterLevel).toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })
@@ -124,155 +232,103 @@
                   }}
                 </p>
               </div>
-              <div class="rounded bg-gray-50 p-3">
-                <p class="mb-1 text-xs font-medium text-gray-500">
-                  Pressure (m)
-                </p>
-                <p class="text-lg font-semibold text-DarkBlue">
-                  {{
-                    item.pressure
-                      ? Number(item.pressure).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
-                      : '0.00'
-                  }}
-                </p>
-              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Table View -->
+        <div
+          v-if="selectedView === 'Table'"
+          class="rounded-xl border border-gray-100 bg-white shadow-sm"
+        >
+          <Table
+            v-if="!loading && filteredPipesData.length > 0"
+            :headers="headers"
+            :columns="columns"
+            :value="loading ? Array(10).fill({}) : formattedFilteredPipesData"
+            :loading="loading"
+            :current-page-report="false"
+            :pt="{
+              root: { class: '!rounded-xl !overflow-hidden' },
+              header: { class: '!bg-gray-50' },
+              headerCell: { class: '!py-4' },
+            }"
+            @row-click="onRowClick"
+          >
+            <template #loading>
+              <tr
+                v-for="i in 10"
+                :key="i"
+              >
+                <td
+                  v-for="col in columns"
+                  :key="col.field"
+                  class="p-4"
+                >
+                  <div class="h-4 animate-pulse rounded bg-gray-100"></div>
+                </td>
+              </tr>
+            </template>
+          </Table>
+
+          <!-- Loading State -->
+          <div
+            v-else-if="loading"
+            class="flex items-center justify-center p-8"
+          >
+            <div class="w-full space-y-4">
+              <div
+                v-for="i in 5"
+                :key="i"
+                class="h-12 animate-pulse rounded-lg bg-gray-100"
+              ></div>
             </div>
           </div>
-          <!-- Tank Card -->
+
+          <!-- Empty State -->
           <div
             v-else
-            class="cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
-            @click="onCardClick(item)"
+            class="flex items-center justify-center p-8"
           >
-            <div class="mb-4 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Icon
-                  name="material-symbols:water-damage-rounded"
-                  class="text-xl text-blue-500"
-                />
-                <h3 class="font-semibold text-gray-700">
-                  {{ item.station.name }}
-                </h3>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1">
-                  <div
-                    :class="[
-                      'h-2 w-2 rounded-full',
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'animate-live-pulse bg-green-500'
-                        : 'bg-red-500',
-                    ]"
-                  ></div>
-                  <span
-                    class="text-xs"
-                    :class="[
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'text-green-600'
-                        : 'text-red-600',
-                    ]"
-                  >
-                    {{
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'Active'
-                        : 'Inactive'
-                    }}
-                  </span>
-                </div>
-                <Icon
-                  name="mdi:information"
-                  class="cursor-pointer text-gray-400 hover:text-gray-600"
-                  :title="`Last updated: ${new Date(item.timeStamp).toLocaleString()}`"
-                />
-              </div>
-            </div>
-            <div class="rounded bg-gray-50 p-3">
-              <p class="mb-1 text-xs font-medium text-gray-500">
-                Water Level (m)
-              </p>
-              <p class="text-lg font-semibold text-DarkBlue">
-                {{
-                  item.waterLevel
-                    ? Number(item.waterLevel).toLocaleString('en-US', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                    : '0.00'
-                }}
-              </p>
+            <div class="text-center">
+              <Icon
+                name="mdi:database-off"
+                class="mb-3 text-4xl text-gray-400"
+              />
+              <p class="text-gray-600">No data available</p>
             </div>
           </div>
-        </template>
-      </div>
-      <div v-if="selectedView === 'Table'">
-        <Table
-          v-if="!loading && filteredPipesData.length > 0"
-          :headers="headers"
-          :columns="columns"
-          :value="loading ? Array(10).fill({}) : formattedFilteredPipesData"
-          :loading="loading"
-          :current-page-report="false"
-          @row-click="onRowClick"
-        >
-          <template #loading>
-            <tr
-              v-for="i in 10"
-              :key="i"
-            >
-              <td
-                v-for="col in columns"
-                :key="col.field"
-                class="p-3"
-              >
-                <div class="h-4 animate-pulse rounded bg-gray-200"></div>
-              </td>
-            </tr>
-          </template>
-        </Table>
-        <div
-          v-else-if="loading"
-          class="flex items-center justify-center p-4"
-        >
-          <div class="w-full">
-            <div
-              v-for="i in 5"
-              :key="i"
-              class="mb-4"
-            >
-              <div class="h-12 animate-pulse rounded bg-gray-200"></div>
-            </div>
-          </div>
-        </div>
-        <div
-          v-else
-          class="flex items-center justify-center"
-        >
-          <p class="text-gray-500">No data available</p>
-        </div>
-        <div class="py-4 text-sm">
-          <p>* Q ( m³/min ) = Total discharge in the last minute</p>
-          <p>* Q ( m³/h ) = Total discharge in the last hour</p>
-          <p>* Q ( m³/d ) = Total discharge in the last day</p>
-          <p>* P ( m ) = Water pressure in the pipe</p>
-          <p>* Cl⁺ ( mg/L ) = Chlorine level in the pipe</p>
-          <p>* Turb. ( NTU ) = Turbidity of water in the pipe</p>
-          <p>* TDS ( ppm ) = Total dissolved solids in the pipe</p>
-        </div>
-      </div>
 
-      <div v-else-if="selectedView === 'Map'">
-        <Map :stations="filteredMapStations" />
+          <!-- Table Legend -->
+          <div
+            class="space-y-2 border-t border-gray-100 bg-gray-50 p-6 text-sm text-gray-600"
+          >
+            <p>* Q ( m³/min ) = Total discharge in the last minute</p>
+            <p>* Q ( m³/h ) = Total discharge in the last hour</p>
+            <p>* Q ( m³/d ) = Total discharge in the last day</p>
+            <p>* P ( m ) = Water pressure in the pipe</p>
+            <p>* Cl⁺ ( mg/L ) = Chlorine level in the pipe</p>
+            <p>* Turb. ( NTU ) = Turbidity of water in the pipe</p>
+            <p>* TDS ( ppm ) = Total dissolved solids in the pipe</p>
+          </div>
+        </div>
+
+        <!-- Map View -->
         <div
-          v-if="filteredMapStations.length === 0"
-          class="mt-4 text-center text-gray-500"
+          v-else-if="selectedView === 'Map'"
+          class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
         >
-          No stations available for map view
+          <Map :stations="filteredMapStations" />
+          <div
+            v-if="filteredMapStations.length === 0"
+            class="mt-6 text-center"
+          >
+            <Icon
+              name="mdi:map-marker-off"
+              class="mb-3 text-4xl text-gray-400"
+            />
+            <p class="text-gray-600">No stations available for map view</p>
+          </div>
         </div>
       </div>
     </div>
@@ -565,8 +621,8 @@
 
   /* Enhanced live pulse animation */
   .animate-live-pulse {
-    animation: enhancedLivePulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+    animation: enhancedLivePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    box-shadow: 0 0 0.5rem rgba(34, 197, 94, 0.25);
   }
 
   @keyframes highlightFade {
@@ -606,16 +662,16 @@
 
   /* Custom styles for PrimeVue components */
   .p-togglebutton {
-    @apply !bg-DarkBlue !text-white;
+    @apply !bg-DarkBlue !text-white !transition-all !duration-300;
   }
   .p-togglebutton-checked::before {
     @apply !bg-DarkBlue !text-white;
   }
   .p-togglebutton-checked {
-    @apply !bg-DarkBlue/70 !text-white;
+    @apply !bg-DarkBlue/80 !text-white;
   }
   .p-select {
-    @apply !text-white;
+    @apply !text-white !transition-all !duration-300;
   }
 
   @keyframes livePulse {

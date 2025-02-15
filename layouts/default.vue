@@ -1,22 +1,24 @@
 <template>
   <div class="flex min-h-screen flex-col">
     <header class="w-full bg-DarkBlue text-white">
-      <div class="container mx-auto">
+      <div class="container mx-auto py-6 sm:py-3">
         <Menubar :pt="{ root: { class: '!bg-DarkBlue !border-none' } }">
           <template #start>
             <NuxtLink
               href="/"
               class="flex items-center transition-opacity duration-300 hover:opacity-60"
             >
-              <div class="mr-4">
+              <div class="mr-6">
                 <img
                   src="/assets/img/Amanat-Logo.png"
-                  class="h-12 w-12 rounded-full object-cover"
+                  class="h-14 w-14 scale-125 rounded-full object-cover"
                   alt="Baghdad Municipality Logo"
                 />
               </div>
               <div class="text-white">
-                <h1 class="text-xl font-semibold sm:text-base">Water Monitoring System</h1>
+                <h1 class="text-xl font-semibold sm:text-base">
+                  Water Monitoring System
+                </h1>
                 <p class="text-sm sm:block">Baghdad Mayoralty</p>
               </div>
             </NuxtLink>
@@ -33,7 +35,7 @@
               <div>
                 <img
                   src="/assets/img/MinisterLogo.png"
-                  class="h-12 w-12 object-cover"
+                  class="h-14 w-14 scale-125 object-cover"
                   alt="Minister's Council Logo"
                 />
               </div>
@@ -46,6 +48,6 @@
       <slot />
     </main>
     <!-- <PreFooter/> -->
-    <Footer/>
+    <Footer />
   </div>
 </template>
