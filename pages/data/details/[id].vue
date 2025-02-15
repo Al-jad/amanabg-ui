@@ -226,7 +226,7 @@
 
   const {
     data: storeData,
-    allData: storeAllData,
+    fullData: storeFullData,
     loading: dataLoading,
     error: dataError,
     pagination,
@@ -537,10 +537,10 @@
     });
   };
   const chartData = computed(() => {
-    if (!storeAllData.value?.data || !Array.isArray(storeAllData.value.data))
-      return [];
+    const data = storeFullData.value?.data || [];
+    if (!Array.isArray(data)) return [];
 
-    return storeAllData.value.data.map((item) => ({
+    return data.map((item) => ({
       ...item,
       timeStamp: new Date(item.date),
       tds: item.electricConductivity
@@ -581,7 +581,7 @@
     isExporting.value = true;
 
     try {
-      const data = storeAllData.value?.data;
+      const data = storeFullData.value?.data;
       if (!data || data.length === 0) return;
 
       // Process the complete dataset with the same transformations as filteredData
