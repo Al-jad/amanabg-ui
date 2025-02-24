@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-      <div class="rounded-xl bg-white p-6 shadow-lg">
+    <div class="container px-4 py-8 mx-auto sm:px-6 lg:px-8">
+      <div class="p-6 bg-white shadow-lg rounded-xl">
         <!-- Header Section -->
         <div
-          class="mb-8 flex flex-col gap-6 sm:flex-col md:flex-row md:items-center md:justify-between"
+          class="flex flex-col gap-6 mb-8 sm:flex-col md:flex-row md:items-center md:justify-between"
         >
           <!-- Left Side -->
           <div class="flex flex-col items-start gap-4">
@@ -19,7 +19,7 @@
               <span class="font-medium">Back to Dashboard</span>
             </NuxtLink>
             <div class="flex items-center gap-3">
-              <div class="rounded-lg bg-blue-50 p-2">
+              <div class="p-2 rounded-lg bg-blue-50">
                 <Icon
                   name="fluent:water-16-filled"
                   class="text-2xl text-blue-600"
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Cards Grid -->
-        <div class="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 mb-12 sm:grid-cols-2 lg:grid-cols-3">
           <template
             v-for="item in filteredPipesData"
             :key="item.stationId"
@@ -65,98 +65,88 @@
             <!-- Station Card -->
             <div
               v-if="item.station.stationType === 0"
-              :class="[
-                'group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50',
-                new Date(item.timeStamp) > new Date(Date.now() - 10 * 60 * 1000)
-                  ? 'ring-1 ring-blue-100'
-                  : '',
-              ]"
+              class="p-4 overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
               @click="onCardClick(item)"
             >
-              <!-- Card Header -->
-              <div class="mb-5 flex items-center justify-between">
-                <div class="flex items-center gap-3">
+              <!-- Card Header - Made more compact -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
                   <div
-                    class="rounded-lg bg-blue-50 p-2 transition-colors duration-300 group-hover:bg-blue-100"
+                    class="rounded-lg bg-blue-50 p-1.5 transition-colors duration-300 group-hover:bg-blue-100"
                   >
                     <Icon
                       name="fluent:pipeline-32-filled"
-                      class="text-xl text-blue-600"
+                      class="text-lg text-blue-600"
                     />
                   </div>
                   <h3 class="font-semibold text-gray-800">
                     {{ item.station.name }}
                   </h3>
                 </div>
-                <div class="flex items-center gap-2">
+                <div
+                  class="flex items-center gap-1.5 rounded-full bg-gray-50 px-2 py-0.5"
+                >
                   <div
-                    class="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-1"
+                    :class="[
+                      'h-1.5 w-1.5 rounded-full',
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 10 * 60 * 1000)
+                        ? 'animate-live-pulse bg-green-500'
+                        : 'bg-red-500',
+                    ]"
+                  ></div>
+                  <span
+                    class="text-xs font-medium"
+                    :class="[
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 10 * 60 * 1000)
+                        ? 'text-green-700'
+                        : 'text-red-700',
+                    ]"
                   >
-                    <div
-                      :class="[
-                        'h-2 w-2 rounded-full',
-                        new Date(item.timeStamp) >
-                        new Date(Date.now() - 10 * 60 * 1000)
-                          ? 'animate-live-pulse bg-green-500'
-                          : 'bg-red-500',
-                      ]"
-                    ></div>
-                    <span
-                      class="text-xs font-medium"
-                      :class="[
-                        new Date(item.timeStamp) >
-                        new Date(Date.now() - 10 * 60 * 1000)
-                          ? 'text-green-700'
-                          : 'text-red-700',
-                      ]"
-                    >
-                      {{
-                        new Date(item.timeStamp) >
-                        new Date(Date.now() - 10 * 60 * 1000)
-                          ? 'Active'
-                          : 'Inactive'
-                      }}
-                    </span>
-                  </div>
+                    {{
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 10 * 60 * 1000)
+                        ? 'Active'
+                        : 'Inactive'
+                    }}
+                  </span>
                 </div>
               </div>
 
-              <!-- Card Content -->
-              <div class="grid grid-cols-2 gap-4">
+              <!-- Card Content - Made more compact -->
+              <div class="grid grid-cols-2 gap-2">
                 <div
-                  class="rounded-lg bg-gray-50 p-4 transition-colors duration-300 group-hover:bg-blue-50"
+                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
                 >
-                  <p class="mb-1 text-xs font-medium text-gray-600">
-                    Discharge (m³/min)
-                  </p>
-                  <p class="text-lg font-semibold text-DarkBlue">
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-gray-600">Q (m³/min)</p>
+                    <Icon
+                      name="mdi:pump"
+                      class="text-sm text-blue-500"
+                    />
+                  </div>
+                  <p class="mt-1 text-base font-semibold text-DarkBlue">
                     {{
                       item.dischargeInMinute
-                        ? Number(item.dischargeInMinute).toLocaleString(
-                            'en-US',
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          )
+                        ? Number(item.dischargeInMinute).toFixed(2)
                         : '0.00'
                     }}
                   </p>
                 </div>
                 <div
-                  class="rounded-lg bg-gray-50 p-4 transition-colors duration-300 group-hover:bg-blue-50"
+                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
                 >
-                  <p class="mb-1 text-xs font-medium text-gray-600">
-                    Pressure (m)
-                  </p>
-                  <p class="text-lg font-semibold text-DarkBlue">
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-gray-600">P (m)</p>
+                    <Icon
+                      name="mdi:gauge"
+                      class="text-sm text-blue-500"
+                    />
+                  </div>
+                  <p class="mt-1 text-base font-semibold text-DarkBlue">
                     {{
-                      item.pressure
-                        ? Number(item.pressure).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : '0.00'
+                      item.pressure ? Number(item.pressure).toFixed(2) : '0.00'
                     }}
                   </p>
                 </div>
@@ -166,71 +156,111 @@
             <!-- Tank Card -->
             <div
               v-else
-              class="group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+              class="p-4 overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
               @click="onCardClick(item)"
             >
-              <div class="mb-5 flex items-center justify-between">
-                <div class="flex items-center gap-3">
+              <!-- Card Header - Made more compact -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
                   <div
-                    class="rounded-lg bg-blue-50 p-2 transition-colors duration-300 group-hover:bg-blue-100"
+                    class="rounded-lg bg-blue-50 p-1.5 transition-colors duration-300 group-hover:bg-blue-100"
                   >
                     <Icon
                       name="material-symbols:water-damage-rounded"
-                      class="text-xl text-blue-600"
+                      class="text-lg text-blue-600"
                     />
                   </div>
                   <h3 class="font-semibold text-gray-800">
                     {{ item.station.name }}
                   </h3>
                 </div>
-                <div class="flex items-center gap-2">
+                <div
+                  class="flex items-center gap-1.5 rounded-full bg-gray-50 px-2 py-0.5"
+                >
                   <div
-                    class="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-1"
+                    :class="[
+                      'h-1.5 w-1.5 rounded-full',
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 10 * 60 * 1000)
+                        ? 'animate-live-pulse bg-green-500'
+                        : 'bg-red-500',
+                    ]"
+                  ></div>
+                  <span
+                    class="text-xs font-medium"
+                    :class="[
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 10 * 60 * 1000)
+                        ? 'text-green-700'
+                        : 'text-red-700',
+                    ]"
                   >
-                    <div
-                      :class="[
-                        'h-2 w-2 rounded-full',
-                        new Date(item.timeStamp) >
-                        new Date(Date.now() - 10 * 60 * 1000)
-                          ? 'animate-live-pulse bg-green-500'
-                          : 'bg-red-500',
-                      ]"
-                    ></div>
-                    <span
-                      class="text-xs font-medium"
-                      :class="[
-                        new Date(item.timeStamp) >
-                        new Date(Date.now() - 10 * 60 * 1000)
-                          ? 'text-green-700'
-                          : 'text-red-700',
-                      ]"
-                    >
-                      {{
-                        new Date(item.timeStamp) >
-                        new Date(Date.now() - 10 * 60 * 1000)
-                          ? 'Active'
-                          : 'Inactive'
-                      }}
-                    </span>
-                  </div>
+                    {{
+                      new Date(item.timeStamp) >
+                      new Date(Date.now() - 10 * 60 * 1000)
+                        ? 'Active'
+                        : 'Inactive'
+                    }}
+                  </span>
                 </div>
               </div>
-              <div
-                class="rounded-lg bg-gray-50 p-4 transition-colors duration-300 group-hover:bg-blue-50"
-              >
-                <p class="mb-1 text-xs font-medium text-gray-600">
-                  Water Level (m)
-                </p>
-                <p class="text-lg font-semibold text-DarkBlue">
-                  {{
-                    item.waterLevel
-                      ? Number(item.waterLevel).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
-                      : '0.00'
-                  }}
-                </p>
+
+              <!-- Card Content - Made more compact -->
+              <div class="grid grid-cols-3 gap-2">
+                <div
+                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
+                >
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-gray-600">WL (m)</p>
+                    <Icon
+                      name="mdi:water-percent"
+                      class="text-sm text-blue-500"
+                    />
+                  </div>
+                  <p class="mt-1 text-base font-semibold text-DarkBlue">
+                    {{
+                      item.waterLevel
+                        ? Number(item.waterLevel).toFixed(2)
+                        : '0.00'
+                    }}
+                  </p>
+                </div>
+                <div
+                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
+                >
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-gray-600">WL %</p>
+                    <Icon
+                      name="mdi:percent"
+                      class="text-sm text-blue-500"
+                    />
+                  </div>
+                  <p class="mt-1 text-base font-semibold text-DarkBlue">
+                    {{
+                      item.waterLevel
+                        ? ((Number(item.waterLevel) / 6) * 100).toFixed(2)
+                        : '0.00'
+                    }}%
+                  </p>
+                </div>
+                <div
+                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
+                >
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-gray-600">Vol. (m³)</p>
+                    <Icon
+                      name="mdi:cube-outline"
+                      class="text-sm text-blue-500"
+                    />
+                  </div>
+                  <p class="mt-1 text-base font-semibold text-DarkBlue">
+                    {{
+                      item.waterLevel
+                        ? (Number(item.waterLevel) * 170 * 250).toFixed(2)
+                        : '0.00'
+                    }}
+                  </p>
+                </div>
               </div>
             </div>
           </template>
@@ -239,7 +269,7 @@
         <!-- Table View -->
         <div
           v-if="selectedView === 'Table'"
-          class="rounded-xl border border-gray-100 bg-white shadow-sm"
+          class="bg-white border border-gray-100 shadow-sm rounded-xl"
         >
           <Table
             v-if="!loading && filteredPipesData.length > 0"
@@ -265,7 +295,7 @@
                   :key="col.field"
                   class="p-4"
                 >
-                  <div class="h-4 animate-pulse rounded bg-gray-100"></div>
+                  <div class="h-4 bg-gray-100 rounded animate-pulse"></div>
                 </td>
               </tr>
             </template>
@@ -280,7 +310,7 @@
               <div
                 v-for="i in 5"
                 :key="i"
-                class="h-12 animate-pulse rounded-lg bg-gray-100"
+                class="h-12 bg-gray-100 rounded-lg animate-pulse"
               ></div>
             </div>
           </div>
@@ -301,7 +331,7 @@
 
           <!-- Table Legend -->
           <div
-            class="space-y-2 border-t border-gray-100 bg-gray-50 p-6 text-sm text-gray-600"
+            class="p-6 space-y-2 text-sm text-gray-600 border-t border-gray-100 bg-gray-50"
           >
             <p>* Q ( m³/min ) = Total discharge in the last minute</p>
             <p>* Q ( m³/h ) = Total discharge in the last hour</p>
@@ -316,7 +346,7 @@
         <!-- Map View -->
         <div
           v-else-if="selectedView === 'Map'"
-          class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
+          class="p-6 bg-white border border-gray-100 shadow-sm rounded-xl"
         >
           <Map :stations="filteredMapStations" />
           <div
@@ -406,7 +436,14 @@
     { header: 'Q *', sortable: true, field: 'dischargeInHour', unit: 'm³/h' },
     { header: 'Q *', sortable: true, field: 'dischargeInDay', unit: 'm³/d' },
     { header: 'P *', sortable: true, field: 'pressure', unit: 'm' },
-    { header: 'Water Level', sortable: true, field: 'waterLevel', unit: 'm' },
+    { header: 'WL (m)', sortable: true, field: 'waterLevel', unit: 'm' },
+    {
+      header: 'WL %',
+      sortable: true,
+      field: 'waterLevelPercentage',
+      unit: '%',
+    },
+    { header: 'Total Vol.', sortable: true, field: 'totalVolume', unit: 'm³' },
     { header: 'Temp', sortable: true, field: 'temperature', unit: 'C' },
     { header: 'Cl⁺ *', sortable: true, field: 'cl', unit: 'mg/L' },
     { header: 'Turb *', sortable: true, field: 'turbidity', unit: 'NTU' },
@@ -434,6 +471,10 @@
   const formattedFilteredPipesData = computed(() => {
     return filteredPipesData.value.map((item) => {
       const date = new Date(item?.timeStamp);
+      const waterLevel = Number(item?.waterLevel) || 0;
+      const waterLevelPercentage = ((waterLevel / 6) * 100).toFixed(2);
+      const totalVolume = (waterLevel * 170 * 250).toFixed(2);
+
       return {
         ...item,
         stationName: item?.station?.name,
@@ -477,6 +518,8 @@
               maximumFractionDigits: 2,
             })
           : '0.00',
+        waterLevelPercentage: `${waterLevelPercentage}`,
+        totalVolume: totalVolume,
         temperature: item?.temperature
           ? Number(item.temperature).toLocaleString('en-US', {
               minimumFractionDigits: 2,

@@ -1,14 +1,14 @@
 <template>
-  <div class="container px-4 py-8 mx-auto sm:px-4 lg:px-8">
-    <div class="p-4 bg-white shadow sm:rounded-lg">
+  <div class="container mx-auto px-4 py-8 sm:px-4 lg:px-8">
+    <div class="bg-white p-4 shadow sm:rounded-lg">
       <div
-        class="flex flex-col mb-8 sm:flex-col md:flex-row md:items-center md:justify-between"
+        class="mb-8 flex flex-col sm:flex-col md:flex-row md:items-center md:justify-between"
       >
-        <div class="flex mb-4 text-nowrap md:mb-0">
-          <div class="flex flex-col items-start gap-4 mb-8">
+        <div class="mb-4 flex text-nowrap md:mb-0">
+          <div class="mb-8 flex flex-col items-start gap-4">
             <NuxtLink
               to="/"
-              class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80"
+              class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
             >
               <Icon
                 name="mdi:arrow-left"
@@ -132,7 +132,7 @@
     },
     {
       text: 'Last Measurement',
-      colspan: 6,
+      colspan: 4,
       class:
         '!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white',
     },
@@ -141,8 +141,9 @@
     { header: 'ID', sortable: true, field: 'tankId' },
     { header: 'Name', sortable: true, field: 'tankName' },
     { header: 'Date & Time', sortable: true, field: 'date' },
-    { header: 'Level (m)', sortable: true, field: 'level' },
-    { header: 'Volume (m³)', sortable: true, field: 'currentVolume' },
+    { header: 'WL (m)', sortable: true, field: 'level' },
+    { header: 'WL %', sortable: true, field: 'waterLevelPercentage' },
+    { header: 'Total Volume (m³)', sortable: true, field: 'totalVolume' },
   ].map((column) => ({
     ...column,
     class: '!bg-DarkBlue !outline !outline-1 !outline-white !text-white',
@@ -179,6 +180,10 @@
   const formattedFilteredTanksData = computed(() => {
     return filteredTanksData.value.map((item) => {
       const date = new Date(item.timeStamp);
+      const waterLevel = Number(item.level) || 0;
+      const waterLevelPercentage = ((waterLevel / 6) * 100).toFixed(2);
+      const totalVolume = (waterLevel * 170 * 250).toFixed(2);
+
       return {
         ...item,
         tankName: item.tank.name,
@@ -190,6 +195,9 @@
           minute: '2-digit',
           hour12: true,
         }),
+        level: waterLevel.toFixed(2),
+        waterLevelPercentage: `${waterLevelPercentage}%`,
+        totalVolume: totalVolume,
       };
     });
   });

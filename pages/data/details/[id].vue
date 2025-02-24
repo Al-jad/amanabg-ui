@@ -1,44 +1,44 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container px-4 py-8 mx-auto">
     <div v-if="dataLoading">
       <!-- Skeleton Loading State -->
       <div class="flex flex-col gap-8">
         <!-- Back Button Skeleton -->
-        <div class="h-6 w-32 animate-pulse rounded bg-gray-200"></div>
+        <div class="w-32 h-6 bg-gray-200 rounded animate-pulse"></div>
 
         <!-- Header Section Skeleton -->
         <div class="flex flex-col gap-4">
           <div class="flex justify-between sm:flex-col sm:gap-4">
             <!-- Station Name Skeleton -->
-            <div class="h-8 w-64 animate-pulse rounded bg-gray-200"></div>
+            <div class="w-64 h-8 bg-gray-200 rounded animate-pulse"></div>
 
             <!-- Date Picker Skeleton -->
             <div class="flex items-center gap-4 sm:flex-col">
               <div class="flex gap-2">
-                <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
-                <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
+                <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
               </div>
-              <div class="h-8 w-20 animate-pulse rounded bg-gray-200"></div>
+              <div class="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
             </div>
           </div>
 
           <!-- Duration Buttons Skeleton -->
           <div class="flex gap-2">
-            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
-            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
-            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
+            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
           </div>
         </div>
 
         <!-- Table Skeleton -->
-        <div class="rounded-lg bg-white p-4 shadow-lg">
+        <div class="p-4 bg-white rounded-lg shadow-lg">
           <div class="flex flex-col gap-4">
             <!-- Table Header Skeleton -->
             <div class="grid grid-cols-8 gap-4">
               <div
                 v-for="i in 8"
                 :key="`header-${i}`"
-                class="h-10 animate-pulse rounded bg-gray-200"
+                class="h-10 bg-gray-200 rounded animate-pulse"
               ></div>
             </div>
             <!-- Table Rows Skeleton -->
@@ -50,7 +50,7 @@
               <div
                 v-for="col in 8"
                 :key="`cell-${row}-${col}`"
-                class="h-8 animate-pulse rounded bg-gray-200"
+                class="h-8 bg-gray-200 rounded animate-pulse"
               ></div>
             </div>
           </div>
@@ -67,10 +67,10 @@
       <p class="text-lg font-semibold">{{ dataError }}</p>
     </div>
     <div v-else-if="filteredData && filteredData.length > 0">
-      <div class="mb-8 flex flex-col items-start gap-4">
+      <div class="flex flex-col items-start gap-4 mb-8">
         <NuxtLink
           to="/data/pipes-water"
-          class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
+          class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80"
         >
           <Icon
             name="mdi:arrow-left"
@@ -80,10 +80,10 @@
         </NuxtLink>
 
         <div
-          class="flex w-full flex-col items-start justify-between gap-4 p-6 py-2 sm:p-4 sm:py-1"
+          class="flex flex-col items-start justify-between w-full gap-4 p-6 py-2 sm:p-4 sm:py-1"
         >
           <div
-            class="flex w-full items-center justify-between sm:flex-col sm:items-stretch sm:gap-4"
+            class="flex items-center justify-between w-full sm:flex-col sm:items-stretch sm:gap-4"
           >
             <h1 class="text-xl font-bold text-gray-800 sm:text-left">
               {{ stationName || 'Station name not found' }}
@@ -145,7 +145,7 @@
           </div>
         </div>
       </div>
-      <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
+      <div class="p-4 bg-white rounded-lg shadow-lg sm:p-4">
         <div class="mb-4">
           <Button
             :label="isExporting ? 'Saving...' : 'Save as Excel'"
@@ -178,7 +178,7 @@
                 :key="col.field"
                 class="p-3"
               >
-                <div class="h-4 animate-pulse rounded bg-gray-200"></div>
+                <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
               </td>
             </tr>
           </template>
@@ -195,9 +195,10 @@
       <EChart
         v-if="chartData.length > 0"
         :hourlyData="chartData"
-        :includeTDS="true"
+        :includeTDS="stationType === 0"
         :paramNames="paramNames"
         :units="units"
+        :availableParams="availableParams"
         v-model:selectedParam="selectedParam"
       />
     </div>
@@ -261,6 +262,14 @@
       short: 'WL',
       full: 'Water Level',
     },
+    waterLevelPercentage: {
+      short: 'WL %',
+      full: 'Water Level Percentage',
+    },
+    totalVolume: {
+      short: 'Vol.',
+      full: 'Total Volume',
+    },
     pressure: {
       short: 'P',
       full: 'Pressure',
@@ -282,6 +291,37 @@
       full: 'Temperature',
     },
   };
+  const tankColumns = [
+    {
+      header: 'WL (m)',
+      sortable: true,
+      field: 'waterLevel',
+      unit: 'm',
+      defaultValue: 0,
+    },
+    {
+      header: 'WL %',
+      sortable: true,
+      field: 'waterLevelPercentage',
+      unit: '%',
+      defaultValue: 0,
+      body: (rowData) => {
+        const wl = Number(rowData.waterLevel) || 0;
+        return `${((wl / 6) * 100).toFixed(2)}%`;
+      },
+    },
+    {
+      header: 'Total Vol.',
+      sortable: true,
+      field: 'totalVolume',
+      unit: 'm³',
+      defaultValue: 0,
+      body: (rowData) => {
+        const wl = Number(rowData.waterLevel) || 0;
+        return (wl * 170 * 250).toFixed(2);
+      },
+    },
+  ];
   const columns = computed(() => {
     const stationType = parseInt(localStorage.getItem('stationType') || '0');
 
@@ -305,23 +345,6 @@
             : selectedDuration.value === 1
               ? 'm³/h'
               : 'm³/d',
-        defaultValue: 0,
-      },
-    ];
-
-    const tankColumns = [
-      {
-        header: 'Level',
-        sortable: true,
-        field: 'waterLevel',
-        unit: 'm',
-        defaultValue: 0,
-      },
-      {
-        header: 'Volume',
-        sortable: true,
-        field: 'currentVolume',
-        unit: 'm³',
         defaultValue: 0,
       },
     ];
@@ -369,8 +392,7 @@
 
     const finalColumns = [
       ...baseColumns,
-      ...(stationType === 0 ? stationColumns : []),
-      ...(stationType === 1 ? tankColumns : []),
+      ...(stationType === 1 ? tankColumns : stationColumns),
       ...commonColumns,
       ...(stationType === 0 ? waterQualityColumns : []),
     ];
@@ -425,6 +447,8 @@
     tds: 'ppm',
     temp: 'C',
     waterLevel: 'm',
+    waterLevelPercentage: '%',
+    totalVolume: 'm³',
   };
   const filteredData = computed(() => {
     const data = storeData.value?.data || [];
@@ -515,7 +539,30 @@
     }
   });
 
-  const selectedParam = ref('discharge');
+  const selectedParam = computed(() => {
+    const stationType = parseInt(localStorage.getItem('stationType') || '0');
+    if (stationType === 1) {
+      return 'waterLevel'; // Default to water level for tanks
+    }
+    return 'discharge'; // Default to discharge for pipes
+  });
+
+  const availableParams = computed(() => {
+    const stationType = parseInt(localStorage.getItem('stationType') || '0');
+
+    if (stationType === 1) {
+      return [
+        'waterLevel',
+        'waterLevelPercentage',
+        'totalVolume',
+        'temperature',
+        'pressure',
+      ];
+    }
+
+    return ['discharge', 'pressure', 'temperature', 'cl', 'turbidity', 'tds'];
+  });
+
   const handleDurationChange = async (duration) => {
     if (duration === selectedDuration.value) return; // Prevent unnecessary updates
     selectedDuration.value = duration;
@@ -550,6 +597,12 @@
       pressure: item.pressure || 0,
       temp: item.temperature || 0,
       waterLevel: item.waterLevel || 0,
+      waterLevelPercentage: item.waterLevel
+        ? ((Number(item.waterLevel) / 6) * 100).toFixed(2)
+        : 0,
+      totalVolume: item.waterLevel
+        ? (Number(item.waterLevel) * 170 * 250).toFixed(2)
+        : 0,
     }));
   });
   const isExporting = ref(false);
@@ -667,6 +720,12 @@
     } finally {
       isExporting.value = false;
     }
+  };
+
+  // Add a helper function for consistent number formatting
+  const formatNumber = (value) => {
+    if (!value || isNaN(value)) return '0.00';
+    return Number(value).toFixed(2);
   };
 </script>
 <style>
