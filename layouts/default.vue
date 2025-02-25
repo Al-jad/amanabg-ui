@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen flex-col">
     <header class="w-full bg-DarkBlue text-white">
-      <div class="container mx-auto py-6 sm:py-3">
+      <div class="container mx-auto py-2 sm:py-3">
         <Menubar :pt="{ root: { class: '!bg-DarkBlue !border-none' } }">
           <template #start>
             <NuxtLink

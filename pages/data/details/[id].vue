@@ -1,44 +1,44 @@
 <template>
-  <div class="container px-4 py-8 mx-auto">
+  <div class="container mx-auto px-4 py-8">
     <div v-if="dataLoading">
       <!-- Skeleton Loading State -->
       <div class="flex flex-col gap-8">
         <!-- Back Button Skeleton -->
-        <div class="w-32 h-6 bg-gray-200 rounded animate-pulse"></div>
+        <div class="h-6 w-32 animate-pulse rounded bg-gray-200"></div>
 
         <!-- Header Section Skeleton -->
         <div class="flex flex-col gap-4">
           <div class="flex justify-between sm:flex-col sm:gap-4">
             <!-- Station Name Skeleton -->
-            <div class="w-64 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div class="h-8 w-64 animate-pulse rounded bg-gray-200"></div>
 
             <!-- Date Picker Skeleton -->
             <div class="flex items-center gap-4 sm:flex-col">
               <div class="flex gap-2">
-                <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
-                <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
+                <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
               </div>
-              <div class="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+              <div class="h-8 w-20 animate-pulse rounded bg-gray-200"></div>
             </div>
           </div>
 
           <!-- Duration Buttons Skeleton -->
           <div class="flex gap-2">
-            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
-            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
-            <div class="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
+            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
+            <div class="h-8 w-24 animate-pulse rounded bg-gray-200"></div>
           </div>
         </div>
 
         <!-- Table Skeleton -->
-        <div class="p-4 bg-white rounded-lg shadow-lg">
+        <div class="rounded-lg bg-white p-4 shadow-lg">
           <div class="flex flex-col gap-4">
             <!-- Table Header Skeleton -->
             <div class="grid grid-cols-8 gap-4">
               <div
                 v-for="i in 8"
                 :key="`header-${i}`"
-                class="h-10 bg-gray-200 rounded animate-pulse"
+                class="h-10 animate-pulse rounded bg-gray-200"
               ></div>
             </div>
             <!-- Table Rows Skeleton -->
@@ -50,7 +50,7 @@
               <div
                 v-for="col in 8"
                 :key="`cell-${row}-${col}`"
-                class="h-8 bg-gray-200 rounded animate-pulse"
+                class="h-8 animate-pulse rounded bg-gray-200"
               ></div>
             </div>
           </div>
@@ -67,10 +67,10 @@
       <p class="text-lg font-semibold">{{ dataError }}</p>
     </div>
     <div v-else-if="filteredData && filteredData.length > 0">
-      <div class="flex flex-col items-start gap-4 mb-8">
+      <div class="mb-8 flex flex-col items-start gap-4">
         <NuxtLink
           to="/data/pipes-water"
-          class="flex items-center transition-colors duration-300 text-DarkBlue hover:text-DarkBlue/80"
+          class="flex items-center text-DarkBlue transition-colors duration-300 hover:text-DarkBlue/80"
         >
           <Icon
             name="mdi:arrow-left"
@@ -80,10 +80,10 @@
         </NuxtLink>
 
         <div
-          class="flex flex-col items-start justify-between w-full gap-4 p-6 py-2 sm:p-4 sm:py-1"
+          class="flex w-full flex-col items-start justify-between gap-4 p-6 py-2 sm:p-4 sm:py-1"
         >
           <div
-            class="flex items-center justify-between w-full sm:flex-col sm:items-stretch sm:gap-4"
+            class="flex w-full items-center justify-between sm:flex-col sm:items-stretch sm:gap-4"
           >
             <h1 class="text-xl font-bold text-gray-800 sm:text-left">
               {{ stationName || 'Station name not found' }}
@@ -145,7 +145,7 @@
           </div>
         </div>
       </div>
-      <div class="p-4 bg-white rounded-lg shadow-lg sm:p-4">
+      <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
         <div class="mb-4">
           <Button
             :label="isExporting ? 'Saving...' : 'Save as Excel'"
@@ -178,7 +178,7 @@
                 :key="col.field"
                 class="p-3"
               >
-                <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div class="h-4 animate-pulse rounded bg-gray-200"></div>
               </td>
             </tr>
           </template>
@@ -263,7 +263,7 @@
       full: 'Water Level',
     },
     waterLevelPercentage: {
-      short: 'WL %',
+      short: 'WL%',
       full: 'Water Level Percentage',
     },
     totalVolume: {
@@ -450,79 +450,96 @@
     waterLevelPercentage: '%',
     totalVolume: 'm³',
   };
+  const stationType = ref(0);
   const filteredData = computed(() => {
     const data = storeData.value?.data || [];
+    const stationType = parseInt(localStorage.getItem('stationType') || '0');
 
     if (!Array.isArray(data)) return [];
 
-    return data.map((item) => ({
-      ...item,
-      dateTime: `${new Date(item.date).toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      })}\n${new Date(item.date).toLocaleString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      })}`,
-      timeStamp: new Date(item.date),
-      discharge: item.discharge
-        ? Number(item.discharge).toLocaleString('en-US', {
+    return data.map((item) => {
+      const baseData = {
+        dateTime: `${new Date(item.date).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })}\n${new Date(item.date).toLocaleString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        })}`,
+        timeStamp: new Date(item.date),
+        temperature: item.temperature
+          ? Number(item.temperature).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '0.00',
+        pressure: item.pressure
+          ? Number(item.pressure).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '0.00',
+      };
+
+      if (stationType === 1) {
+        // Tank calculations
+        const waterLevel = Number(item.waterLevel) || 0;
+        const waterLevelPercentage = ((waterLevel / 6) * 100).toFixed(2);
+        const totalVolume = (waterLevel * 170 * 250).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+
+        return {
+          ...baseData,
+          waterLevel: waterLevel.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-          })
-        : '-',
-      pressure: item.pressure
-        ? Number(item.pressure).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '-',
-      temperature: item.temperature
-        ? Number(item.temperature).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      cl: item.cl
-        ? Number(item.cl).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      turbidity: item.turbidity
-        ? Number(item.turbidity).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      tds: item.electricConductivity
-        ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      waterLevel: item.waterLevel
-        ? Number(item.waterLevel).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-      currentVolume: item.currentVolume
-        ? Number(item.currentVolume).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '0.00',
-    }));
+          }),
+          waterLevelPercentage: `${waterLevelPercentage}%`,
+          totalVolume: totalVolume,
+        };
+      } else {
+        // Pipe station data
+        return {
+          ...baseData,
+          discharge: item.discharge
+            ? Number(item.discharge).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          cl: item.cl
+            ? Number(item.cl).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          turbidity: item.turbidity
+            ? Number(item.turbidity).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          tds: item.electricConductivity
+            ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+        };
+      }
+    });
   });
   const stationName = ref('N/A');
   const stationCity = ref('N/A');
   onMounted(() => {
     if (process.client) {
-      stationName.value = window.localStorage.getItem('stationName') || 'N/A';
-      stationCity.value = window.localStorage.getItem('stationCity') || 'N/A';
+      stationName.value = localStorage.getItem('stationName') || 'N/A';
+      stationCity.value = localStorage.getItem('stationCity') || 'N/A';
+      stationType.value = parseInt(localStorage.getItem('stationType') || '0');
 
       // Only fetch if we don't have cached data
       const stationId = parseInt(route.params.id, 10);
@@ -539,18 +556,18 @@
     }
   });
 
-  const selectedParam = computed(() => {
-    const stationType = parseInt(localStorage.getItem('stationType') || '0');
-    if (stationType === 1) {
-      return 'waterLevel'; // Default to water level for tanks
-    }
-    return 'discharge'; // Default to discharge for pipes
-  });
+  const selectedParam = ref('discharge');
+
+  watch(
+    stationType,
+    (newType) => {
+      selectedParam.value = newType === 1 ? 'waterLevel' : 'discharge';
+    },
+    { immediate: true }
+  );
 
   const availableParams = computed(() => {
-    const stationType = parseInt(localStorage.getItem('stationType') || '0');
-
-    if (stationType === 1) {
+    if (stationType.value === 1) {
       return [
         'waterLevel',
         'waterLevelPercentage',
@@ -587,23 +604,79 @@
     const data = storeFullData.value?.data || [];
     if (!Array.isArray(data)) return [];
 
-    return data.map((item) => ({
-      ...item,
-      timeStamp: new Date(item.date),
-      tds: item.electricConductivity
-        ? (item.electricConductivity * 0.65).toFixed(2)
-        : 0,
-      q: item.discharge || 0,
-      pressure: item.pressure || 0,
-      temp: item.temperature || 0,
-      waterLevel: item.waterLevel || 0,
-      waterLevelPercentage: item.waterLevel
-        ? ((Number(item.waterLevel) / 6) * 100).toFixed(2)
-        : 0,
-      totalVolume: item.waterLevel
-        ? (Number(item.waterLevel) * 170 * 250).toFixed(2)
-        : 0,
-    }));
+    return data.map((item) => {
+      const baseData = {
+        timeStamp: new Date(item.date),
+        pressure: item.pressure
+          ? Number(item.pressure).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '0.00',
+        temp: item.temperature
+          ? Number(item.temperature).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '0.00',
+      };
+
+      if (stationType.value === 1) {
+        // Tank-specific data
+        const waterLevel = Number(item.waterLevel || 0);
+        const waterLevelFormatted = waterLevel.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+        const waterLevelPercentage = ((waterLevel / 6) * 100).toLocaleString(
+          'en-US',
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }
+        );
+        const totalVolume = (waterLevel * 170 * 250).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+
+        return {
+          ...baseData,
+          waterLevel: waterLevelFormatted,
+          waterLevelPercentage: waterLevelPercentage,
+          totalVolume: totalVolume,
+        };
+      } else {
+        // Pipe station data
+        return {
+          ...baseData,
+          q: item.discharge
+            ? Number(item.discharge).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          tds: item.electricConductivity
+            ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          turbidity: item.turbidity
+            ? Number(item.turbidity).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+          cl: item.cl
+            ? Number(item.cl).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '0.00',
+        };
+      }
+    });
   });
   const isExporting = ref(false);
 

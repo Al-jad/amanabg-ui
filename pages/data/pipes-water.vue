@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container px-4 py-8 mx-auto sm:px-6 lg:px-8">
-      <div class="p-6 bg-white shadow-lg rounded-xl">
+    <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div class="rounded-xl bg-white p-6 shadow-lg">
         <!-- Header Section -->
         <div
-          class="flex flex-col gap-6 mb-8 sm:flex-col md:flex-row md:items-center md:justify-between"
+          class="mb-8 flex flex-col gap-6 sm:flex-col md:flex-row md:items-center md:justify-between"
         >
           <!-- Left Side -->
           <div class="flex flex-col items-start gap-4">
@@ -19,7 +19,7 @@
               <span class="font-medium">Back to Dashboard</span>
             </NuxtLink>
             <div class="flex items-center gap-3">
-              <div class="p-2 rounded-lg bg-blue-50">
+              <div class="rounded-lg bg-blue-50 p-2">
                 <Icon
                   name="fluent:water-16-filled"
                   class="text-2xl text-blue-600"
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Cards Grid -->
-        <div class="grid grid-cols-1 gap-6 mb-12 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <template
             v-for="item in filteredPipesData"
             :key="item.stationId"
@@ -65,11 +65,11 @@
             <!-- Station Card -->
             <div
               v-if="item.station.stationType === 0"
-              class="p-4 overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+              class="group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
               @click="onCardClick(item)"
             >
               <!-- Card Header - Made more compact -->
-              <div class="flex items-center justify-between mb-3">
+              <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div
                     class="rounded-lg bg-blue-50 p-1.5 transition-colors duration-300 group-hover:bg-blue-100"
@@ -129,7 +129,13 @@
                   <p class="mt-1 text-base font-semibold text-DarkBlue">
                     {{
                       item.dischargeInMinute
-                        ? Number(item.dischargeInMinute).toFixed(2)
+                        ? Number(item.dischargeInMinute).toLocaleString(
+                            'en-US',
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )
                         : '0.00'
                     }}
                   </p>
@@ -146,7 +152,12 @@
                   </div>
                   <p class="mt-1 text-base font-semibold text-DarkBlue">
                     {{
-                      item.pressure ? Number(item.pressure).toFixed(2) : '0.00'
+                      item.pressure
+                        ? Number(item.pressure).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : '0.00'
                     }}
                   </p>
                 </div>
@@ -156,11 +167,11 @@
             <!-- Tank Card -->
             <div
               v-else
-              class="p-4 overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+              class="group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
               @click="onCardClick(item)"
             >
               <!-- Card Header - Made more compact -->
-              <div class="flex items-center justify-between mb-3">
+              <div class="mb-3 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div
                     class="rounded-lg bg-blue-50 p-1.5 transition-colors duration-300 group-hover:bg-blue-100"
@@ -220,7 +231,10 @@
                   <p class="mt-1 text-base font-semibold text-DarkBlue">
                     {{
                       item.waterLevel
-                        ? Number(item.waterLevel).toFixed(2)
+                        ? Number(item.waterLevel).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
                         : '0.00'
                     }}
                   </p>
@@ -238,7 +252,13 @@
                   <p class="mt-1 text-base font-semibold text-DarkBlue">
                     {{
                       item.waterLevel
-                        ? ((Number(item.waterLevel) / 6) * 100).toFixed(2)
+                        ? ((Number(item.waterLevel) / 6) * 100).toLocaleString(
+                            'en-US',
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )
                         : '0.00'
                     }}%
                   </p>
@@ -256,7 +276,13 @@
                   <p class="mt-1 text-base font-semibold text-DarkBlue">
                     {{
                       item.waterLevel
-                        ? (Number(item.waterLevel) * 170 * 250).toFixed(2)
+                        ? (Number(item.waterLevel) * 170 * 250).toLocaleString(
+                            'en-US',
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }
+                          )
                         : '0.00'
                     }}
                   </p>
@@ -269,7 +295,7 @@
         <!-- Table View -->
         <div
           v-if="selectedView === 'Table'"
-          class="bg-white border border-gray-100 shadow-sm rounded-xl"
+          class="rounded-xl border border-gray-100 bg-white shadow-sm"
         >
           <Table
             v-if="!loading && filteredPipesData.length > 0"
@@ -295,7 +321,7 @@
                   :key="col.field"
                   class="p-4"
                 >
-                  <div class="h-4 bg-gray-100 rounded animate-pulse"></div>
+                  <div class="h-4 animate-pulse rounded bg-gray-100"></div>
                 </td>
               </tr>
             </template>
@@ -310,7 +336,7 @@
               <div
                 v-for="i in 5"
                 :key="i"
-                class="h-12 bg-gray-100 rounded-lg animate-pulse"
+                class="h-12 animate-pulse rounded-lg bg-gray-100"
               ></div>
             </div>
           </div>
@@ -331,7 +357,7 @@
 
           <!-- Table Legend -->
           <div
-            class="p-6 space-y-2 text-sm text-gray-600 border-t border-gray-100 bg-gray-50"
+            class="space-y-2 border-t border-gray-100 bg-gray-50 p-6 text-sm text-gray-600"
           >
             <p>* Q ( m³/min ) = Total discharge in the last minute</p>
             <p>* Q ( m³/h ) = Total discharge in the last hour</p>
@@ -346,7 +372,7 @@
         <!-- Map View -->
         <div
           v-else-if="selectedView === 'Map'"
-          class="p-6 bg-white border border-gray-100 shadow-sm rounded-xl"
+          class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
         >
           <Map :stations="filteredMapStations" />
           <div
@@ -473,7 +499,10 @@
       const date = new Date(item?.timeStamp);
       const waterLevel = Number(item?.waterLevel) || 0;
       const waterLevelPercentage = ((waterLevel / 6) * 100).toFixed(2);
-      const totalVolume = (waterLevel * 170 * 250).toFixed(2);
+      const totalVolume = (waterLevel * 170 * 250).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
 
       return {
         ...item,
@@ -512,13 +541,11 @@
               maximumFractionDigits: 2,
             })
           : '0.00',
-        waterLevel: item?.waterLevel
-          ? Number(item.waterLevel).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '0.00',
-        waterLevelPercentage: `${waterLevelPercentage}`,
+        waterLevel: waterLevel.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
+        waterLevelPercentage: `${waterLevelPercentage}%`,
         totalVolume: totalVolume,
         temperature: item?.temperature
           ? Number(item.temperature).toLocaleString('en-US', {
@@ -539,7 +566,7 @@
             })
           : '0.00',
         tds: item?.electricConductivity
-          ? Number(item.electricConductivity * 0.65).toLocaleString('en-US', {
+          ? (Number(item.electricConductivity) * 0.65).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })

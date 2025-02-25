@@ -182,7 +182,10 @@
       const date = new Date(item.timeStamp);
       const waterLevel = Number(item.level) || 0;
       const waterLevelPercentage = ((waterLevel / 6) * 100).toFixed(2);
-      const totalVolume = (waterLevel * 170 * 250).toFixed(2);
+      const totalVolume = (waterLevel * 170 * 250).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
 
       return {
         ...item,
@@ -195,7 +198,10 @@
           minute: '2-digit',
           hour12: true,
         }),
-        level: waterLevel.toFixed(2),
+        level: waterLevel.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
         waterLevelPercentage: `${waterLevelPercentage}%`,
         totalVolume: totalVolume,
       };
