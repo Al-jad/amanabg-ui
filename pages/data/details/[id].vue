@@ -88,15 +88,54 @@
             <h1 class="text-xl font-bold text-gray-800 sm:text-left">
               {{ stationName || 'Station name not found' }}
             </h1>
-            <!-- do old desktop datepicker -->
-            <div class="rounded-lg border border-gray-300 bg-gray-100 p-2">
+            <!-- Desktop Date Picker (shows above sm:639px) -->
+            <div class="flex items-center rounded-lg p-4 sm:hidden">
+              <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2">
+                  <label
+                    class="whitespace-nowrap text-sm font-medium text-gray-700"
+                  >
+                    From:
+                  </label>
+                  <DatePicker
+                    v-model="fromDate"
+                    dateFormat="dd/mm/yy"
+                    class="h-8"
+                  />
+                </div>
+                <div class="flex items-center gap-2">
+                  <label
+                    class="whitespace-nowrap text-sm font-medium text-gray-700"
+                  >
+                    To:
+                  </label>
+                  <DatePicker
+                    v-model="toDate"
+                    dateFormat="dd/mm/yy"
+                    class="h-8"
+                  />
+                </div>
+                <Button
+                  class="!h-8 !border-none !bg-DarkBlue !px-6 !text-white disabled:!opacity-50"
+                  @click="handleOK"
+                >
+                  <p>Submit</p>
+                  <Icon
+                    name="formkit:submit"
+                    class=""
+                  />
+                </Button>
+              </div>
+            </div>
+
+            <!-- Mobile Date Picker (shows below sm:639px) -->
+            <div
+              class="hidden rounded-lg border border-gray-300 bg-gray-100 p-2 sm:block"
+            >
               <div class="flex flex-col items-start justify-start gap-2">
                 <p class="text-left text-sm text-gray-600">Select Dates:</p>
               </div>
-              <div
-                class="flex items-center gap-2 sm:flex-col sm:justify-center sm:gap-4"
-              >
-                <!-- datepicker 70% and label 30% -->
+              <div class="flex items-center gap-2">
                 <div class="grid grid-flow-row-dense grid-cols-2 gap-2 p-2">
                   <div class="flex max-w-[30%] flex-col gap-6">
                     <label for="from">From</label>
@@ -106,12 +145,12 @@
                     <DatePicker
                       v-model="fromDate"
                       dateFormat="dd/mm/yy"
-                      class="h-8 sm:h-10 sm:w-full"
+                      class="h-8"
                     />
                     <DatePicker
                       v-model="toDate"
                       dateFormat="dd/mm/yy"
-                      class="h-8 sm:h-10"
+                      class="h-8"
                     />
                   </div>
                   <div class="col-span-2 flex w-full justify-end">
@@ -302,12 +341,11 @@
   } = storeToRefs(stationDataStore);
 
   // Initialize with persisted values
-  const fromDate = ref(
-    dateUtils.startOfDay(new Date(persistedDateRange.value.fromDate))
-  );
-  const toDate = ref(
-    dateUtils.endOfDay(new Date(persistedDateRange.value.toDate))
-  );
+  const fromDate = ref(new Date(persistedDateRange.value.fromDate));
+  fromDate.value.setHours(0, 0, 0, 0);
+
+  const toDate = ref(new Date(persistedDateRange.value.toDate));
+  toDate.value.setHours(23, 59, 59, 999);
   const selectedDuration = ref(persistedDuration.value);
 
   // Cache key for current request
@@ -336,26 +374,14 @@
       short: 'Vol.',
       full: 'Total Volume',
     },
+    temp: {
+      short: 'Temp',
+      full: 'Temperature',
+    },
     pressure: {
       short: 'P',
       full: 'Pressure',
     },
-    // turbidity: {
-    //   short: 'Turb.',
-    //   full: 'Turbidity',
-    // },
-    // cl: {
-    //   short: 'Cl',
-    //   full: 'Chlorine',
-    // },
-    // tds: {
-    //   short: 'TDS',
-    //   full: 'Total Dissolved Solids',
-    // },
-    // temp: {
-    //   short: 'Temp',
-    //   full: 'Temperature',
-    // },
   };
   const tankColumns = [
     {
@@ -476,32 +502,35 @@
       return;
     }
 
-    // Format dates as ISO strings for API
-    const formattedFromDate = fromDate.value.toISOString();
-    const formattedToDate = toDate.value.toISOString();
+    // Set the exact times for start and end dates
+    const startDateTime = new Date(fromDate.value);
+    startDateTime.setHours(0, 0, 0, 0);
+
+    const endDateTime = new Date(toDate.value);
+    endDateTime.setHours(23, 59, 59, 999);
 
     await stationDataStore.fetchTableData({
       stationId,
       duration: selectedDuration.value,
       skip: 0,
       take: 10,
-      fromDate: formattedFromDate,
-      toDate: formattedToDate,
+      fromDate: startDateTime.toISOString(),
+      toDate: endDateTime.toISOString(),
     });
   };
   const handleFromDateChange = (event) => {
     const date = event instanceof Date ? event : new Date(event);
-    const newDate = dateUtils.startOfDay(date);
-    if (newDate.getTime() === fromDate.value.getTime()) return; // Prevent unnecessary updates
-    fromDate.value = newDate;
+    date.setHours(0, 0, 0, 0);
+    if (date.getTime() === fromDate.value.getTime()) return;
+    fromDate.value = date;
     stationDataStore.setDateRange(fromDate.value, toDate.value);
     fetchData();
   };
   const handleToDateChange = (event) => {
     const date = event instanceof Date ? event : new Date(event);
-    const newDate = dateUtils.endOfDay(date);
-    if (newDate.getTime() === toDate.value.getTime()) return; // Prevent unnecessary updates
-    toDate.value = newDate;
+    date.setHours(23, 59, 59, 999);
+    if (date.getTime() === toDate.value.getTime()) return;
+    toDate.value = date;
     stationDataStore.setDateRange(fromDate.value, toDate.value);
     fetchData();
   };
@@ -606,27 +635,6 @@
 
   const stationName = ref('N/A');
   const stationCity = ref('N/A');
-  onMounted(() => {
-    if (process.client) {
-      stationName.value = localStorage.getItem('stationName') || 'N/A';
-      stationCity.value = localStorage.getItem('stationCity') || 'N/A';
-      stationType.value = parseInt(localStorage.getItem('stationType') || '0');
-
-      // Only fetch if we don't have cached data
-      const stationId = parseInt(route.params.id, 10);
-      if (
-        !stationDataStore.getCachedData(
-          stationId,
-          selectedDuration.value,
-          fromDate.value,
-          toDate.value
-        )
-      ) {
-        fetchData();
-      }
-    }
-  });
-
   const selectedParam = ref('discharge');
 
   watch(
@@ -667,14 +675,21 @@
     const stationId = parseInt(route.params.id, 10);
     if (isNaN(stationId)) return;
 
+    // Set the exact times for start and end dates
+    const startDateTime = new Date(fromDate.value);
+    startDateTime.setHours(0, 0, 0, 0);
+
+    const endDateTime = new Date(toDate.value);
+    endDateTime.setHours(23, 59, 59, 999);
+
     // Only fetch table data for pagination
     await stationDataStore.fetchTableData({
       stationId,
       duration: selectedDuration.value,
       skip: event.first,
       take: event.rows,
-      fromDate: fromDate.value,
-      toDate: toDate.value,
+      fromDate: startDateTime.toISOString(),
+      toDate: endDateTime.toISOString(),
     });
   };
   const chartData = computed(() => {
@@ -722,6 +737,12 @@
           waterLevel: waterLevelFormatted,
           waterLevelPercentage: waterLevelPercentage,
           totalVolume: totalVolume,
+          temp: item.temperature
+            ? Number(item.temperature).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
         };
       } else {
         // Pipe station data
@@ -877,6 +898,51 @@
     if (!value || isNaN(value)) return '0.00';
     return Number(value).toFixed(2);
   };
+
+  // Single source of truth for initialization
+  const initializeStation = async (stationId, isNewStation = false) => {
+    if (process.client) {
+      // Reset store data immediately when changing stations
+      if (isNewStation) {
+        stationDataStore.$reset();
+      }
+
+      // Update station info
+      stationName.value = localStorage.getItem('stationName') || 'N/A';
+      stationCity.value = localStorage.getItem('stationCity') || 'N/A';
+      stationType.value = parseInt(localStorage.getItem('stationType') || '0');
+
+      // Reset date range to default (last 14 days) if it's a new station
+      if (isNewStation) {
+        const defaultFromDate = new Date();
+        defaultFromDate.setDate(defaultFromDate.getDate() - 14);
+        fromDate.value = dateUtils.startOfDay(defaultFromDate);
+        toDate.value = dateUtils.endOfDay(new Date());
+
+        // Update store date range
+        stationDataStore.setDateRange(fromDate.value, toDate.value);
+      }
+
+      // Always fetch new data when initializing a station
+      await fetchData();
+    }
+  };
+
+  // Watch for station ID changes
+  watch(
+    () => route.params.id,
+    async (newId, oldId) => {
+      if (newId !== oldId) {
+        await initializeStation(parseInt(newId, 10), true);
+      }
+    }
+  );
+
+  // Component initialization
+  onMounted(async () => {
+    const stationId = parseInt(route.params.id, 10);
+    await initializeStation(stationId, false);
+  });
 </script>
 <style>
   .p-datepicker-input {

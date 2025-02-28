@@ -16,53 +16,31 @@ export const useStationDetailsDataStore = defineStore('stationDetailsData', {
       fromDate: new Date(new Date().setDate(new Date().getDate() - 14)),
       toDate: new Date(),
     },
+    currentStationId: null, // Add this to track current station
     cachedData: {}, // Store for caching requests
   }),
 
   persist: {
-    paths: [
-      'selectedDuration',
-      'dateRange',
-      'cachedData',
-      'data',
-      'fullData',
-      'pagination',
-    ],
-    afterRestore: (ctx) => {
-      // Rehydrate dates after restore
-      if (ctx.store.dateRange) {
-        ctx.store.dateRange.fromDate = new Date(ctx.store.dateRange.fromDate);
-        ctx.store.dateRange.toDate = new Date(ctx.store.dateRange.toDate);
-      }
-
-      // Rehydrate cached data timestamps
-      if (ctx.store.cachedData) {
-        Object.keys(ctx.store.cachedData).forEach((key) => {
-          if (ctx.store.cachedData[key]) {
-            ctx.store.cachedData[key].timestamp = new Date(
-              ctx.store.cachedData[key].timestamp
-            ).getTime();
-          }
-        });
-      }
-
-      // Rehydrate data dates if they exist
-      if (ctx.store.data?.data) {
-        ctx.store.data.data = ctx.store.data.data.map((item) => ({
-          ...item,
-          date: new Date(item.date),
-        }));
-      }
-      if (ctx.store.fullData?.data) {
-        ctx.store.fullData.data = ctx.store.fullData.data.map((item) => ({
-          ...item,
-          date: new Date(item.date),
-        }));
-      }
-    },
+    paths: ['selectedDuration', 'dateRange'], // Only persist user preferences
   },
 
   actions: {
+    $reset() {
+      // Reset to initial state
+      this.data = null;
+      this.fullData = null;
+      this.loading = false;
+      this.error = null;
+      this.pagination = {
+        skip: 0,
+        take: 10,
+        total: 0,
+      };
+      this.cachedData = {};
+      this.currentStationId = null;
+      // Don't reset selectedDuration and dateRange as they are user preferences
+    },
+
     getCacheKey(stationId, duration, fromDate, toDate, isPaginated = true) {
       return `${stationId}-${duration}-${new Date(fromDate).getTime()}-${new Date(toDate).getTime()}-${isPaginated ? 'page' : 'full'}`;
     },
