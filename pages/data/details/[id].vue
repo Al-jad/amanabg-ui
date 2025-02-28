@@ -80,7 +80,7 @@
         </NuxtLink>
 
         <div
-          class="flex w-full flex-col items-start justify-between gap-4 p-6 py-2 sm:p-4 sm:py-1"
+          class="flex w-full flex-col items-start justify-between gap-1 p-6 py-2 sm:p-4 sm:py-1"
         >
           <div
             class="flex w-full items-center justify-between sm:flex-col sm:items-stretch sm:gap-4"
@@ -88,28 +88,52 @@
             <h1 class="text-xl font-bold text-gray-800 sm:text-left">
               {{ stationName || 'Station name not found' }}
             </h1>
-            <div class="flex items-center gap-2 sm:flex-col sm:gap-4">
-              <div class="flex flex-row items-center gap-2">
-                <label for="from">From</label>
-                <DatePicker
-                  v-model="fromDate"
-                  dateFormat="dd/mm/yy"
-                  class="h-8 sm:h-10"
-                  @date-select="handleFromDateChange"
-                />
+            <!-- do old desktop datepicker -->
+            <div class="rounded-lg border border-gray-300 bg-gray-100 p-2">
+              <div class="flex flex-col items-start justify-start gap-2">
+                <p class="text-left text-sm text-gray-600">Select Dates:</p>
               </div>
-              <div class="flex flex-row items-center gap-2">
-                <label for="to">To</label>
-                <DatePicker
-                  v-model="toDate"
-                  dateFormat="dd/mm/yy"
-                  class="h-8 sm:h-10"
-                  @date-select="handleToDateChange"
-                />
+              <div
+                class="flex items-center gap-2 sm:flex-col sm:justify-center sm:gap-4"
+              >
+                <!-- datepicker 70% and label 30% -->
+                <div class="grid grid-flow-row-dense grid-cols-2 gap-2 p-2">
+                  <div class="flex max-w-[30%] flex-col gap-6">
+                    <label for="from">From</label>
+                    <label for="to">To</label>
+                  </div>
+                  <div class="flex min-w-[70%] flex-col items-center gap-2">
+                    <DatePicker
+                      v-model="fromDate"
+                      dateFormat="dd/mm/yy"
+                      class="h-8 sm:h-10 sm:w-full"
+                    />
+                    <DatePicker
+                      v-model="toDate"
+                      dateFormat="dd/mm/yy"
+                      class="h-8 sm:h-10"
+                    />
+                  </div>
+                  <div class="col-span-2 flex w-full justify-end">
+                    <Button
+                      class="!h-10 !w-[50%] !border-none !bg-DarkBlue !px-6 !py-2 !text-white disabled:!opacity-50"
+                      @click="handleOK"
+                    >
+                      <p>Submit</p>
+                      <Icon
+                        name="formkit:submit"
+                        class=""
+                      />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-4">
+          <div
+            v-if="isMobile"
+            class="flex items-center gap-4"
+          >
             <div class="flex gap-2 sm:flex-wrap">
               <Button
                 :class="[
@@ -143,17 +167,46 @@
               />
             </div>
           </div>
+          <div class="mt-4 flex flex-col gap-2 py-4">
+            <div class="flex flex-col">
+              <p class="text-left text-sm text-gray-600">Select Timeframe:</p>
+            </div>
+            <div class="flex w-full items-center gap-2 sm:flex-wrap">
+              <Button
+                :class="[
+                  '!border-none !px-8 !py-2',
+                  selectedDuration === 0
+                    ? '!bg-DarkBlue !text-white'
+                    : '!bg-gray-200 !text-DarkBlue',
+                ]"
+                label="Minute"
+                @click="handleDurationChange(0)"
+              />
+              <Button
+                :class="[
+                  '!border-none !px-10 !py-2',
+                  selectedDuration === 1
+                    ? '!bg-DarkBlue !text-white'
+                    : '!bg-gray-200 !text-DarkBlue',
+                ]"
+                label="Hour"
+                @click="handleDurationChange(1)"
+              />
+              <Button
+                :class="[
+                  '!border-none !px-10 !py-2',
+                  selectedDuration === 2
+                    ? '!bg-DarkBlue !text-white'
+                    : '!bg-gray-200 !text-DarkBlue',
+                ]"
+                label="Day"
+                @click="handleDurationChange(2)"
+              />
+            </div>
+          </div>
         </div>
       </div>
       <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
-        <div class="mb-4">
-          <Button
-            :label="isExporting ? 'Saving...' : 'Save as Excel'"
-            :disabled="isExporting"
-            class="!border-none !bg-DarkBlue !px-4 !py-2 !text-white disabled:!opacity-50"
-            @click="exportToCSV"
-          />
-        </div>
         <Table
           :value="dataLoading ? Array(10).fill({}) : filteredData"
           :columns="columns"
@@ -183,6 +236,19 @@
             </tr>
           </template>
         </Table>
+        <div class="mt-4 flex justify-end">
+          <Button
+            :disabled="isExporting"
+            class="!h-10 !border-none !bg-emerald-800 !px-4 !py-4 !text-white disabled:!opacity-50"
+            @click="exportToCSV"
+          >
+            <Icon
+              name="mdi:file-excel"
+              class="mr-2 text-lg"
+            />
+            <p>{{ isExporting ? 'Saving...' : 'Save as Excel' }}</p>
+          </Button>
+        </div>
       </div>
     </div>
     <div
@@ -191,7 +257,7 @@
     >
       <p class="text-base text-gray-600 sm:text-lg">No data available</p>
     </div>
-    <div>
+    <div class="mt-4">
       <EChart
         v-if="chartData.length > 0"
         :hourlyData="chartData"
@@ -209,7 +275,7 @@
   import { useStationDetailsDataStore } from '~/stores/stationDetailsData';
   const route = useRoute();
   const stationDataStore = useStationDetailsDataStore();
-
+  const isMobile = ref(false);
   // Date utility functions
   const dateUtils = {
     startOfDay: (date) => {
@@ -274,22 +340,22 @@
       short: 'P',
       full: 'Pressure',
     },
-    turbidity: {
-      short: 'Turb.',
-      full: 'Turbidity',
-    },
-    cl: {
-      short: 'Cl',
-      full: 'Chlorine',
-    },
-    tds: {
-      short: 'TDS',
-      full: 'Total Dissolved Solids',
-    },
-    temp: {
-      short: 'Temp',
-      full: 'Temperature',
-    },
+    // turbidity: {
+    //   short: 'Turb.',
+    //   full: 'Turbidity',
+    // },
+    // cl: {
+    //   short: 'Cl',
+    //   full: 'Chlorine',
+    // },
+    // tds: {
+    //   short: 'TDS',
+    //   full: 'Total Dissolved Solids',
+    // },
+    // temp: {
+    //   short: 'Temp',
+    //   full: 'Temperature',
+    // },
   };
   const tankColumns = [
     {
@@ -375,17 +441,17 @@
 
     const commonColumns = [
       {
-        header: 'Temp',
-        sortable: true,
-        field: 'temperature',
-        unit: 'C',
-        defaultValue: 0,
-      },
-      {
         header: 'P',
         sortable: true,
         field: 'pressure',
         unit: 'm',
+        defaultValue: 0,
+      },
+      {
+        header: 'Temp',
+        sortable: true,
+        field: 'temperature',
+        unit: 'C',
         defaultValue: 0,
       },
     ];
@@ -474,13 +540,13 @@
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
         pressure: item.pressure
           ? Number(item.pressure).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
       };
 
       if (stationType === 1) {
@@ -516,23 +582,28 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           turbidity: item.turbidity
             ? Number(item.turbidity).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           tds: item.electricConductivity
             ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
         };
       }
     });
   });
+
+  const handleOK = () => {
+    fetchData();
+  };
+
   const stationName = ref('N/A');
   const stationCity = ref('N/A');
   onMounted(() => {
@@ -564,6 +635,12 @@
       selectedParam.value = newType === 1 ? 'waterLevel' : 'discharge';
     },
     { immediate: true }
+  );
+  watch(
+    () => window.innerWidth,
+    (newWidth) => {
+      isMobile.value = newWidth < 768;
+    }
   );
 
   const availableParams = computed(() => {
@@ -612,13 +689,13 @@
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
         temp: item.temperature
           ? Number(item.temperature).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
       };
 
       if (stationType.value === 1) {
@@ -650,7 +727,7 @@
         // Pipe station data
         return {
           ...baseData,
-          q: item.discharge
+          discharge: item.discharge
             ? Number(item.discharge).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -661,19 +738,19 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           turbidity: item.turbidity
             ? Number(item.turbidity).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           cl: item.cl
             ? Number(item.cl).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
         };
       }
     });
@@ -732,37 +809,37 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           cl: item.cl
             ? Number(item.cl).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           turbidity: item.turbidity
             ? Number(item.turbidity).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           tds: item.electricConductivity
             ? (item.electricConductivity * 0.65).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           waterLevel: item.waterLevel
             ? Number(item.waterLevel).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
           currentVolume: item.currentVolume
             ? Number(item.currentVolume).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })
-            : '0.00',
+            : '-',
         };
       });
 

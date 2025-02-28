@@ -1,7 +1,8 @@
 <template>
-  <div class="p-8 mt-8 bg-white rounded-lg shadow-lg">
+  <div class="mt-8 rounded-lg bg-white p-8 shadow-lg">
     <div v-if="dataLoaded && hourlyData && hourlyData.length > 0">
-      <div class="flex items-center mb-6">
+      <p class="text-lg font-bold">Chart View</p>
+      <div class="mb-6 flex items-center">
         <label
           for="paramSelect"
           class="mr-4 text-lg font-medium sm:text-nowrap sm:text-base"
@@ -27,13 +28,13 @@
     </div>
     <div
       v-else-if="!dataLoaded"
-      class="flex items-center justify-center h-64 text-lg text-gray-600"
+      class="flex h-64 items-center justify-center text-lg text-gray-600"
     >
       Loading data...
     </div>
     <div
       v-else
-      class="flex items-center justify-center h-64 text-lg text-gray-600"
+      class="flex h-64 items-center justify-center text-lg text-gray-600"
     >
       No data available for the chart.
     </div>
@@ -215,13 +216,16 @@
           value = Number(value.replace(/,/g, ''));
         }
 
-        // Special handling for totalVolume calculation
-        if (selectedParam.value === 'totalVolume') {
+        // Handle specific parameter calculations
+        if (selectedParam.value === 'discharge') {
+          value = Number(value) || 0;
+        } else if (selectedParam.value === 'totalVolume') {
           const waterLevel = Number(item.waterLevel?.replace(/,/g, '') || 0);
           value = waterLevel * 170 * 250;
-        }
-
-        if (selectedParam.value === 'electricConductivity' && value !== null) {
+        } else if (
+          selectedParam.value === 'electricConductivity' &&
+          value !== null
+        ) {
           value = Number((value * 0.65).toFixed(2));
         }
 

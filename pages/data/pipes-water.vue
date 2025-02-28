@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <div class="container mx-auto px-4 py-8 sm:px-2 lg:px-8">
       <div class="rounded-xl bg-white p-6 shadow-lg">
         <!-- Header Section -->
         <div
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Cards Grid -->
-        <div class="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-3">
           <template
             v-for="item in filteredPipesData"
             :key="item.stationId"
@@ -308,6 +308,7 @@
               root: { class: '!rounded-xl !overflow-hidden' },
               header: { class: '!bg-gray-50' },
               headerCell: { class: '!py-4' },
+              bodyRow: { class: '!sm:text-sm' },
             }"
             @row-click="onRowClick"
           >
@@ -363,6 +364,9 @@
             <p>* Q ( m³/h ) = Total discharge in the last hour</p>
             <p>* Q ( m³/d ) = Total discharge in the last day</p>
             <p>* P ( m ) = Water pressure in the pipe</p>
+            <p>* WL ( m ) = Water level in the storage tank</p>
+            <p>* WL % = Water level percentage in the storage tank</p>
+            <p>* Vol. ( m³ ) = Water volume in the storage tank</p>
             <p>* Cl⁺ ( mg/L ) = Chlorine level in the pipe</p>
             <p>* Turb. ( NTU ) = Turbidity of water in the pipe</p>
             <p>* TDS ( ppm ) = Total dissolved solids in the pipe</p>
@@ -466,6 +470,7 @@
     {
       header: 'WL %',
       sortable: true,
+      //! add % to the row
       field: 'waterLevelPercentage',
       unit: '%',
     },
@@ -498,11 +503,15 @@
     return filteredPipesData.value.map((item) => {
       const date = new Date(item?.timeStamp);
       const waterLevel = Number(item?.waterLevel) || 0;
-      const waterLevelPercentage = ((waterLevel / 6) * 100).toFixed(2);
-      const totalVolume = (waterLevel * 170 * 250).toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
+      const waterLevelPercentage = waterLevel
+        ? ((waterLevel / 6) * 100).toFixed(2)
+        : '-';
+      const totalVolume = waterLevel
+        ? (waterLevel * 170 * 250).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : '-';
 
       return {
         ...item,
@@ -522,55 +531,57 @@
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
         dischargeInHour: item?.dischargeInHour
           ? Number(item.dischargeInHour).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
         dischargeInDay: item?.dischargeInDay
           ? Number(item.dischargeInDay).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
         pressure: item?.pressure
           ? Number(item.pressure).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
-        waterLevel: waterLevel.toLocaleString('en-US', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }),
-        waterLevelPercentage: `${waterLevelPercentage}%`,
-        totalVolume: totalVolume,
+          : '-',
+        waterLevel: waterLevel
+          ? waterLevel.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '-',
+        waterLevelPercentage: `${waterLevelPercentage ? waterLevelPercentage : '-'}`,
+        totalVolume: totalVolume ? totalVolume : '-',
         temperature: item?.temperature
           ? Number(item.temperature).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
         cl: item?.cl
           ? Number(item.cl).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
         turbidity: item?.turbidity
           ? Number(item.turbidity).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
         tds: item?.electricConductivity
           ? (Number(item.electricConductivity) * 0.65).toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
-          : '0.00',
+          : '-',
       };
     });
   });
