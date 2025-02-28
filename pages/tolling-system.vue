@@ -1,7 +1,16 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <div class="container mx-auto px-4 py-8 sm:px-2 lg:px-8">
-      <div class="rounded-xl bg-white p-6 shadow-lg">
+      <div class="relative overflow-hidden rounded-xl bg-red-100 p-6 shadow-lg">
+        <!-- Demo Version Ribbon -->
+        <div
+          class="absolute right-[-3rem] top-[2rem] z-10 w-[12rem] rotate-45 bg-gradient-to-r from-red-600 to-red-500 py-1 text-center text-xs shadow-md"
+        >
+          <span class="text-xs font-semibold tracking-wide text-white">
+            DEMO VERSION
+          </span>
+        </div>
+
         <!-- Header Section -->
         <div
           class="mb-8 flex flex-col gap-6 sm:flex-col md:flex-row md:items-center md:justify-between"
@@ -25,9 +34,14 @@
                   class="text-2xl text-blue-600"
                 />
               </div>
-              <h1 class="text-2xl font-bold text-gray-900">
-                Water Discharge Tolling System
-              </h1>
+              <div class="flex flex-row items-center">
+                <h1 class="text-2xl font-bold text-gray-900">
+                  Water Discharge Tolling System
+                  <span class="ml-2 font-bold text-red-500">
+                    (Demo Version)
+                  </span>
+                </h1>
+              </div>
             </div>
           </div>
         </div>
@@ -80,7 +94,7 @@
         <!-- Data table for tolling data -->
         <div
           v-if="tollingData.length > 0"
-          class="border border-gray-100 bg-white shadow-sm"
+          class="border border-gray-100 bg-white p-4 shadow-sm"
         >
           <DataTable
             :value="tollingData"
@@ -230,8 +244,8 @@
             const processedChunk = chunk.map((station) => ({
               stationName: station.stationName,
               discharge: formatNumber(station.dailyDischarge),
-              price: formatNumber(500) + ' IQD',
-              total: formatNumber(station.dailyDischarge * 500) + ' IQD',
+              price: formatNumber(10) + ' IQD',
+              total: formatNumber(station.dailyDischarge * 10) + ' IQD',
             }));
 
             tollingData.value = tollingData.value.concat(processedChunk);

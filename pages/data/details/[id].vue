@@ -66,7 +66,7 @@
     >
       <p class="text-lg font-semibold">{{ dataError }}</p>
     </div>
-    <div v-else-if="filteredData && filteredData.length > 0">
+    <div v-else>
       <div class="mb-8 flex flex-col items-start gap-4">
         <NuxtLink
           to="/data/pipes-water"
@@ -245,67 +245,96 @@
           </div>
         </div>
       </div>
+
+      <!-- Table Section -->
       <div class="rounded-lg bg-white p-4 shadow-lg sm:p-4">
-        <Table
-          :value="dataLoading ? Array(10).fill({}) : filteredData"
-          :columns="columns"
-          class="w-full"
-          :sortField="'timeStamp'"
-          :sortOrder="-1"
-          :paginator="selectedDuration === 0 || selectedDuration === 1"
-          :rows="10"
-          :totalRecords="pagination.total"
-          :first="pagination.skip"
-          :lazy="true"
-          :loading="dataLoading"
-          @page="onPageChange"
-        >
-          <template #loading>
-            <tr
-              v-for="i in 10"
-              :key="i"
-            >
-              <td
-                v-for="col in columns"
-                :key="col.field"
-                class="p-3"
-              >
-                <div class="h-4 animate-pulse rounded bg-gray-200"></div>
-              </td>
-            </tr>
-          </template>
-        </Table>
-        <div class="mt-4 flex justify-end">
-          <Button
-            :disabled="isExporting"
-            class="!h-10 !border-none !bg-emerald-800 !px-4 !py-4 !text-white disabled:!opacity-50"
-            @click="exportToCSV"
+        <div v-if="filteredData && filteredData.length > 0">
+          <Table
+            :value="filteredData"
+            :columns="columns"
+            class="w-full"
+            :sortField="'timeStamp'"
+            :sortOrder="-1"
+            :paginator="true"
+            :rows="10"
+            :totalRecords="pagination.total"
+            :first="pagination.skip"
+            :lazy="true"
+            :loading="dataLoading"
+            @page="onPageChange"
           >
+            <template #loading>
+              <tr
+                v-for="i in 10"
+                :key="i"
+              >
+                <td
+                  v-for="col in columns"
+                  :key="col.field"
+                  class="p-3"
+                >
+                  <div class="h-4 animate-pulse rounded bg-gray-200"></div>
+                </td>
+              </tr>
+            </template>
+          </Table>
+          <div class="mt-4 flex justify-end">
+            <Button
+              :disabled="isExporting"
+              class="!h-10 !border-none !bg-emerald-800 !px-4 !py-4 !text-white disabled:!opacity-50"
+              @click="exportToCSV"
+            >
+              <Icon
+                name="mdi:file-excel"
+                class="mr-2 text-lg"
+              />
+              <p>{{ isExporting ? 'Saving...' : 'Save as Excel' }}</p>
+            </Button>
+          </div>
+        </div>
+        <div
+          v-else
+          class="flex items-center justify-center p-8"
+        >
+          <div class="text-center">
             <Icon
-              name="mdi:file-excel"
-              class="mr-2 text-lg"
+              name="mdi:database-off"
+              class="mb-3 text-4xl text-gray-400"
             />
-            <p>{{ isExporting ? 'Saving...' : 'Save as Excel' }}</p>
-          </Button>
+            <p class="text-gray-600">
+              No data available for the selected period
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-    <div
-      v-else
-      class="text-center"
-    >
-      <p class="text-base text-gray-600 sm:text-lg">No data available</p>
-    </div>
-    <div class="mt-4">
-      <EChart
-        v-if="chartData.length > 0"
-        :hourlyData="chartData"
-        :includeTDS="stationType === 0"
-        :paramNames="paramNames"
-        :units="units"
-        :availableParams="availableParams"
-        v-model:selectedParam="selectedParam"
-      />
+
+      <!-- Chart Section -->
+      <div class="mt-4">
+        <div v-if="chartData.length > 0">
+          <EChart
+            :hourlyData="chartData"
+            :includeTDS="stationType === 0"
+            :paramNames="paramNames"
+            :units="units"
+            :availableParams="availableParams"
+            v-model:selectedParam="selectedParam"
+          />
+        </div>
+        <div
+          v-else
+          class="mt-8 rounded-lg bg-white p-8 shadow-lg"
+        >
+          <div class="text-center">
+            <Icon
+              name="mdi:chart-line-off"
+              class="mb-3 text-4xl text-gray-400"
+            />
+            <p class="text-gray-600">
+              No chart data available for the selected period
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -503,20 +532,24 @@
     }
 
     // Set the exact times for start and end dates
-    const startDateTime = new Date(fromDate.value);
-    startDateTime.setHours(0, 0, 0, 0);
+    const startDateTime = dateUtils.startOfDay(fromDate.value);
+    const endDateTime = dateUtils.endOfDay(toDate.value);
 
-    const endDateTime = new Date(toDate.value);
-    endDateTime.setHours(23, 59, 59, 999);
+    // Reset store data before fetching new data
+    stationDataStore.data = null;
+    stationDataStore.fullData = null;
 
     await stationDataStore.fetchTableData({
       stationId,
       duration: selectedDuration.value,
-      skip: 0,
-      take: 10,
+      skip: stationDataStore.pagination.skip,
+      take: stationDataStore.pagination.take,
       fromDate: startDateTime.toISOString(),
       toDate: endDateTime.toISOString(),
     });
+
+    // Update the last request key to track successful requests
+    lastRequestKey.value = currentRequestKey.value;
   };
   const handleFromDateChange = (event) => {
     const date = event instanceof Date ? event : new Date(event);
@@ -629,8 +662,18 @@
     });
   });
 
-  const handleOK = () => {
-    fetchData();
+  const handleOK = async () => {
+    // Reset pagination when changing dates
+    stationDataStore.pagination.skip = 0;
+
+    // Update store date range first
+    stationDataStore.setDateRange(fromDate.value, toDate.value);
+
+    // Force a fresh data fetch
+    await fetchData();
+
+    // Clear any cached data for the new date range
+    stationDataStore.cachedData = {};
   };
 
   const stationName = ref('N/A');
@@ -667,8 +710,19 @@
 
   const handleDurationChange = async (duration) => {
     if (duration === selectedDuration.value) return; // Prevent unnecessary updates
+
+    // Reset pagination and store data
+    stationDataStore.pagination.skip = 0;
+    stationDataStore.data = null;
+    stationDataStore.fullData = null;
+
+    // Clear cached data when switching durations
+    stationDataStore.cachedData = {};
+
     selectedDuration.value = duration;
     stationDataStore.setSelectedDuration(duration);
+
+    // Force immediate data fetch
     await fetchData();
   };
   const onPageChange = async (event) => {
@@ -676,13 +730,13 @@
     if (isNaN(stationId)) return;
 
     // Set the exact times for start and end dates
-    const startDateTime = new Date(fromDate.value);
-    startDateTime.setHours(0, 0, 0, 0);
+    const startDateTime = dateUtils.startOfDay(fromDate.value);
+    const endDateTime = dateUtils.endOfDay(toDate.value);
 
-    const endDateTime = new Date(toDate.value);
-    endDateTime.setHours(23, 59, 59, 999);
+    // Update pagination in store
+    stationDataStore.pagination.skip = event.first;
 
-    // Only fetch table data for pagination
+    // Fetch table data with pagination
     await stationDataStore.fetchTableData({
       stationId,
       duration: selectedDuration.value,
@@ -810,9 +864,18 @@
 
       // Process the complete dataset with the same transformations as filteredData
       const processedData = data.map((item) => {
-        const dateTime = formatDateTime(item.date);
+        const date = new Date(item.date);
+        const formattedDateTime = date.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        });
+
         return {
-          dateTime: `${dateTime.date}\n${dateTime.time}`,
+          dateTime: formattedDateTime,
           discharge: item.discharge
             ? Number(item.discharge).toLocaleString('en-US', {
                 minimumFractionDigits: 2,

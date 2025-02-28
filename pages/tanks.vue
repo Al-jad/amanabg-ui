@@ -21,13 +21,18 @@
             <div class="flex items-center gap-3">
               <div class="rounded-lg bg-blue-50 p-2">
                 <Icon
-                  name="mdi:water-tank"
+                  name="ic:baseline-water-damage"
                   class="text-2xl text-blue-600"
                 />
               </div>
-              <h1 class="text-2xl font-bold text-gray-900">
-                Water Tanks Monitoring
-              </h1>
+              <div class="flex flex-col">
+                <h1 class="text-2xl font-bold text-gray-900">
+                  Water Tanks Monitoring
+                </h1>
+                <h1 class="text-xl font-bold text-gray-900">
+                  محطات مراقبة الخزانات
+                </h1>
+              </div>
             </div>
           </div>
           <!-- Right Side -->

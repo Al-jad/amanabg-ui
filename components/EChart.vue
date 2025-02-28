@@ -171,6 +171,14 @@
       hour12: true,
     });
   };
+  const getDischargeUnit = () => {
+    // Get duration from localStorage (0: minute, 1: hour, 2: day)
+    const duration = parseInt(localStorage.getItem('selectedDuration') || '0');
+    switch (duration) {
+      default:
+        return 'm³';
+    }
+  };
   const chartOption = shallowRef({});
   const updateChartOption = () => {
     if (
@@ -196,23 +204,15 @@
       }
     }
     try {
-      const dates = props.hourlyData.map((item) => {
-        return item.timeStamp ? formatDate(item.timeStamp) : 'Unknown Date';
-      });
-      const values = props.hourlyData.map((item) => {
-        if (!item) {
-          console.warn('Encountered undefined item in hourlyData');
-          return null;
-        }
+      // Create an array of objects with both date and value for sorting
+      const dataPoints = props.hourlyData.map((item) => {
+        const timestamp = item.timeStamp
+          ? new Date(item.timeStamp).getTime()
+          : 0;
         let value = item[selectedParam.value];
-        if (value === undefined || value === null) {
-          console.warn(`Missing ${selectedParam.value} for item:`, item);
-          return null;
-        }
 
         // Convert string numbers back to numbers for the chart
         if (typeof value === 'string') {
-          // Remove commas and convert back to number
           value = Number(value.replace(/,/g, ''));
         }
 
@@ -229,16 +229,34 @@
           value = Number((value * 0.65).toFixed(2));
         }
 
-        return value;
+        return {
+          timestamp,
+          formattedDate: item.timeStamp
+            ? formatDate(item.timeStamp)
+            : 'Unknown Date',
+          value,
+        };
       });
+
+      // Sort data points by timestamp
+      dataPoints.sort((a, b) => a.timestamp - b.timestamp);
+
+      // Separate sorted dates and values
       const filteredDates = [];
       const filteredValues = [];
-      dates.forEach((date, index) => {
-        if (values[index] !== null) {
-          filteredDates.push(date);
-          filteredValues.push(values[index]);
+      dataPoints.forEach((point) => {
+        if (point.value !== null) {
+          filteredDates.push(point.formattedDate);
+          filteredValues.push(point.value);
         }
       });
+
+      // Get the appropriate unit for discharge
+      const unit =
+        selectedParam.value === 'discharge'
+          ? getDischargeUnit()
+          : props.units[selectedParam.value] || '';
+
       chartOption.value = {
         toolbox: {
           feature: {
@@ -274,7 +292,7 @@
         },
         yAxis: {
           type: 'value',
-          name: props.units ? props.units[selectedParam.value] || '' : '',
+          name: unit,
           nameLocation: 'middle',
           nameGap: 50,
           nameTextStyle: {
@@ -304,9 +322,10 @@
             const paramName =
               props.paramNames[selectedParam.value]?.full ||
               selectedParam.value;
-            const unit = props.units
-              ? props.units[selectedParam.value] || ''
-              : '';
+            const tooltipUnit =
+              selectedParam.value === 'discharge'
+                ? getDischargeUnit()
+                : props.units[selectedParam.value] || '';
             let displayValue =
               typeof value === 'number'
                 ? value.toLocaleString('en-US', {
@@ -314,7 +333,7 @@
                     maximumFractionDigits: 2,
                   })
                 : value;
-            return `<strong>${date}</strong><br/>${paramName}: ${displayValue} ${unit}`;
+            return `<strong>${date}</strong><br/>${paramName}: ${displayValue} ${tooltipUnit}`;
           },
           backgroundColor: 'rgba(255, 255, 255, 0.8)',
           borderColor: '#ccc',
