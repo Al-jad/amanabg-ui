@@ -312,6 +312,22 @@
             }"
             @row-click="onRowClick"
           >
+            <template #body-stationName="{ data }">
+              <div class="flex items-center gap-2">
+                <div class="flex h-2 w-2 items-center">
+                  <div
+                    :class="[
+                      'h-2 w-2 rounded-full',
+                      new Date(data.originalTimeStamp) >
+                      new Date(Date.now() - 10 * 60 * 1000)
+                        ? 'animate-live-pulse bg-green-500'
+                        : 'bg-red-500',
+                    ]"
+                  ></div>
+                </div>
+                <span>{{ data.stationName }}</span>
+              </div>
+            </template>
             <template #loading>
               <tr
                 v-for="i in 10"
@@ -425,37 +441,27 @@
     });
   };
 
-  const headers = [
-    {
-      text: 'Station Info',
-      colspan: 2,
-      class:
-        '!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white',
-    },
-    {
-      text: 'Last Measurement',
-      colspan: 10,
-      class:
-        '!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white',
-    },
-  ];
+  // const headers = [
+  //   {
+  //     text: 'Station Info',
+  //     colspan: 1,
+  //     class:
+  //       '!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white',
+  //   },
+  //   {
+  //     text: 'Last Measurement',
+  //     colspan: 10,
+  //     class:
+  //       '!bg-DarkBlue !outline !outline-1 sm:!text-sm !outline-white !text-white',
+  //   },
+  // ];
 
   const columns = [
     {
-      header: 'Status',
+      header: 'Project Name',
+      field: 'stationName',
       sortable: false,
-      field: 'status',
-      body: (rowData) => {
-        const isActive =
-          new Date(rowData.originalTimeStamp) >
-          new Date(Date.now() - 10 * 60 * 1000);
-        return {
-          class: isActive ? 'text-green-600' : 'text-red-600',
-          content: isActive ? 'ON' : 'OFF',
-        };
-      },
     },
-    { header: 'Project Name', sortable: false, field: 'stationName' },
     { header: 'Date Time', sortable: true, field: 'timeStamp' },
     {
       header: 'Q *',
@@ -700,12 +706,6 @@
     transition: box-shadow 0.3s ease;
   }
 
-  /* Enhanced live pulse animation */
-  .animate-live-pulse {
-    animation: enhancedLivePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    box-shadow: 0 0 0.5rem rgba(34, 197, 94, 0.25);
-  }
-
   @keyframes highlightFade {
     0% {
       transform: scale(1);
@@ -729,18 +729,6 @@
     }
   }
 
-  @keyframes enhancedLivePulse {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.6;
-      transform: scale(1.2);
-    }
-  }
-
   /* Custom styles for PrimeVue components */
   .p-togglebutton {
     @apply !bg-DarkBlue !text-white !transition-all !duration-300;
@@ -753,19 +741,5 @@
   }
   .p-select {
     @apply !text-white !transition-all !duration-300;
-  }
-
-  @keyframes livePulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-
-  .animate-live-pulse {
-    animation: livePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 </style>

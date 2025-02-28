@@ -902,9 +902,15 @@
   // Single source of truth for initialization
   const initializeStation = async (stationId, isNewStation = false) => {
     if (process.client) {
-      // Reset store data immediately when changing stations
-      if (isNewStation) {
+      const currentStationId = localStorage.getItem('currentStationId');
+
+      // Check if we're actually changing stations
+      const isStationChange = currentStationId !== stationId.toString();
+
+      // Reset store data if we're changing stations
+      if (isStationChange) {
         stationDataStore.$reset();
+        localStorage.setItem('currentStationId', stationId.toString());
       }
 
       // Update station info
@@ -912,8 +918,8 @@
       stationCity.value = localStorage.getItem('stationCity') || 'N/A';
       stationType.value = parseInt(localStorage.getItem('stationType') || '0');
 
-      // Reset date range to default (last 14 days) if it's a new station
-      if (isNewStation) {
+      // Reset date range to default (last 14 days) if it's a station change
+      if (isStationChange) {
         const defaultFromDate = new Date();
         defaultFromDate.setDate(defaultFromDate.getDate() - 14);
         fromDate.value = dateUtils.startOfDay(defaultFromDate);
@@ -941,7 +947,7 @@
   // Component initialization
   onMounted(async () => {
     const stationId = parseInt(route.params.id, 10);
-    await initializeStation(stationId, false);
+    await initializeStation(stationId);
   });
 </script>
 <style>
