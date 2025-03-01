@@ -21,15 +21,27 @@
       <div
         class="container mx-auto rounded-xl bg-white p-12 text-black sm:w-[90%]"
       >
+        <!-- Error message display -->
+        <div
+          v-if="error"
+          class="mb-4 rounded-md bg-red-50 p-3 text-center"
+        >
+          <p class="text-sm font-medium text-red-600">{{ error }}</p>
+        </div>
+
         <!-- Login form -->
-        <form @submit.prevent="handleLogin" class="flex flex-col gap-4">
+        <form
+          @submit.prevent="handleLogin"
+          class="flex flex-col gap-4"
+        >
           <!-- Username input field -->
           <div class="mx-auto w-full">
             <label
               for="username"
               class="mb-2 block text-sm font-medium text-gray-900"
-              >Username</label
             >
+              Username
+            </label>
             <input
               v-model="username"
               id="username"
@@ -43,8 +55,9 @@
             <label
               for="password"
               class="mb-2 block text-sm font-medium text-gray-900"
-              >Password</label
             >
+              Password
+            </label>
             <input
               v-model="password"
               id="password"
@@ -69,13 +82,9 @@
               :disabled="isLoading"
               class="w-1/2 rounded-lg bg-DarkBlue px-4 py-2 text-white hover:bg-opacity-80"
             >
-              {{ isLoading ? "Logging in..." : "Sign in" }}
+              {{ isLoading ? 'Logging in...' : 'Sign in' }}
             </button>
           </div>
-          <!-- Error message display -->
-          <p v-if="error" class="mt-2 text-center text-xs text-red-500">
-            {{ error }}
-          </p>
         </form>
       </div>
     </div>
@@ -83,58 +92,66 @@
 </template>
 
 <script setup>
-// Reactive variables for form inputs and state
-const username = ref("");
-const password = ref("");
-const error = ref("");
-const isLoading = ref(false);
-const router = useRouter();
+  // Reactive variables for form inputs and state
+  const username = ref('');
+  const password = ref('');
+  const error = ref('');
+  const isLoading = ref(false);
+  const router = useRouter();
 
-// Handle login form submission
-const handleLogin = async () => {
-  isLoading.value = true;
-  error.value = "";
-
-  try {
-    // Send login request to the server
-    const { $axios } = useNuxtApp();
-    const response = await $axios.post("/Auth/login", {
-      username: username.value,
-      password: password.value,
-    });
-
-    // Store authentication token and username in local storage
-    localStorage.setItem("authToken", response.data.accessToken);
-    localStorage.setItem("username", username.value);
-
-    // Check if the user is an admin and set the appropriate flag
-    if (username.value.toLowerCase() === "admin") {
-      localStorage.setItem("isAdmin", "true");
-      console.log("Logged in as admin");
-    } else {
-      localStorage.setItem("isAdmin", "false");
-      console.log("Logged in as non-admin");
+  // Handle login form submission
+  const handleLogin = async () => {
+    // Basic validation
+    if (!username.value || !password.value) {
+      error.value = 'Please enter both username and password';
+      return;
     }
-    console.log("Username:", username.value);
-    console.log("isAdmin in localStorage:", localStorage.getItem("isAdmin"));
 
-    // Navigate to the appropriate page based on user role
-    if (localStorage.getItem("isAdmin") === "true") {
-      navigateTo("/dashboard/add-data");
-    } else {
-      navigateTo("/");
+    isLoading.value = true;
+    error.value = '';
+
+    try {
+      // Send login request to the server
+      const { $axios } = useNuxtApp();
+      const response = await $axios.post('/Auth/login', {
+        username: username.value,
+        password: password.value,
+      });
+
+      // Store token and redirect
+      if (response.data.accessToken) {
+        localStorage.setItem('authToken', response.data.accessToken);
+        localStorage.setItem('username', username.value);
+
+        // Redirect to main page
+        navigateTo('/');
+      } else {
+        error.value = 'Invalid response from server';
+      }
+    } catch (err) {
+      console.error('Login failed', err);
+
+      // Handle different error scenarios
+      if (err.response) {
+        switch (err.response.status) {
+          case 400:
+          case 401:
+            error.value = 'Invalid Username or Password';
+            break;
+          case 403:
+            error.value = 'Your account is pending approval';
+            break;
+          case 404:
+            error.value = 'User not found';
+            break;
+          default:
+            error.value = `Login failed: ${err.response.data?.message || 'Unknown error'}`;
+        }
+      } else {
+        error.value = 'Network error. Please check your connection';
+      }
+    } finally {
+      isLoading.value = false;
     }
-  } catch (err) {
-    // Handle login errors
-    console.error("Login failed", err);
-    error.value =
-      err.response?.status === 401
-        ? "Invalid username or password."
-        : "An error occurred. Please try again later.";
-    alert("Unauthorized Access. Please login again.");
-    router.push("/login");
-  } finally {
-    isLoading.value = false;
-  }
-};
+  };
 </script>
