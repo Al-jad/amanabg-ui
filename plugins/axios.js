@@ -1,10 +1,10 @@
 import { defineNuxtPlugin } from '#app';
 import axios from 'axios';
 
-export default defineNuxtPlugin(nuxtApp => {
+export default defineNuxtPlugin((nuxtApp) => {
   const axiosInstance = axios.create({
-    baseURL: 'https://amanaapi.alfakharco.com/api', 
-    timeout: 10000000, 
+    baseURL: 'https://amanaapi.alfakharco.com/api',
+    timeout: 10000000,
     headers: {
       'Content-Type': 'application/json',
     },
