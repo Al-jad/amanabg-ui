@@ -1,24 +1,28 @@
 export const useAuth = () => {
   const isAuthenticated = () => {
-    if (process.server) return false;
-    return !!localStorage.getItem('authToken');
+    if (process.client) {
+      return !!localStorage.getItem('authToken');
+    }
+    return false;
   };
 
-  const getToken = () => {
-    if (process.server) return null;
-    return localStorage.getItem('authToken');
+  const setAuth = (token, username) => {
+    if (process.client) {
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('username', username);
+    }
   };
 
-  const logout = () => {
-    if (process.server) return;
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('username');
-    navigateTo('/login');
+  const getUsername = () => {
+    if (process.client) {
+      return localStorage.getItem('username');
+    }
+    return null;
   };
 
   return {
     isAuthenticated,
-    getToken,
-    logout,
+    setAuth,
+    getUsername,
   };
 };
