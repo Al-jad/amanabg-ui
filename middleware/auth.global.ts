@@ -3,6 +3,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const publicPages = ['/login', '/privacy', '/terms', '/contact'];
   const isPublicPage = publicPages.includes(to.path);
 
+  // Only run auth check on client side
+  if (process.server) {
+    return;
+  }
+
   // Check if user is authenticated by looking for token in localStorage
   const auth = useAuth();
   const isAuthenticated = auth.isAuthenticated();

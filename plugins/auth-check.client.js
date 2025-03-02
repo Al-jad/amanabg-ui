@@ -1,6 +1,7 @@
 export default defineNuxtPlugin((nuxtApp) => {
   // Add a router hook to check authentication status on page navigation
   const router = useRouter();
+  const auth = useAuth();
 
   router.beforeEach((to, from) => {
     // Skip for login page and public pages
@@ -8,13 +9,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     const isPublicPage = publicPages.includes(to.path);
 
     // Check if user is authenticated
-    const authToken = localStorage.getItem('accessToken');
-    const isAuthenticated = !!authToken;
+    const isAuthenticated = auth.isAuthenticated();
 
-    console.log(`Navigation to ${to.path}, authenticated: ${isAuthenticated}`);
-
-    // Redirect to login if not authenticated and trying to access a protected page
-    if (!isAuthenticated && !isPublicPage) {
+    // Only redirect if coming from a page refresh or direct URL access
+    if (!isAuthenticated && !isPublicPage && !from.name) {
       console.log(`Redirecting to login from ${to.path}`);
       return '/login';
     }

@@ -1,7 +1,7 @@
 <template>
-  <div class="flex min-h-screen flex-col">
-    <header class="w-full bg-DarkBlue text-white">
-      <div class="container mx-auto py-2 sm:py-3">
+  <div class="flex flex-col min-h-screen">
+    <header class="w-full text-white bg-DarkBlue">
+      <div class="container py-2 mx-auto sm:py-3">
         <Menubar :pt="{ root: { class: '!bg-DarkBlue !border-none' } }">
           <template #start>
             <NuxtLink
@@ -11,7 +11,7 @@
               <div class="mr-6">
                 <img
                   src="/assets/img/Amanat-Logo.png"
-                  class="h-14 w-14 scale-125 rounded-full object-cover"
+                  class="object-cover scale-125 rounded-full h-14 w-14"
                   alt="Baghdad Municipality Logo"
                 />
               </div>
@@ -35,7 +35,7 @@
               <div>
                 <img
                   src="/assets/img/MinisterLogo.png"
-                  class="h-14 w-14 scale-125 object-cover"
+                  class="object-cover scale-125 h-14 w-14"
                   alt="Minister's Council Logo"
                 />
               </div>
