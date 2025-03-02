@@ -92,12 +92,18 @@
 </template>
 
 <script setup>
-  // Reactive variables for form inputs and state
+  // Import composable
+  import { useAuth } from '~/composables/useAuth';
+
+  // Reactive variables for form inputs
   const username = ref('');
   const password = ref('');
   const error = ref('');
   const isLoading = ref(false);
   const router = useRouter();
+
+  // Get auth utilities
+  const auth = useAuth();
 
   // Handle login form submission
   const handleLogin = async () => {
@@ -120,11 +126,11 @@
 
       // Store token and redirect
       if (response.data.accessToken) {
-        localStorage.setItem('authToken', response.data.accessToken);
-        localStorage.setItem('username', username.value);
+        // Use the composable to set auth data
+        auth.setAuth(response.data.accessToken, username.value);
 
-        // Redirect to main page
-        navigateTo('/');
+        // Redirect to home page
+        router.push('/');
       } else {
         error.value = 'Invalid response from server';
       }
@@ -154,4 +160,9 @@
       isLoading.value = false;
     }
   };
+
+  // Clear any previous errors when the component is mounted
+  onMounted(() => {
+    error.value = '';
+  });
 </script>
