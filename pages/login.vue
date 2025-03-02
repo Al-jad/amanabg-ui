@@ -92,8 +92,8 @@
 </template>
 
 <script setup>
-  // Import composable
-  import { useAuth } from '~/composables/useAuth';
+  // Import store
+  import { useAuthStore } from '~/stores/auth';
 
   // Reactive variables for form inputs
   const username = ref('');
@@ -102,8 +102,8 @@
   const isLoading = ref(false);
   const router = useRouter();
 
-  // Get auth utilities
-  const auth = useAuth();
+  // Get auth store
+  const authStore = useAuthStore();
 
   // Handle login form submission
   const handleLogin = async () => {
@@ -117,45 +117,23 @@
     error.value = '';
 
     try {
-      // Send login request to the server
-      const { $axios } = useNuxtApp();
-      const response = await $axios.post('/Auth/login', {
-        username: username.value,
-        password: password.value,
-      });
+      // Use auth store for login
+      const success = await authStore.login(username.value, password.value);
 
-      // Store token and redirect
-      if (response.data.accessToken) {
-        // Use the composable to set auth data
-        auth.setAuth(response.data.accessToken, username.value);
+      if (success) {
+        console.log('Login successful, token:', authStore.getToken);
 
-        // Redirect to home page
-        router.push('/');
+        // Force a small delay to ensure state is updated
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Use navigateTo for more reliable navigation
+        await navigateTo('/', { replace: true });
       } else {
-        error.value = 'Invalid response from server';
+        error.value = authStore.getError;
       }
     } catch (err) {
       console.error('Login failed', err);
-
-      // Handle different error scenarios
-      if (err.response) {
-        switch (err.response.status) {
-          case 400:
-          case 401:
-            error.value = 'Invalid Username or Password';
-            break;
-          case 403:
-            error.value = 'Your account is pending approval';
-            break;
-          case 404:
-            error.value = 'User not found';
-            break;
-          default:
-            error.value = `Login failed: ${err.response.data?.message || 'Unknown error'}`;
-        }
-      } else {
-        error.value = 'Network error. Please check your connection';
-      }
+      error.value = 'An unexpected error occurred';
     } finally {
       isLoading.value = false;
     }

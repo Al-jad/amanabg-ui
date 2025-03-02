@@ -8,11 +8,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     const isPublicPage = publicPages.includes(to.path);
 
     // Check if user is authenticated
-    const authToken = localStorage.getItem('authToken');
+    const authToken = localStorage.getItem('accessToken');
     const isAuthenticated = !!authToken;
+
+    console.log(`Navigation to ${to.path}, authenticated: ${isAuthenticated}`);
 
     // Redirect to login if not authenticated and trying to access a protected page
     if (!isAuthenticated && !isPublicPage) {
+      console.log(`Redirecting to login from ${to.path}`);
       return '/login';
     }
   });

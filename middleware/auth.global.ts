@@ -4,8 +4,8 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const isPublicPage = publicPages.includes(to.path);
 
   // Check if user is authenticated by looking for token in localStorage
-  const authToken = process.client ? localStorage.getItem('authToken') : null;
-  const isAuthenticated = !!authToken;
+  const auth = useAuth();
+  const isAuthenticated = auth.isAuthenticated();
 
   // Simple redirect logic - only redirect to login if not authenticated
   if (!isAuthenticated && !isPublicPage) {

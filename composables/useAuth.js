@@ -1,14 +1,14 @@
 export const useAuth = () => {
   const isAuthenticated = () => {
     if (process.client) {
-      return !!localStorage.getItem('authToken');
+      return !!localStorage.getItem('accessToken');
     }
     return false;
   };
 
   const setAuth = (token, username) => {
     if (process.client) {
-      localStorage.setItem('authToken', token);
+      localStorage.setItem('accessToken', token);
       localStorage.setItem('username', username);
     }
   };
@@ -20,9 +20,17 @@ export const useAuth = () => {
     return null;
   };
 
+  const getToken = () => {
+    if (process.client) {
+      return localStorage.getItem('accessToken');
+    }
+    return null;
+  };
+
   return {
     isAuthenticated,
     setAuth,
     getUsername,
+    getToken,
   };
 };
