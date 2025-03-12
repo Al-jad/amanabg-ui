@@ -1,40 +1,34 @@
+import { useAuthStore } from '~/stores/auth';
 export const useAuth = () => {
+  const authStore = useAuthStore();
   const isAuthenticated = () => {
     if (!process.client) return false;
-
-    const token = localStorage.getItem('accessToken');
-    return !!token;
+    return authStore.isAuthenticated;
   };
-
-  const setAuth = (token, username) => {
-    if (!process.client) return;
-
-    localStorage.setItem('accessToken', token);
-    localStorage.setItem('username', username);
+  const login = async (username, password) => {
+    return await authStore.login(username, password);
   };
-
-  const clearAuth = () => {
-    if (!process.client) return;
-
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('username');
+  const logout = () => {
+    authStore.logout();
   };
-
-  const getUsername = () => {
-    if (!process.client) return null;
-    return localStorage.getItem('username');
+  const getUser = () => {
+    return authStore.getUser;
   };
-
-  const getToken = () => {
-    if (!process.client) return null;
-    return localStorage.getItem('accessToken');
+  const getError = () => {
+    return authStore.getError;
   };
-
+  const clearError = () => {
+    authStore.clearError();
+  };
+  if (process.client) {
+    authStore.initAuth();
+  }
   return {
     isAuthenticated,
-    setAuth,
-    clearAuth,
-    getUsername,
-    getToken,
+    login,
+    logout,
+    getUser,
+    getError,
+    clearError,
   };
 };

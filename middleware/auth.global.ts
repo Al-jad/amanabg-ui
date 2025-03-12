@@ -1,20 +1,15 @@
-export default defineNuxtRouteMiddleware((to, from) => {
-  // Skip middleware for login page and public pages
-  const publicPages = ['/login', '/privacy', '/terms', '/contact'];
+import { useAuthStore } from '~/stores/auth';
+export default defineNuxtRouteMiddleware((to) => {
+  if (process.server) return;
+  const publicPages = ['/login', '/privacy', '/terms', '/contact', '/'];
   const isPublicPage = publicPages.includes(to.path);
-
-  // Only run auth check on client side
-  if (process.server) {
-    return;
+  const authStore = useAuthStore();
+  if (to.path === '/login' && authStore.isAuthenticated) {
+    return navigateTo('/', { replace: true });
   }
-
-  // Check if user is authenticated by looking for token in localStorage
-  const auth = useAuth();
-  const isAuthenticated = auth.isAuthenticated();
-
-  // Simple redirect logic - only redirect to login if not authenticated
-  if (!isAuthenticated && !isPublicPage) {
-    // If not authenticated and trying to access a protected page, redirect to login
-    return navigateTo('/login');
+  if (isPublicPage) return;
+  authStore.initAuth();
+  if (!authStore.isAuthenticated) {
+    return navigateTo('/login', { replace: true });
   }
 });
