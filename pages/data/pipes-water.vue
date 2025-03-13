@@ -120,7 +120,7 @@
               </div>
 
               <!-- Card Content - Made more compact -->
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-3 gap-2">
                 <div
                   class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
                 >
@@ -141,6 +141,29 @@
                               maximumFractionDigits: 2,
                             }
                           )
+                        : '0.00'
+                    }}
+                  </p>
+                </div>
+                <div
+                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
+                >
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-medium text-gray-600">Q (MLD)</p>
+                    <Icon
+                      name="mdi:pump"
+                      class="text-sm text-blue-500"
+                    />
+                  </div>
+                  <p class="mt-1 text-base font-semibold text-DarkBlue">
+                    {{
+                      item.dischargeInMinute
+                        ? (
+                            Number(item.dischargeInMinute) * 1.44
+                          ).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
                         : '0.00'
                     }}
                   </p>
@@ -382,6 +405,10 @@
             class="space-y-2 border-t border-gray-100 bg-gray-50 p-6 text-sm text-gray-600"
           >
             <p>* Q ( m³/min ) = Total discharge in the last minute</p>
+            <p>
+              * Q ( MLD ) = Total discharge in megaliters per day (1 m³/min =
+              1.44 MLD)
+            </p>
             <p>* Q ( m³/h ) = Total discharge in the last hour</p>
             <p>* Q ( m³/d ) = Total discharge in the last day</p>
             <p>* P ( m ) = Water pressure in the pipe</p>
@@ -474,6 +501,12 @@
       field: 'dischargeInMinute',
       unit: 'm³/min',
     },
+    {
+      header: 'Q *',
+      sortable: true,
+      field: 'megalitersPerDay',
+      unit: 'MLD',
+    },
     { header: 'Q *', sortable: true, field: 'dischargeInHour', unit: 'm³/h' },
     { header: 'Q *', sortable: true, field: 'dischargeInDay', unit: 'm³/d' },
     { header: 'P *', sortable: true, field: 'pressure', unit: 'm' },
@@ -524,6 +557,9 @@
           })
         : '-';
 
+      const dischargeInMinute = Number(item?.dischargeInMinute) || 0;
+      const megalitersPerDay = dischargeInMinute * 1.44;
+
       return {
         ...item,
         stationName: item?.station?.name,
@@ -539,6 +575,12 @@
         }),
         dischargeInMinute: item?.dischargeInMinute
           ? Number(item.dischargeInMinute).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '-',
+        megalitersPerDay: megalitersPerDay
+          ? megalitersPerDay.toLocaleString('en-US', {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })
