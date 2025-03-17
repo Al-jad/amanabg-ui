@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container px-4 py-8 mx-auto sm:px-2 lg:px-8">
+    <div class="container py-8 mx-auto">
       <div class="p-6 bg-white shadow-lg rounded-xl">
         <!-- Header Section -->
         <div
@@ -62,262 +62,260 @@
         </div>
 
         <!-- Cards Grid -->
-        <div class="grid grid-cols-1 gap-6 mb-12 sm:grid-cols-1 lg:grid-cols-3">
-          <template
-            v-for="item in filteredPipesData"
-            :key="item.stationId"
-          >
-            <!-- Station Card -->
+        <div class="grid grid-cols-1 gap-6 mb-12">
+          <!-- Station Cards -->
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- MLD Card -->
             <div
-              v-if="item.station.stationType === 0"
-              class="p-4 overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
-              @click="onCardClick(item)"
+              class="p-4 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
             >
-              <!-- Card Header - Made more compact -->
-              <div class="flex items-center justify-between mb-3">
+              <!-- Card Header -->
+              <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-2">
                   <div
-                    class="rounded-lg bg-blue-50 p-1.5 transition-colors duration-300 group-hover:bg-blue-100"
+                    class="rounded-lg bg-blue-50 p-1.5 group-hover:bg-blue-100"
                   >
                     <Icon
-                      name="fluent:pipeline-32-filled"
+                      name="fluent:water-16-filled"
                       class="text-lg text-blue-600"
                     />
                   </div>
                   <h3 class="font-semibold text-gray-800">
-                    {{ item.station.name }}
+                    Total Mega-Liters Per Day
                   </h3>
-                </div>
-                <div
-                  class="flex items-center gap-1.5 rounded-full bg-gray-50 px-2 py-0.5"
-                >
-                  <div
-                    :class="[
-                      'h-1.5 w-1.5 rounded-full',
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'animate-live-pulse bg-green-500'
-                        : 'bg-red-500',
-                    ]"
-                  ></div>
-                  <span
-                    class="text-xs font-medium"
-                    :class="[
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'text-green-700'
-                        : 'text-red-700',
-                    ]"
-                  >
-                    {{
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'Active'
-                        : 'Inactive'
-                    }}
-                  </span>
                 </div>
               </div>
 
-              <!-- Card Content - Made more compact -->
-              <div class="grid grid-cols-3 gap-2">
-                <div
-                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
-                >
+              <!-- Card Content -->
+              <div class="grid grid-cols-1 gap-3">
+                <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
                   <div class="flex items-center justify-between">
-                    <p class="text-xs font-medium text-gray-600">Q (m³/min)</p>
-                    <Icon
-                      name="mdi:pump"
-                      class="text-sm text-blue-500"
-                    />
+                    <p class="text-xs font-medium text-gray-600">MLD</p>
                   </div>
                   <p class="mt-1 text-base font-semibold text-DarkBlue">
-                    {{
-                      item.dischargeInMinute
-                        ? Number(item.dischargeInMinute).toLocaleString(
-                            'en-US',
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          )
-                        : '0.00'
-                    }}
-                  </p>
-                </div>
-                <div
-                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
-                >
-                  <div class="flex items-center justify-between">
-                    <p class="text-xs font-medium text-gray-600">Q (MLD)</p>
-                    <Icon
-                      name="mdi:pump"
-                      class="text-sm text-blue-500"
-                    />
-                  </div>
-                  <p class="mt-1 text-base font-semibold text-DarkBlue">
-                    {{
-                      item.dischargeInMinute
-                        ? (
-                            Number(item.dischargeInMinute) * 1.44
-                          ).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : '0.00'
-                    }}
-                  </p>
-                </div>
-                <div
-                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
-                >
-                  <div class="flex items-center justify-between">
-                    <p class="text-xs font-medium text-gray-600">P (m)</p>
-                    <Icon
-                      name="mdi:gauge"
-                      class="text-sm text-blue-500"
-                    />
-                  </div>
-                  <p class="mt-1 text-base font-semibold text-DarkBlue">
-                    {{
-                      item.pressure
-                        ? Number(item.pressure).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : '0.00'
-                    }}
+                    {{ totalMLD.split('.')[0] }}
                   </p>
                 </div>
               </div>
             </div>
 
-            <!-- Tank Card -->
-            <div
-              v-else
-              class="p-4 overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
-              @click="onCardClick(item)"
+            <template
+              v-for="item in filteredPipesData"
+              :key="item.stationId"
             >
-              <!-- Card Header - Made more compact -->
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <div
-                    class="rounded-lg bg-blue-50 p-1.5 transition-colors duration-300 group-hover:bg-blue-100"
-                  >
-                    <Icon
-                      name="material-symbols:water-damage-rounded"
-                      class="text-lg text-blue-600"
-                    />
+              <!-- Station Card -->
+              <div
+                v-if="item.station.stationType === 0"
+                class="p-4 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+                @click="onCardClick(item)"
+              >
+                <!-- Card Header -->
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="rounded-lg bg-blue-50 p-1.5 group-hover:bg-blue-100"
+                    >
+                      <Icon
+                        name="fluent:pipeline-32-filled"
+                        class="text-lg text-blue-600"
+                      />
+                    </div>
+                    <h3 class="font-semibold text-gray-800">
+                      {{ item.station.name }}
+                    </h3>
                   </div>
-                  <h3 class="font-semibold text-gray-800">
-                    {{ item.station.name }}
-                  </h3>
-                </div>
-                <div
-                  class="flex items-center gap-1.5 rounded-full bg-gray-50 px-2 py-0.5"
-                >
                   <div
-                    :class="[
-                      'h-1.5 w-1.5 rounded-full',
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'animate-live-pulse bg-green-500'
-                        : 'bg-red-500',
-                    ]"
-                  ></div>
-                  <span
-                    class="text-xs font-medium"
-                    :class="[
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'text-green-700'
-                        : 'text-red-700',
-                    ]"
+                    class="flex items-center gap-1.5 rounded-full bg-gray-50 px-2 py-0.5"
                   >
-                    {{
-                      new Date(item.timeStamp) >
-                      new Date(Date.now() - 10 * 60 * 1000)
-                        ? 'Active'
-                        : 'Inactive'
-                    }}
-                  </span>
+                    <div
+                      :class="[
+                        'h-1.5 w-1.5 rounded-full',
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'animate-live-pulse bg-green-500'
+                          : 'bg-red-500',
+                      ]"
+                    ></div>
+                    <span
+                      :class="[
+                        'text-xs font-medium',
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'text-green-700'
+                          : 'text-red-700',
+                      ]"
+                    >
+                      {{
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'Active'
+                          : 'Inactive'
+                      }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Card Content -->
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                    <div class="flex items-center justify-between">
+                      <p class="text-xs font-medium text-gray-600">
+                        Q (m³/min)
+                      </p>
+                    </div>
+                    <p class="mt-1 text-base font-semibold text-DarkBlue">
+                      {{
+                        item.dischargeInMinute
+                          ? Number(item.dischargeInMinute).toLocaleString(
+                              'en-US',
+                              {
+                                maximumFractionDigits: 0,
+                              }
+                            )
+                          : '0'
+                      }}
+                    </p>
+                  </div>
+                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                    <div class="flex items-center justify-between">
+                      <p class="text-xs font-medium text-gray-600">Q (MLD)</p>
+                    </div>
+                    <p class="mt-1 text-base font-semibold text-DarkBlue">
+                      {{
+                        item.dischargeInMinute
+                          ? (
+                              Number(item.dischargeInMinute) * 1.44
+                            ).toLocaleString('en-US', {
+                              maximumFractionDigits: 0,
+                            })
+                          : '0'
+                      }}
+                    </p>
+                  </div>
+                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                    <div class="flex items-center justify-between">
+                      <p class="text-xs font-medium text-gray-600">P (m)</p>
+                    </div>
+                    <p class="mt-1 text-base font-semibold text-DarkBlue">
+                      {{
+                        item.pressure
+                          ? Number(item.pressure).toLocaleString('en-US', {
+                              maximumFractionDigits: 0,
+                            })
+                          : '0'
+                      }}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <!-- Card Content - Made more compact -->
-              <div class="grid grid-cols-3 gap-2">
-                <div
-                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
-                >
-                  <div class="flex items-center justify-between">
-                    <p class="text-xs font-medium text-gray-600">WL (m)</p>
-                    <Icon
-                      name="mdi:water-percent"
-                      class="text-sm text-blue-500"
-                    />
+              <!-- Tank Card -->
+              <div
+                v-else
+                class="p-4 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+                @click="onCardClick(item)"
+              >
+                <!-- Card Header -->
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="rounded-lg bg-blue-50 p-1.5 group-hover:bg-blue-100"
+                    >
+                      <Icon
+                        name="material-symbols:water-damage-rounded"
+                        class="text-lg text-blue-600"
+                      />
+                    </div>
+                    <h3 class="font-semibold text-gray-800">
+                      {{ item.station.name }}
+                    </h3>
                   </div>
-                  <p class="mt-1 text-base font-semibold text-DarkBlue">
-                    {{
-                      item.waterLevel
-                        ? Number(item.waterLevel).toLocaleString('en-US', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : '0.00'
-                    }}
-                  </p>
+                  <div
+                    class="flex items-center gap-1.5 rounded-full bg-gray-50 px-2 py-0.5"
+                  >
+                    <div
+                      :class="[
+                        'h-1.5 w-1.5 rounded-full',
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'animate-live-pulse bg-green-500'
+                          : 'bg-red-500',
+                      ]"
+                    ></div>
+                    <span
+                      :class="[
+                        'text-xs font-medium',
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'text-green-700'
+                          : 'text-red-700',
+                      ]"
+                    >
+                      {{
+                        new Date(item.timeStamp) >
+                        new Date(Date.now() - 10 * 60 * 1000)
+                          ? 'Active'
+                          : 'Inactive'
+                      }}
+                    </span>
+                  </div>
                 </div>
-                <div
-                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
-                >
-                  <div class="flex items-center justify-between">
-                    <p class="text-xs font-medium text-gray-600">WL %</p>
-                    <Icon
-                      name="mdi:percent"
-                      class="text-sm text-blue-500"
-                    />
+
+                <!-- Card Content -->
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                    <div class="flex items-center justify-between">
+                      <p class="text-xs font-medium text-gray-600">WL (m)</p>
+                    </div>
+                    <p class="mt-1 text-base font-semibold text-DarkBlue">
+                      {{
+                        item.waterLevel
+                          ? Number(item.waterLevel).toLocaleString('en-US', {
+                              maximumFractionDigits: 0,
+                            })
+                          : '0'
+                      }}
+                    </p>
                   </div>
-                  <p class="mt-1 text-base font-semibold text-DarkBlue">
-                    {{
-                      item.waterLevel
-                        ? ((Number(item.waterLevel) / 6) * 100).toLocaleString(
-                            'en-US',
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          )
-                        : '0.00'
-                    }}%
-                  </p>
-                </div>
-                <div
-                  class="rounded-lg bg-gray-50 p-2.5 transition-colors duration-300 group-hover:bg-blue-50"
-                >
-                  <div class="flex items-center justify-between">
-                    <p class="text-xs font-medium text-gray-600">Vol. (m³)</p>
-                    <Icon
-                      name="mdi:cube-outline"
-                      class="text-sm text-blue-500"
-                    />
+                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                    <div class="flex items-center justify-between">
+                      <p class="text-xs font-medium text-gray-600">WL %</p>
+                    </div>
+                    <p class="mt-1 text-base font-semibold text-DarkBlue">
+                      {{
+                        item.waterLevel
+                          ? (
+                              (Number(item.waterLevel) / 6) *
+                              100
+                            ).toLocaleString('en-US', {
+                              maximumFractionDigits: 0,
+                            })
+                          : '0'
+                      }}%
+                    </p>
                   </div>
-                  <p class="mt-1 text-base font-semibold text-DarkBlue">
-                    {{
-                      item.waterLevel
-                        ? (Number(item.waterLevel) * 170 * 250).toLocaleString(
-                            'en-US',
-                            {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            }
-                          )
-                        : '0.00'
-                    }}
-                  </p>
+                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                    <div class="flex items-center justify-between">
+                      <p class="text-xs font-medium text-gray-600">Vol. (m³)</p>
+                    </div>
+                    <p class="mt-1 text-base font-semibold text-DarkBlue">
+                      {{
+                        item.waterLevel
+                          ? (
+                              Number(item.waterLevel) *
+                              170 *
+                              250
+                            ).toLocaleString('en-US', {
+                              maximumFractionDigits: 0,
+                            })
+                          : '0'
+                      }}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </template>
+            </template>
+          </div>
         </div>
 
         <!-- Table View -->
@@ -580,66 +578,60 @@
           }),
           dischargeInMinute: item?.dischargeInMinute
             ? Number(item.dischargeInMinute).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
           megalitersPerDay: megalitersPerDay
             ? megalitersPerDay.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
           dischargeInHour: item?.dischargeInHour
             ? Number(item.dischargeInHour).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
           dischargeInDay: item?.dischargeInDay
             ? Number(item.dischargeInDay).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
           pressure: item?.pressure
             ? Number(item.pressure).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
           waterLevel: waterLevel
             ? waterLevel.toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
-          waterLevelPercentage: `${waterLevelPercentage ? waterLevelPercentage : '-'}`,
+          waterLevelPercentage: waterLevel
+            ? `${((waterLevel / 6) * 100).toLocaleString('en-US', {
+                maximumFractionDigits: 0,
+              })}%`
+            : '-',
           totalVolume: totalVolume ? totalVolume : '-',
           temperature: item?.temperature
             ? Number(item.temperature).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
           cl: item?.cl
             ? Number(item.cl).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
           turbidity: item?.turbidity
             ? Number(item.turbidity).toLocaleString('en-US', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                maximumFractionDigits: 0,
               })
             : '-',
           tds: item?.electricConductivity
             ? (Number(item.electricConductivity) * 0.65).toLocaleString(
                 'en-US',
                 {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
+                  maximumFractionDigits: 0,
                 }
               )
             : '-',
@@ -660,6 +652,18 @@
         item.station.lng !== null
       );
     });
+  });
+
+  const totalMLD = computed(() => {
+    return formattedFilteredPipesData.value
+      .filter((item) => item?.stationId === 4 || item?.stationId === 5)
+      .reduce((sum, item) => {
+        const mld = Number(item.megalitersPerDay.replace(/,/g, '')) || 0;
+        return sum + mld;
+      }, 0)
+      .toLocaleString('en-US', {
+        maximumFractionDigits: 0,
+      });
   });
 
   const dataSource = ref('API');
