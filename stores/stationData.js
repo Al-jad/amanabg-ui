@@ -10,12 +10,12 @@ export const useStationStore = defineStore('station', {
     connectionLogs: [],
     connection: null,
     lastUpdate: null,
+    isConnected: false,
   }),
 
   persist: {
     paths: ['pipesData', 'lastUpdate'],
     afterRestore: (ctx) => {
-      // Rehydrate lastUpdate timestamp
       if (ctx.store.lastUpdate) {
         ctx.store.lastUpdate = new Date(ctx.store.lastUpdate).getTime();
       }
@@ -24,63 +24,97 @@ export const useStationStore = defineStore('station', {
 
   actions: {
     async connect() {
+      if (this.isConnected || this.isConnecting) {
+        return;
+      }
+
       this.isConnecting = true;
       this.error = '';
       this.connectionLogs = [];
 
       try {
+        if (this.connection) {
+          await this.connection.stop();
+        }
+
         this.connection = new HubConnectionBuilder()
           .withUrl('https://amanaapi.alfakharco.com/datahub', {
             transport: HttpTransportType.WebSockets,
           })
+          .withAutomaticReconnect([0, 2000, 5000, 10000])
           .build();
+
+        this.connection.on('ReceiveStationData', (station) => {
+          this.handleNewData(station);
+        });
+
+        this.connection.on('ReceiveLatestData', (data) => {
+          this.handleNewData(data);
+        });
+
+        this.connection.on('ReceiveData', (data) => {
+          this.handleNewData(data);
+        });
+
+        this.connection.on('UpdateData', (data) => {
+          this.handleNewData(data);
+        });
 
         this.connection.onclose(() => {
           this.connectionLogs.push('Connection closed');
+          this.isConnected = false;
         });
 
-        this.connection.on('ReceiveStationData', (station, latestPipesData) => {
-          // Only update if data is newer than what we have
-          if (
-            !this.lastUpdate ||
-            new Date(latestPipesData[0]?.timeStamp).getTime() > this.lastUpdate
-          ) {
-            this.stationData = station;
-            this.pipesData = latestPipesData;
-            this.lastUpdate = new Date().getTime();
-          }
+        this.connection.onreconnecting(() => {
+          this.connectionLogs.push('Reconnecting...');
+          this.isConnected = false;
+        });
+
+        this.connection.onreconnected(() => {
+          this.connectionLogs.push('Reconnected');
+          this.isConnected = true;
         });
 
         await this.connection.start();
         this.connectionLogs.push('Connected to SignalR hub');
+        this.isConnected = true;
       } catch (err) {
-        console.error('Error connecting to SignalR hub:', err);
         this.error = 'An error occurred. Please try again.';
         this.connectionLogs.push(`Error: ${err.message}`);
+        this.isConnected = false;
       } finally {
         this.isConnecting = false;
       }
     },
 
+    handleNewData(data) {
+      if (data && Array.isArray(data)) {
+        const validData = data.filter((item) => item && item.stationId);
+        if (validData.length > 0) {
+          this.pipesData = validData;
+          this.lastUpdate = new Date().getTime();
+          this.connectionLogs.push('Data updated');
+        }
+      }
+    },
+
     setPipesData(data) {
-      // Only update if data is newer than what we have
-      const newDataTimestamp = Array.isArray(data)
-        ? data[0]?.timeStamp
-        : data?.timeStamp;
-      if (
-        !this.lastUpdate ||
-        (newDataTimestamp &&
-          new Date(newDataTimestamp).getTime() > this.lastUpdate)
-      ) {
-        this.pipesData = Array.isArray(data) ? data : [data];
-        this.lastUpdate = new Date().getTime();
+      if (data && Array.isArray(data) && data.length > 0) {
+        const validData = data.filter((item) => item && item.stationId);
+        if (validData.length > 0) {
+          this.pipesData = validData;
+          this.lastUpdate = new Date().getTime();
+          this.connectionLogs.push('Pipes data updated via setPipesData');
+        } else {
+          this.pipesData = [];
+        }
+      } else {
+        this.pipesData = [];
       }
     },
 
     shouldRefreshData() {
       if (!this.lastUpdate) return true;
-
-      // Refresh if data is older than 1 minute
       const now = new Date().getTime();
       return now - this.lastUpdate > 60 * 1000;
     },

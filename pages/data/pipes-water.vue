@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8 sm:px-2 lg:px-8">
-      <div class="rounded-xl bg-white p-6 shadow-lg">
+    <div class="container px-4 py-8 mx-auto sm:px-2 lg:px-8">
+      <div class="p-6 bg-white shadow-lg rounded-xl">
         <!-- Header Section -->
         <div
-          class="mb-8 flex flex-col gap-6 sm:flex-col md:flex-row md:items-center md:justify-between"
+          class="flex flex-col gap-6 mb-8 sm:flex-col md:flex-row md:items-center md:justify-between"
         >
           <!-- Left Side -->
           <div class="flex flex-col items-start gap-4">
@@ -19,7 +19,7 @@
               <span class="font-medium">Back to Dashboard</span>
             </NuxtLink>
             <div class="flex items-center gap-3">
-              <div class="rounded-lg bg-blue-50 p-2">
+              <div class="p-2 rounded-lg bg-blue-50">
                 <Icon
                   name="fluent:water-16-filled"
                   class="text-2xl text-blue-600"
@@ -62,7 +62,7 @@
         </div>
 
         <!-- Cards Grid -->
-        <div class="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 mb-12 sm:grid-cols-1 lg:grid-cols-3">
           <template
             v-for="item in filteredPipesData"
             :key="item.stationId"
@@ -70,11 +70,11 @@
             <!-- Station Card -->
             <div
               v-if="item.station.stationType === 0"
-              class="group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+              class="p-4 overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
               @click="onCardClick(item)"
             >
               <!-- Card Header - Made more compact -->
-              <div class="mb-3 flex items-center justify-between">
+              <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
                   <div
                     class="rounded-lg bg-blue-50 p-1.5 transition-colors duration-300 group-hover:bg-blue-100"
@@ -195,11 +195,11 @@
             <!-- Tank Card -->
             <div
               v-else
-              class="group cursor-pointer overflow-hidden rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+              class="p-4 overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
               @click="onCardClick(item)"
             >
               <!-- Card Header - Made more compact -->
-              <div class="mb-3 flex items-center justify-between">
+              <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
                   <div
                     class="rounded-lg bg-blue-50 p-1.5 transition-colors duration-300 group-hover:bg-blue-100"
@@ -323,7 +323,7 @@
         <!-- Table View -->
         <div
           v-if="selectedView === 'Table'"
-          class="rounded-xl border border-gray-100 bg-white shadow-sm"
+          class="bg-white border border-gray-100 shadow-sm rounded-xl"
         >
           <Table
             v-if="!loading && filteredPipesData.length > 0"
@@ -342,7 +342,7 @@
           >
             <template #body-stationName="{ data }">
               <div class="flex items-center gap-2">
-                <div class="flex h-2 w-2 items-center">
+                <div class="flex items-center w-2 h-2">
                   <div
                     :class="[
                       'h-2 w-2 rounded-full',
@@ -366,7 +366,7 @@
                   :key="col.field"
                   class="p-4"
                 >
-                  <div class="h-4 animate-pulse rounded bg-gray-100"></div>
+                  <div class="h-4 bg-gray-100 rounded animate-pulse"></div>
                 </td>
               </tr>
             </template>
@@ -381,7 +381,7 @@
               <div
                 v-for="i in 5"
                 :key="i"
-                class="h-12 animate-pulse rounded-lg bg-gray-100"
+                class="h-12 bg-gray-100 rounded-lg animate-pulse"
               ></div>
             </div>
           </div>
@@ -402,7 +402,7 @@
 
           <!-- Table Legend -->
           <div
-            class="space-y-2 border-t border-gray-100 bg-gray-50 p-6 text-sm text-gray-600"
+            class="p-6 space-y-2 text-sm text-gray-600 border-t border-gray-100 bg-gray-50"
           >
             <p>* Q ( m³/min ) = Total discharge in the last minute</p>
             <p>
@@ -424,7 +424,7 @@
         <!-- Map View -->
         <div
           v-else-if="selectedView === 'Map'"
-          class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
+          class="p-6 bg-white border border-gray-100 shadow-sm rounded-xl"
         >
           <Map :stations="filteredMapStations" />
           <div
@@ -532,111 +532,120 @@
 
   const pipesData = computed(() => {
     const storePipesData = stationStore.pipesData;
-    return Array.isArray(storePipesData) ? storePipesData : [storePipesData];
+    return Array.isArray(storePipesData)
+      ? storePipesData.filter((item) => item && item.stationId)
+      : [];
   });
 
   const filteredPipesData = computed(() => {
     if (!selectedCity.value || selectedCity.value === 'All')
       return pipesData.value;
     return pipesData.value.filter(
-      (item) => item.station.city === selectedCity.value
+      (item) => item?.station?.city === selectedCity.value
     );
   });
 
   const formattedFilteredPipesData = computed(() => {
-    return filteredPipesData.value.map((item) => {
-      const date = new Date(item?.timeStamp);
-      const waterLevel = Number(item?.waterLevel) || 0;
-      const waterLevelPercentage = waterLevel
-        ? ((waterLevel / 6) * 100).toFixed(2)
-        : '-';
-      const totalVolume = waterLevel
-        ? (waterLevel * 170 * 250).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })
-        : '-';
+    return filteredPipesData.value
+      .map((item) => {
+        if (!item || !item.stationId) return null;
 
-      const dischargeInMinute = Number(item?.dischargeInMinute) || 0;
-      const megalitersPerDay = dischargeInMinute * 1.44;
+        const date = new Date(item?.timeStamp);
+        const waterLevel = Number(item?.waterLevel) || 0;
+        const waterLevelPercentage = waterLevel
+          ? ((waterLevel / 6) * 100).toFixed(2)
+          : '-';
+        const totalVolume = waterLevel
+          ? (waterLevel * 170 * 250).toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '-';
 
-      return {
-        ...item,
-        stationName: item?.station?.name,
-        stationCity: item?.station?.city,
-        originalTimeStamp: item?.timeStamp,
-        timeStamp: date.toLocaleString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        }),
-        dischargeInMinute: item?.dischargeInMinute
-          ? Number(item.dischargeInMinute).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        megalitersPerDay: megalitersPerDay
-          ? megalitersPerDay.toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        dischargeInHour: item?.dischargeInHour
-          ? Number(item.dischargeInHour).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        dischargeInDay: item?.dischargeInDay
-          ? Number(item.dischargeInDay).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        pressure: item?.pressure
-          ? Number(item.pressure).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        waterLevel: waterLevel
-          ? waterLevel.toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        waterLevelPercentage: `${waterLevelPercentage ? waterLevelPercentage : '-'}`,
-        totalVolume: totalVolume ? totalVolume : '-',
-        temperature: item?.temperature
-          ? Number(item.temperature).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        cl: item?.cl
-          ? Number(item.cl).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        turbidity: item?.turbidity
-          ? Number(item.turbidity).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-        tds: item?.electricConductivity
-          ? (Number(item.electricConductivity) * 0.65).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '-',
-      };
-    });
+        const dischargeInMinute = Number(item?.dischargeInMinute) || 0;
+        const megalitersPerDay = dischargeInMinute * 1.44;
+
+        return {
+          ...item,
+          stationName: item?.station?.name || '-',
+          stationCity: item?.station?.city || '-',
+          originalTimeStamp: item?.timeStamp,
+          timeStamp: date.toLocaleString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          }),
+          dischargeInMinute: item?.dischargeInMinute
+            ? Number(item.dischargeInMinute).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          megalitersPerDay: megalitersPerDay
+            ? megalitersPerDay.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          dischargeInHour: item?.dischargeInHour
+            ? Number(item.dischargeInHour).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          dischargeInDay: item?.dischargeInDay
+            ? Number(item.dischargeInDay).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          pressure: item?.pressure
+            ? Number(item.pressure).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          waterLevel: waterLevel
+            ? waterLevel.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          waterLevelPercentage: `${waterLevelPercentage ? waterLevelPercentage : '-'}`,
+          totalVolume: totalVolume ? totalVolume : '-',
+          temperature: item?.temperature
+            ? Number(item.temperature).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          cl: item?.cl
+            ? Number(item.cl).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          turbidity: item?.turbidity
+            ? Number(item.turbidity).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '-',
+          tds: item?.electricConductivity
+            ? (Number(item.electricConductivity) * 0.65).toLocaleString(
+                'en-US',
+                {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }
+              )
+            : '-',
+        };
+      })
+      .filter(Boolean); // Remove any null items
   });
 
   const filteredMapStations = computed(() => {
@@ -658,22 +667,15 @@
   const loading = ref(true);
 
   const fetchInitialData = async () => {
-    // Only fetch if we need to refresh the data
-    if (stationStore.shouldRefreshData()) {
-      loading.value = true;
-      try {
-        const { $axios } = useNuxtApp();
-        const { data } = await $axios.get('/Pipes/latest_data');
-        stationStore.setPipesData(data);
-        lastUpdated.value = new Date().toLocaleString();
-      } catch (error) {
-        console.error('Error fetching initial data:', error);
-      } finally {
-        loading.value = false;
-      }
-    } else {
-      // Use persisted data
-      lastUpdated.value = new Date(stationStore.lastUpdate).toLocaleString();
+    loading.value = true;
+    try {
+      const { $axios } = useNuxtApp();
+      const { data } = await $axios.get('/Pipes/latest_data');
+      stationStore.setPipesData(data);
+      lastUpdated.value = new Date().toLocaleString();
+    } catch (error) {
+      console.error('Error fetching initial data:', error);
+    } finally {
       loading.value = false;
     }
   };
@@ -695,9 +697,44 @@
       await fetchInitialData();
     }
 
-    // Always connect to WebSocket for real-time updates
-    stationStore.connect();
+    // Connect to WebSocket and handle updates
+    try {
+      if (!stationStore.isConnected) {
+        await stationStore.connect();
+      }
+
+      // Watch for store updates
+      watch(
+        () => stationStore.pipesData,
+        (newData) => {
+          if (newData && newData.length > 0) {
+            lastUpdated.value = new Date().toLocaleString();
+          }
+        },
+        { deep: true }
+      );
+
+      // Watch for connection state
+      watch(
+        () => stationStore.isConnected,
+        (isConnected) => {
+          if (!isConnected) {
+            stationStore.connect();
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Error initializing WebSocket:', error);
+      loading.value = false;
+    }
   };
+
+  // Clean up on component unmount
+  onUnmounted(() => {
+    if (stationStore.connection) {
+      stationStore.connection.stop();
+    }
+  });
 
   onMounted(async () => {
     await initializeComponent();
