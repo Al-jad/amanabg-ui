@@ -739,7 +739,10 @@
 
   // Clean up on component unmount
   onUnmounted(() => {
-    if (stationStore.connection) {
+    if (
+      stationStore.connection &&
+      typeof stationStore.connection.stop === 'function'
+    ) {
       stationStore.connection.stop();
     }
   });
