@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container py-8 mx-auto">
-      <div class="p-6 bg-white shadow-lg rounded-xl">
+    <div class="container mx-auto py-8">
+      <div class="rounded-xl bg-white p-6 shadow-lg">
         <!-- Header Section -->
         <div
-          class="flex flex-col gap-6 mb-8 sm:flex-col md:flex-row md:items-center md:justify-between"
+          class="mb-8 flex flex-col gap-6 sm:flex-col md:flex-row md:items-center md:justify-between"
         >
           <!-- Left Side -->
           <div class="flex flex-col items-start gap-4">
@@ -19,7 +19,7 @@
               <span class="font-medium">Back to Dashboard</span>
             </NuxtLink>
             <div class="flex items-center gap-3">
-              <div class="p-2 rounded-lg bg-blue-50">
+              <div class="rounded-lg bg-blue-50 p-2">
                 <Icon
                   name="fluent:water-16-filled"
                   class="text-2xl text-blue-600"
@@ -62,15 +62,15 @@
         </div>
 
         <!-- Cards Grid -->
-        <div class="grid grid-cols-1 gap-6 mb-12">
+        <div class="mb-12 grid grid-cols-1 gap-6">
           <!-- Station Cards -->
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-1 lg:grid-cols-4">
             <!-- MLD Card -->
             <div
-              class="p-4 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+              class="group cursor-pointer rounded-xl border border-gray-100 bg-white p-4 shadow-sm hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
             >
               <!-- Card Header -->
-              <div class="flex items-center justify-between mb-4">
+              <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div
                     class="rounded-lg bg-blue-50 p-1.5 group-hover:bg-blue-100"
@@ -88,7 +88,7 @@
 
               <!-- Card Content -->
               <div class="grid grid-cols-1 gap-3">
-                <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                <div class="rounded-lg bg-gray-50 p-3 group-hover:bg-blue-50">
                   <div class="flex items-center justify-between">
                     <p class="text-xs font-medium text-gray-600">MLD</p>
                   </div>
@@ -106,11 +106,11 @@
               <!-- Station Card -->
               <div
                 v-if="item.station.stationType === 0"
-                class="p-4 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+                class="group cursor-pointer rounded-xl border border-gray-100 bg-white p-4 shadow-sm hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
                 @click="onCardClick(item)"
               >
                 <!-- Card Header -->
-                <div class="flex items-center justify-between mb-4">
+                <div class="mb-4 flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <div
                       class="rounded-lg bg-blue-50 p-1.5 group-hover:bg-blue-100"
@@ -157,7 +157,7 @@
 
                 <!-- Card Content -->
                 <div class="grid grid-cols-3 gap-3">
-                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                  <div class="rounded-lg bg-gray-50 p-3 group-hover:bg-blue-50">
                     <div class="flex items-center justify-between">
                       <p class="text-xs font-medium text-gray-600">
                         Q (m³/min)
@@ -176,7 +176,7 @@
                       }}
                     </p>
                   </div>
-                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                  <div class="rounded-lg bg-gray-50 p-3 group-hover:bg-blue-50">
                     <div class="flex items-center justify-between">
                       <p class="text-xs font-medium text-gray-600">Q (MLD)</p>
                     </div>
@@ -192,7 +192,7 @@
                       }}
                     </p>
                   </div>
-                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                  <div class="rounded-lg bg-gray-50 p-3 group-hover:bg-blue-50">
                     <div class="flex items-center justify-between">
                       <p class="text-xs font-medium text-gray-600">P (m)</p>
                     </div>
@@ -212,11 +212,11 @@
               <!-- Tank Card -->
               <div
                 v-else
-                class="p-4 bg-white border border-gray-100 shadow-sm cursor-pointer group rounded-xl hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
+                class="group cursor-pointer rounded-xl border border-gray-100 bg-white p-4 shadow-sm hover:border-blue-200 hover:shadow-lg hover:shadow-blue-50"
                 @click="onCardClick(item)"
               >
                 <!-- Card Header -->
-                <div class="flex items-center justify-between mb-4">
+                <div class="mb-4 flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <div
                       class="rounded-lg bg-blue-50 p-1.5 group-hover:bg-blue-100"
@@ -263,7 +263,7 @@
 
                 <!-- Card Content -->
                 <div class="grid grid-cols-3 gap-3">
-                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                  <div class="rounded-lg bg-gray-50 p-3 group-hover:bg-blue-50">
                     <div class="flex items-center justify-between">
                       <p class="text-xs font-medium text-gray-600">WL (m)</p>
                     </div>
@@ -277,7 +277,7 @@
                       }}
                     </p>
                   </div>
-                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                  <div class="rounded-lg bg-gray-50 p-3 group-hover:bg-blue-50">
                     <div class="flex items-center justify-between">
                       <p class="text-xs font-medium text-gray-600">WL %</p>
                     </div>
@@ -294,7 +294,7 @@
                       }}%
                     </p>
                   </div>
-                  <div class="p-3 rounded-lg bg-gray-50 group-hover:bg-blue-50">
+                  <div class="rounded-lg bg-gray-50 p-3 group-hover:bg-blue-50">
                     <div class="flex items-center justify-between">
                       <p class="text-xs font-medium text-gray-600">Vol. (m³)</p>
                     </div>
@@ -344,7 +344,7 @@
           >
             <template #body-stationName="{ data }">
               <div class="flex items-center gap-2 whitespace-nowrap">
-                <div class="flex items-center w-2 h-2">
+                <div class="flex h-2 w-2 items-center">
                   <div
                     :class="[
                       'h-2 w-2 rounded-full',
@@ -368,7 +368,7 @@
                   :key="col.field"
                   class="p-4"
                 >
-                  <div class="h-4 bg-gray-100 rounded animate-pulse"></div>
+                  <div class="h-4 animate-pulse rounded bg-gray-100"></div>
                 </td>
               </tr>
             </template>
@@ -383,7 +383,7 @@
               <div
                 v-for="i in 5"
                 :key="i"
-                class="h-12 bg-gray-100 rounded-lg animate-pulse"
+                class="h-12 animate-pulse rounded-lg bg-gray-100"
               ></div>
             </div>
           </div>
@@ -404,7 +404,7 @@
 
           <!-- Table Legend -->
           <div
-            class="p-6 space-y-2 text-sm text-gray-600 border-t border-gray-100 bg-gray-50"
+            class="space-y-2 overflow-x-auto border-t border-gray-100 bg-gray-50 p-6 text-sm text-gray-600"
           >
             <p>* Q ( m³/min ) = Total discharge in the last minute</p>
             <p>
@@ -426,7 +426,7 @@
         <!-- Map View -->
         <div
           v-else-if="selectedView === 'Map'"
-          class="p-6 bg-white border border-gray-100 shadow-sm rounded-xl"
+          class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm"
         >
           <Map :stations="filteredMapStations" />
           <div
