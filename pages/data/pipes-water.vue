@@ -169,10 +169,12 @@
                           ? Number(item.dischargeInMinute).toLocaleString(
                               'en-US',
                               {
-                                maximumFractionDigits: 0,
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                                useGrouping: true,
                               }
                             )
-                          : '0'
+                          : '0.00'
                       }}
                     </p>
                   </div>
@@ -186,9 +188,11 @@
                           ? (
                               Number(item.dischargeInMinute) * 1.44
                             ).toLocaleString('en-US', {
-                              maximumFractionDigits: 0,
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                              useGrouping: true,
                             })
-                          : '0'
+                          : '0.00'
                       }}
                     </p>
                   </div>
@@ -200,9 +204,11 @@
                       {{
                         item.pressure
                           ? Number(item.pressure).toLocaleString('en-US', {
-                              maximumFractionDigits: 0,
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                              useGrouping: true,
                             })
-                          : '0'
+                          : '0.00'
                       }}
                     </p>
                   </div>
@@ -271,9 +277,11 @@
                       {{
                         item.waterLevel
                           ? Number(item.waterLevel).toLocaleString('en-US', {
-                              maximumFractionDigits: 0,
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                              useGrouping: true,
                             })
-                          : '0'
+                          : '0.00'
                       }}
                     </p>
                   </div>
@@ -288,9 +296,11 @@
                               (Number(item.waterLevel) / 6) *
                               100
                             ).toLocaleString('en-US', {
-                              maximumFractionDigits: 0,
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                              useGrouping: true,
                             })
-                          : '0'
+                          : '0.00'
                       }}%
                     </p>
                   </div>
@@ -306,9 +316,11 @@
                               170 *
                               250
                             ).toLocaleString('en-US', {
-                              maximumFractionDigits: 0,
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                              useGrouping: true,
                             })
-                          : '0'
+                          : '0.00'
                       }}
                     </p>
                   </div>
@@ -554,18 +566,26 @@
 
         const date = new Date(item?.timeStamp);
         const waterLevel = Number(item?.waterLevel) || 0;
+
+        // Format number helper function
+        const formatNumber = (num) => {
+          if (!num) return '-';
+          return Number(num).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true,
+          });
+        };
+
         const waterLevelPercentage = waterLevel
-          ? ((waterLevel / 6) * 100).toFixed(2)
+          ? `${formatNumber((waterLevel / 6) * 100)}%`
           : '-';
         const totalVolume = waterLevel
-          ? (waterLevel * 170 * 250).toLocaleString('en-US', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
+          ? formatNumber(waterLevel * 170 * 250)
           : '-';
 
         const dischargeInMinute = Number(item?.dischargeInMinute) || 0;
-        const megalitersPerDay = dischargeInMinute * 1.44;
+        const megalitersPerDay = formatNumber(dischargeInMinute * 1.44);
 
         return {
           ...item,
@@ -580,68 +600,23 @@
             minute: '2-digit',
             hour12: true,
           }),
-          dischargeInMinute: item?.dischargeInMinute
-            ? Number(item.dischargeInMinute).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          megalitersPerDay: megalitersPerDay
-            ? megalitersPerDay.toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          dischargeInHour: item?.dischargeInHour
-            ? Number(item.dischargeInHour).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          dischargeInDay: item?.dischargeInDay
-            ? Number(item.dischargeInDay).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          pressure: item?.pressure
-            ? Number(item.pressure).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          waterLevel: waterLevel
-            ? waterLevel.toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          waterLevelPercentage: waterLevel
-            ? `${((waterLevel / 6) * 100).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })}%`
-            : '-',
-          totalVolume: totalVolume ? totalVolume : '-',
-          temperature: item?.temperature
-            ? Number(item.temperature).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          cl: item?.cl
-            ? Number(item.cl).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          turbidity: item?.turbidity
-            ? Number(item.turbidity).toLocaleString('en-US', {
-                maximumFractionDigits: 0,
-              })
-            : '-',
-          tds: item?.electricConductivity
-            ? (Number(item.electricConductivity) * 0.65).toLocaleString(
-                'en-US',
-                {
-                  maximumFractionDigits: 0,
-                }
-              )
-            : '-',
+          dischargeInMinute: formatNumber(item?.dischargeInMinute),
+          megalitersPerDay: megalitersPerDay || '-',
+          dischargeInHour: formatNumber(item?.dischargeInHour),
+          dischargeInDay: formatNumber(item?.dischargeInDay),
+          pressure: formatNumber(item?.pressure),
+          waterLevel: formatNumber(waterLevel),
+          waterLevelPercentage: waterLevelPercentage,
+          totalVolume: totalVolume || '-',
+          temperature: formatNumber(item?.temperature),
+          cl: formatNumber(item?.cl),
+          turbidity: formatNumber(item?.turbidity),
+          tds: formatNumber(
+            item?.electricConductivity ? item.electricConductivity * 0.65 : null
+          ),
         };
       })
-      .filter(Boolean); // Remove any null items
+      .filter(Boolean);
   });
 
   const filteredMapStations = computed(() => {

@@ -53,11 +53,9 @@ export default defineNuxtPlugin((nuxtApp) => {
       const status = error.response?.status;
       console.log('Response Status:', status);
 
-      if (
-        (status === 401 || status === 403) &&
-        !error.config.url?.includes('/Auth/login')
-      ) {
-        console.log('Auth error detected:', status);
+      // Handle 401 errors (except for login endpoint)
+      if (status === 401 && !error.config.url?.includes('/Auth/login')) {
+        console.log('Unauthorized access detected (401)');
         const authStore = useAuthStore();
         authStore.handleUnauthorized();
       }
