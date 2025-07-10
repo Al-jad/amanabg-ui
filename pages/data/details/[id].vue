@@ -943,14 +943,14 @@
       link.setAttribute('href', url);
       link.setAttribute(
         'download',
-        `${stationName.value.replace(/[^a-zA-Z0-9-_]/g, '_')}_${new Date(fromDate.value).toISOString().split('T')[0]}_to_${new Date(toDate.value).toISOString().split('T')[0]}.csv`
+        `${localStorage.getItem('stationName')}_from_${new Date(fromDate.value).getDate()}/${new Date(fromDate.value).getMonth() + 1}/${new Date(fromDate.value).getFullYear()}_to_${new Date(toDate.value).getDate()}/${new Date(toDate.value).getMonth() + 1}/${new Date(toDate.value).getFullYear()}.csv`
       );
       link.style.visibility = 'hidden';
 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url); // Clean up the URL object
+      URL.revokeObjectURL(url);
     } finally {
       isExporting.value = false;
     }
