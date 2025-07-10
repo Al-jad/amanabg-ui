@@ -278,7 +278,42 @@
               </tr>
             </template>
           </Table>
-          <div class="mt-4 flex justify-end">
+          <div class="mt-4 flex justify-end gap-4">
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-gray-600">Sort Order:</label>
+              <div class="flex flex-row gap-4 rounded-lg bg-gray-100">
+                <Button
+                  :class="[
+                    '!border !border-DarkBlue !px-4 !py-2',
+                    exportSortOrder === 'asc'
+                      ? '!bg-DarkBlue !text-white'
+                      : '!bg-gray-100 !text-DarkBlue',
+                  ]"
+                  @click="exportSortOrder = 'asc'"
+                >
+                  <Icon
+                    name="mdi:sort-ascending"
+                    class="text-lg"
+                  />
+                  <span class="ml-1">Ascending</span>
+                </Button>
+                <Button
+                  :class="[
+                    '!border !border-DarkBlue !px-4 !py-2',
+                    exportSortOrder === 'desc'
+                      ? '!bg-DarkBlue !text-white'
+                      : '!bg-gray-100 !text-DarkBlue',
+                  ]"
+                  @click="exportSortOrder = 'desc'"
+                >
+                  <Icon
+                    name="mdi:sort-descending"
+                    class="text-lg"
+                  />
+                  <span class="ml-1">Descending</span>
+                </Button>
+              </div>
+            </div>
             <Button
               :disabled="isExporting"
               class="!h-10 !border-none !bg-emerald-800 !px-4 !py-4 !text-white disabled:!opacity-50"
@@ -831,6 +866,7 @@
     });
   });
   const isExporting = ref(false);
+  const exportSortOrder = ref('asc');
 
   const formatDateTime = (date) => {
     try {
@@ -863,7 +899,7 @@
       if (!data || data.length === 0) return;
 
       // Process the complete dataset with the same transformations as filteredData
-      const processedData = data.map((item) => {
+      let processedData = data.map((item) => {
         const date = new Date(item.date);
         const formattedDateTime = date.toLocaleString('en-GB', {
           day: '2-digit',
@@ -876,6 +912,7 @@
 
         return {
           dateTime: formattedDateTime,
+          date: date, // Add raw date for sorting
           discharge: item.discharge
             ? Number(item.discharge).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
@@ -927,6 +964,18 @@
         };
       });
 
+      // Sort the data based on the selected sort order
+      processedData.sort((a, b) => {
+        const sortMultiplier = exportSortOrder.value === 'asc' ? 1 : -1;
+        return (a.date - b.date) * sortMultiplier;
+      });
+
+      // Remove the raw date field before CSV conversion
+      processedData = processedData.map((item) => {
+        const { date, ...rest } = item;
+        return rest;
+      });
+
       // Convert to CSV format using the processed data
       const csv = Papa.unparse({
         fields: columns.value.map((col) => col.header),
@@ -943,7 +992,7 @@
       link.setAttribute('href', url);
       link.setAttribute(
         'download',
-        `${localStorage.getItem('stationName')}_from_${new Date(fromDate.value).getDate()}/${new Date(fromDate.value).getMonth() + 1}/${new Date(fromDate.value).getFullYear()}_to_${new Date(toDate.value).getDate()}/${new Date(toDate.value).getMonth() + 1}/${new Date(toDate.value).getFullYear()}.csv`
+        `${localStorage.getItem('stationName')}_from_${new Date(fromDate.value).getDate()}/${new Date(fromDate.value).getMonth() + 1}/${new Date(fromDate.value).getFullYear()}_to_${new Date(toDate.value).getDate()}/${new Date(toDate.value).getMonth() + 1}/${new Date(toDate.value).getFullYear()}_${exportSortOrder.value}.csv`
       );
       link.style.visibility = 'hidden';
 
